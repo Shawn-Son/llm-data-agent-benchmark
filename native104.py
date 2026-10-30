@@ -230,6 +230,8 @@ def main():
 if __name__=='__main__':
     if '--submit' in sys.argv:
         script=PROJECT/'slurm/native104.sbatch'
-        script.write_text('#!/bin/bash\n#SBATCH --job-name=terra-native104\n#SBATCH --account=cse584f26_class\n#SBATCH --partition=standard\n#SBATCH --cpus-per-task=6\n#SBATCH --mem=32G\n#SBATCH --time=08:00:00\n#SBATCH --output=/home/minhyeok/llm-data-agent-benchmark/strict-status/native104-%j.log\nset -euo pipefail\nmodule load python/3.12.1 singularity\ncd /home/minhyeok/llm-data-agent-benchmark\nstrict/.venv/bin/python -u native104.py --execute\n')
+        script.parent.mkdir(parents=True,exist_ok=True)
+        (PROJECT/'strict-status').mkdir(exist_ok=True)
+        script.write_text('#!/bin/bash\n#SBATCH --job-name=terra-native104\n#SBATCH --account=cse584f26_class\n#SBATCH --partition=standard\n#SBATCH --cpus-per-task=6\n#SBATCH --mem=32G\n#SBATCH --time=08:00:00\n#SBATCH --output=/home/minhyeok/llm-data-agent-benchmark/strict-status/native104-%j.log\nset -euo pipefail\nmodule load python/3.12.1 singularity\ncd /home/minhyeok/llm-data-agent-benchmark\nstrict/.venv/bin/python -u native104.py --execute\nstrict/.venv/bin/python -u finalize104.py\n')
         subprocess.run(['sbatch',str(script)],check=True)
     else:main()
