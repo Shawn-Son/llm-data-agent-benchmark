@@ -1,0 +1,10 @@
+{
+  "path": "/home/minhyeok/dab-archives/terra-native-104x1.tar.gz",
+  "sha256": "4c2135f695e9ca03bd1d35e109465bbb1ba91ba5fea435aac9834b219abb8b00",
+  "bytes": 484033085,
+  "files": 50017,
+  "coverage": 104,
+  "datasets": 17,
+  "data_included": false,
+  "full_trajectories_included": true
+}
