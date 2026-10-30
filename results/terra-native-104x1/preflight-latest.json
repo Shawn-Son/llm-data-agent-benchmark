@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "stdout": "NATIVE_ISOLATION_AND_NETWORK_OK\n",
+  "stderr": "",
+  "returncode": 0,
+  "binary_sha256": "b8a11fedf24b2dfb59a70c9e52b030f9a508dcd49cd2dd0d41956f4c785156b8",
+  "version": "codex-cli 0.166.0",
+  "config": "model_provider = \"toolkit\"\nmodel = \"gpt-5.6-terra\"\nweb_search = \"disabled\"\ndefault_permissions = \"dab\"\n[features]\nuse_linux_sandbox_bwrap = true\nshell_snapshot = false\nnetwork_proxy = true\n[model_providers.toolkit]\nname = \"UM GPT Toolkit\"\nbase_url = \"https://api.toolkit.umgpt.umich.edu/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = true\n[permissions.dab.filesystem]\n\"/home/minhyeok/.codex/packages/standalone/releases/0.166.0-x86_64-unknown-linux-musl/bin\" = \"read\"\n\":minimal\" = \"read\"\n\"/home/minhyeok/dab-artifacts/terra-native-104x1/preflight/20261030T000246/work\" = \"write\"\n\"/home/minhyeok/llm-data-agent-benchmark/strict/.venv\" = \"read\"\n\"/sw/pkgs/arc/python/3.12.1\" = \"read\"\n\"/sw\" = \"read\"\n\"/etc\" = \"read\"\n\"/usr\" = \"read\"\n\"/lib\" = \"read\"\n\"/lib64\" = \"read\"\n\"/bin\" = \"read\"\n\"/sbin\" = \"read\"\n\"/home/minhyeok/dab-reproduction/query_stockindex/query_dataset\" = \"read\"\n[permissions.dab.network]\nenabled = true\ndangerously_allow_all_unix_sockets = true\nallow_upstream_proxy = false\n[permissions.dab.network.domains]\n",
+  "inference_calls": 0
+}
