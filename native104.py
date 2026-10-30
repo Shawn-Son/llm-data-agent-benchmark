@@ -26,11 +26,11 @@ def setup(folder,dataset,sockets):
     if data.exists():rules[str(data)]='read'
     if sockets:rules[str(sockets)]='read'
     config='model_provider = "toolkit"\nmodel = "'+MODEL+'"\nweb_search = "disabled"\ndefault_permissions = "dab"\n'
-    config+='[features]\nuse_linux_sandbox_bwrap = true\nshell_snapshot = false\n'
+    config+='[features]\nuse_linux_sandbox_bwrap = true\nshell_snapshot = false\nnetwork_proxy = true\n'
     config+='[model_providers.toolkit]\nname = "UM GPT Toolkit"\nbase_url = "https://api.toolkit.umgpt.umich.edu/v1"\nwire_api = "responses"\nrequires_openai_auth = true\n'
     config+='[permissions.dab.filesystem]\n'
     config+=''.join(json.dumps(k)+' = '+json.dumps(v)+'\n' for k,v in rules.items())
-    config+='[permissions.dab.network]\nenabled = false\n'
+    config+='[permissions.dab.network]\nenabled = true\ndangerously_allow_all_unix_sockets = true\nallow_upstream_proxy = false\n[permissions.dab.network.domains]\n'
     (home/'config.toml').write_text(config)
     env=os.environ.copy()
     env.update(CODEX_HOME=str(home),TMPDIR=str(tmp),PYTHONPATH=str(PROJECT/'strict/.venv/lib/python3.12/site-packages'),
@@ -58,7 +58,7 @@ try: pathlib.Path(OUTSIDE).write_text('changed')
 except (PermissionError,FileNotFoundError): pass
 else: pass # hidden parent may be an ephemeral sandbox directory
 try: socket.create_connection(('1.1.1.1',443),3)
-except OSError as e: assert e.errno in (errno.EPERM,errno.EACCES),repr(e)
+except OSError as e: assert e.errno in (errno.EPERM,errno.EACCES,errno.ENETUNREACH),repr(e)
 else: raise AssertionError('Network not blocked')
 print('NATIVE_ISOLATION_AND_NETWORK_OK')
 """.replace('BLOCKED',repr([str(blocked),str(outside),'/home/minhyeok/.config/dab/key'])).replace('OUTSIDE',repr(str(outside)))
@@ -83,7 +83,7 @@ def one(ds,qid,sockets,pf):
     cmd=[str(BIN),'-C',str(work),'--ask-for-approval','never','exec','--json','--skip-git-repo-check',
          '--model',MODEL,'--output-last-message',str(answer),'-']
     record={'model':MODEL,'dataset':ds,'query':qid,'trial':0,'condition':'description+hints',
-            'upstream_commit':PIN,'harness':'native Codex CLI 0.166.0','harness_reconstruction':True,
+            'upstream_commit':PIN,'harness':'native Codex CLI 0.166.0','harness_reconstruction':True,'sandbox_revision':'unix-proxy-v2',
             'binary_sha256':pf['binary_sha256'],'prompt_sha256':digest(folder/'prompt.txt'),
             'status':'running','passed':None,'slurm_job_id':os.getenv('SLURM_JOB_ID'),
             'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}
@@ -148,7 +148,54 @@ def services(project,root,rt):
  run(mb+['mongosh','mongodb://'+urllib.parse.quote(str(sock/'mongodb-27017.sock'),safe=''),'--quiet','--eval',script])
  run(mb+['mongod','--dbpath',str(mdata),'--shutdown'])
  run(mb+['mongod','--dbpath',str(mdata),'--unixSocketPrefix',str(sock),'--bind_ip','127.0.0.1','--port','27017','--auth','--fork','--logpath',str(rt/'mongo.log')])
+ (pgdata/'pg_hba.conf').write_text('local all dab_readonly trust\nlocal all all reject\n')
+ run(pgbase+['/usr/lib/postgresql/17/bin/pg_ctl','-D',str(pgdata),'reload'])
+ time.sleep(1)
  return sock
+
+def database_preflight(sockets):
+    folder=OUT/'database-preflight'
+    work,home,env=setup(folder,'stockindex',sockets)
+    specs={}
+    for ds in sorted({d for d,q in all_tasks(ROOT)}):
+        cfg=yaml.safe_load((ROOT/f'query_{ds}/db_config.yaml').read_text())['db_clients']
+        for c in cfg.values():
+            if c['db_type'] in ('postgres','mongo'):
+                specs[(c['db_type'],c['db_name'])]=True
+    code="""import json,os,psycopg2,pymongo,socket,errno
+checks=[]
+for kind,name in SPECS:
+    if kind=='postgres':
+        c=psycopg2.connect(dbname=name,host=os.environ['PGHOST'],user='dab_readonly',connect_timeout=5)
+        with c.cursor() as q:
+            q.execute('SHOW default_transaction_read_only');assert q.fetchone()[0]=='on'
+            q.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
+            checks.append({'kind':kind,'database':name,'tables':q.fetchone()[0]})
+        c.close()
+    else:
+        c=pymongo.MongoClient(os.environ['MONGO_URI'],serverSelectionTimeoutMS=5000)
+        cols=c[name].list_collection_names();assert cols
+        counts={col:c[name][col].count_documents({}) for col in cols}
+        checks.append({'kind':kind,'database':name,'documents':counts})
+        c.close()
+try: psycopg2.connect(dbname='postgres',host=os.environ['PGHOST'],user='postgres',connect_timeout=5)
+except psycopg2.OperationalError: pass
+else: raise AssertionError('Administrative PostgreSQL role exposed')
+c=pymongo.MongoClient(os.environ['MONGO_URI'],serverSelectionTimeoutMS=5000)
+try:c['dab_permission_probe']['probe'].insert_one({'forbidden':True})
+except pymongo.errors.OperationFailure as e:assert e.code==13
+else:raise AssertionError('Mongo user can write')
+try:socket.create_connection(('1.1.1.1',443),3)
+except OSError as e:assert e.errno in (errno.EPERM,errno.EACCES,errno.ENETUNREACH)
+else:raise AssertionError('External tool network allowed')
+print(json.dumps(checks))
+""".replace('SPECS',repr(list(specs)))
+    r=subprocess.run([str(BIN),'-C',str(work),'sandbox','--',sys.executable,'-c',code],cwd=work,env=env,capture_output=True,text=True,timeout=120)
+    result={'passed':r.returncode==0,'stdout':r.stdout,'stderr':r.stderr,'returncode':r.returncode,'inference_calls':0}
+    write(OUT/'database-preflight.json',result)
+    print('DATABASE_PREFLIGHT',json.dumps(result),flush=True)
+    assert result['passed'],'Database access/read-only/network preflight failed'
+    return result
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--execute',action='store_true');args=parser.parse_args()
@@ -158,7 +205,7 @@ def main():
     if not args.execute:return
     tasks=all_tasks(ROOT);assert len(tasks)==104
     write(OUT/'protocol.json',{'model':MODEL,'tasks':tasks,'trials_per_query':1,'upstream_commit':PIN,
-          'condition':'description+hints','cli_version':'0.166.0','sandbox':'native bubblewrap',
+          'condition':'description+hints','cli_version':'0.166.0','sandbox':'native bubblewrap with managed deny-by-default network proxy and filesystem-scoped Unix sockets','concurrency':6,'sandbox_revision':'unix-proxy-v2',
           'boundary':'Reconstructed Codex harness; not authors exact native driver. Original tasks and graders unchanged.',
           'cost_note':'Token usage retained. Billing estimate unavailable until pricing verified.'})
     pilot=one('stockindex',1,None,pf)
@@ -169,7 +216,8 @@ def main():
     m=json.loads(manifest.read_text());assert len(m['queries'])==104 and all(x['verified'] for x in m['files'])
     runtime=Path(os.environ.get('SLURM_TMPDIR','/tmp'))/('dab-native-services-'+os.environ['SLURM_JOB_ID'])
     sockets=services(PROJECT,ROOT,runtime)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    database_preflight(sockets)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         futures=[pool.submit(one,d,q,sockets,pf) for d,q in tasks if (d,q)!=('stockindex',1)]
         for f in concurrent.futures.as_completed(futures):f.result()
     summary=generate(OUT)
