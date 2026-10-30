@@ -1,0 +1,167 @@
+{
+  "rule": "Exclude every attempted server-backed task regardless of score, plus interrupted tasks. Retain completed file-only tasks. No answer-based selection.",
+  "attempts": [
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query1"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": "query2",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query2"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": "query3",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query3"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PATENTS/query1"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": "query2",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PATENTS/query2"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": "query3",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/PATENTS/query3"
+    },
+    {
+      "dataset": "agnews",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/agnews/query1"
+    },
+    {
+      "dataset": "agnews",
+      "query": "query2",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/agnews/query2"
+    },
+    {
+      "dataset": "agnews",
+      "query": "query3",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/agnews/query3"
+    },
+    {
+      "dataset": "agnews",
+      "query": "query4",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/agnews/query4"
+    },
+    {
+      "dataset": "bookreview",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/bookreview/query1"
+    },
+    {
+      "dataset": "bookreview",
+      "query": "query2",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/bookreview/query2"
+    },
+    {
+      "dataset": "bookreview",
+      "query": "query3",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/bookreview/query3"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query1"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query10",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query10"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query2",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query2"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query3",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query3"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query4",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query4"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query5",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query5"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query6",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query6"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query7",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query7"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query8",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query8"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": "query9",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/civic_unstructured/query9"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": "query1",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/crmarenapro/query1"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": "query10",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/crmarenapro/query10"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": "query11",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/crmarenapro/query11"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": "query12",
+      "reason": "Server-backed dataset under blocked socket policy",
+      "location": "excluded-attempts/unix-socket-blocked/crmarenapro/query12"
+    }
+  ]
+}
