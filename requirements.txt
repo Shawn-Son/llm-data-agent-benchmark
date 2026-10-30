@@ -1,0 +1,8 @@
+PyYAML==6.0.3
+huggingface-hub>=0.23,<2
+pandas>=2.2,<3
+pyarrow>=17,<23
+duckdb>=1.2,<2
+psycopg2-binary>=2.9,<3
+pymongo>=4.10,<5
+python-dotenv>=1,<2
