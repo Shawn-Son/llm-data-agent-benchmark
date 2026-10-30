@@ -56,11 +56,13 @@ packages={d.metadata['Name']:d.version for d in importlib.metadata.distributions
 write(OUT/'runtime-packages.json',{'python':sys.version,'packages':dict(sorted(packages.items()))})
 write(OUT/'runtime-images.json',{'images':{n:{'sha256':digest(PROJECT/'runtime'/n),'bytes':(PROJECT/'runtime'/n).stat().st_size} for n in ['postgres17.sif','mongo8.sif']},'singularity':subprocess.check_output(['singularity','--version'],text=True).strip()})
 source=OUT/'source-snapshot';source.mkdir(exist_ok=True)
-for rel in ['native104.py','finalize104.py','codex104/run.py','codex104/preflight.py','codex104/report.py','codex104/test_protocol.py','dabbench/data.py','dabbench/core.py','requirements.txt','bootstrap.sh','HARNESS_CORRECTION.md']:
+for rel in ['native104.py','finalize104.py','codex104/run.py','codex104/preflight.py','codex104/report.py','codex104/test_protocol.py','dabbench/data.py','dabbench/core.py','requirements.txt','bootstrap.sh','HARNESS_CORRECTION.md','README.md','review-notes.json']:
  dest=source/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(PROJECT/rel,dest)
 for ds,q in sorted(expected):
  d=ROOT/('query_'+ds);dest=OUT/'original-task-snapshot'/('query_'+ds)/('query'+str(q));dest.mkdir(parents=True,exist_ok=True)
- for n in ['query.json','validate.py']:shutil.copyfile(d/('query'+str(q))/n,dest/n)
+ for n in ['query.json','validate.py','ground_truth.csv']:
+  original=d/('query'+str(q))/n
+  if original.exists():shutil.copyfile(original,dest/n)
  for n in ['db_description.txt','db_description_withhint.txt','db_config.yaml']:shutil.copyfile(d/n,dest.parent/n)
 
 test_log=(PROJECT/'strict-status/review104-65052546.log').read_text()
