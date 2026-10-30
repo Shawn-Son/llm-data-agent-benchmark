@@ -1,0 +1,868 @@
+{
+  "upstream_commit": "61fb21e0766d775acae443f6074f5d498e95f938",
+  "datasets": [
+    "DEPS_DEV_V1",
+    "GITHUB_REPOS",
+    "PANCANCER_ATLAS",
+    "PATENTS",
+    "agnews",
+    "bookreview",
+    "civic_unstructured",
+    "crmarenapro",
+    "cve",
+    "googlelocal",
+    "imdb",
+    "krama",
+    "music_brainz_20k",
+    "stockindex",
+    "stockmarket",
+    "usaspending",
+    "yelp"
+  ],
+  "files": [
+    {
+      "path": "query_DEPS_DEV_V1/query_dataset/package_query.db",
+      "verified": true,
+      "sha256": "6676259f784aa89aec838a3e4a74bc68793085e49520c819b2356205a6eaf68a",
+      "expected_sha256": "6676259f784aa89aec838a3e4a74bc68793085e49520c819b2356205a6eaf68a",
+      "size": 538877952
+    },
+    {
+      "path": "query_DEPS_DEV_V1/query_dataset/project_query.db",
+      "verified": true,
+      "sha256": "e6b171594cbb8dbb5298b54206b235a396b0eee9dd8c2c68deefab8d76c72e6a",
+      "expected_sha256": "e6b171594cbb8dbb5298b54206b235a396b0eee9dd8c2c68deefab8d76c72e6a",
+      "size": 11022336
+    },
+    {
+      "path": "query_GITHUB_REPOS/query_dataset/repo_artifacts.db",
+      "verified": true,
+      "sha256": "d514c66eb07403f79b8da2ff6a79a6c82f2d862cadaf71d536ea58644cd07bbc",
+      "expected_sha256": "d514c66eb07403f79b8da2ff6a79a6c82f2d862cadaf71d536ea58644cd07bbc",
+      "size": 361246720
+    },
+    {
+      "path": "query_GITHUB_REPOS/query_dataset/repo_metadata.db",
+      "verified": true,
+      "sha256": "e9b71beb5d7e2b344f996baf19fb34231c24ab354019d65bd14a1cbfc62c67a1",
+      "expected_sha256": "e9b71beb5d7e2b344f996baf19fb34231c24ab354019d65bd14a1cbfc62c67a1",
+      "size": 567222272
+    },
+    {
+      "path": "query_PANCANCER_ATLAS/query_dataset/pancancer_clinical.sql",
+      "verified": true,
+      "sha256": "ce57356f7a0f72e1c43a1fc2083d46293991645cbce2f6f237c731bf4035fdd6",
+      "expected_sha256": "ce57356f7a0f72e1c43a1fc2083d46293991645cbce2f6f237c731bf4035fdd6",
+      "size": 7555304
+    },
+    {
+      "path": "query_PANCANCER_ATLAS/query_dataset/pancancer_molecular.db",
+      "verified": true,
+      "sha256": "7e1131c386014ea8bdd528d2fd040a85f6891dd9e46e8dc18947f7a712cf8610",
+      "expected_sha256": "7e1131c386014ea8bdd528d2fd040a85f6891dd9e46e8dc18947f7a712cf8610",
+      "size": 293875712
+    },
+    {
+      "path": "query_PATENTS/query_dataset/patent_CPCDefinition.sql",
+      "verified": true,
+      "sha256": "f888382228bf87538744194ca2ea1be126c316423d6d10e35e7d4ec226da0144",
+      "expected_sha256": "f888382228bf87538744194ca2ea1be126c316423d6d10e35e7d4ec226da0144",
+      "size": 135238448
+    },
+    {
+      "path": "query_PATENTS/query_dataset/patent_publication.db",
+      "verified": true,
+      "sha256": "1e22b92b9849b3f7a07dcf89075f37787c84feacb0cdbc7b4bd96ae4fa88071c",
+      "expected_sha256": "1e22b92b9849b3f7a07dcf89075f37787c84feacb0cdbc7b4bd96ae4fa88071c",
+      "size": 5421027328
+    },
+    {
+      "path": "query_agnews/query_dataset/agnews_articles/articles_db/articles.bson",
+      "verified": true,
+      "sha256": "ad74220284cb2737273f5b6a9e6c2c1e34374a232db1072a5842f82f8a539488",
+      "expected_sha256": null,
+      "size": 36545577
+    },
+    {
+      "path": "query_agnews/query_dataset/metadata.db",
+      "verified": true,
+      "sha256": "30cfb96d29b4e49c5f6ae6e5cb2c754d98e118a183ddd57ae44ee3564aeb1955",
+      "expected_sha256": "30cfb96d29b4e49c5f6ae6e5cb2c754d98e118a183ddd57ae44ee3564aeb1955",
+      "size": 4046848
+    },
+    {
+      "path": "query_bookreview/query_dataset/books_info.sql",
+      "verified": true,
+      "sha256": "80acb3ece574f26b634107c9c553dc5ab0c95ca11f6b226c9602dff9465393d9",
+      "expected_sha256": "80acb3ece574f26b634107c9c553dc5ab0c95ca11f6b226c9602dff9465393d9",
+      "size": 649048
+    },
+    {
+      "path": "query_bookreview/query_dataset/review_query.db",
+      "verified": true,
+      "sha256": "01f07a5894f058613374694a8f46d19341bf1fa316367494d019191e772b3e2c",
+      "expected_sha256": "01f07a5894f058613374694a8f46d19341bf1fa316367494d019191e772b3e2c",
+      "size": 1093632
+    },
+    {
+      "path": "query_civic_unstructured/query_dataset/civic_docs_dump/civic_db/civic_docs.bson",
+      "verified": true,
+      "sha256": "57fd5ff32b81478b696b6af7583dfd64744c01b3ed6bf112b3f8ee00c2e45bce",
+      "expected_sha256": "57fd5ff32b81478b696b6af7583dfd64744c01b3ed6bf112b3f8ee00c2e45bce",
+      "size": 237654
+    },
+    {
+      "path": "query_civic_unstructured/query_dataset/funding.db",
+      "verified": true,
+      "sha256": "7e2e209f30c79917882db69ef379e0d4f58be23e7117e6caf14c31ebdbbfefc3",
+      "expected_sha256": "7e2e209f30c79917882db69ef379e0d4f58be23e7117e6caf14c31ebdbbfefc3",
+      "size": 106496
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/activities.duckdb",
+      "verified": true,
+      "sha256": "f3299b9214885f00c71c9af77d89b62ad73f3e545e3cf5baa4861d1265151c60",
+      "expected_sha256": "f3299b9214885f00c71c9af77d89b62ad73f3e545e3cf5baa4861d1265151c60",
+      "size": 21245952
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/core_crm.db",
+      "verified": true,
+      "sha256": "aa595797e41db401136a0a68bf14bac44707f9f86ed235f61d9f051728e50506",
+      "expected_sha256": "aa595797e41db401136a0a68bf14bac44707f9f86ed235f61d9f051728e50506",
+      "size": 188416
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/products_orders.db",
+      "verified": true,
+      "sha256": "92ad52f2a624ee5e0cdf7cd4cc64ac60b1e3f7af2c672be27f651f80af4a6bdb",
+      "expected_sha256": "92ad52f2a624ee5e0cdf7cd4cc64ac60b1e3f7af2c672be27f651f80af4a6bdb",
+      "size": 143360
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/sales_pipeline.duckdb",
+      "verified": true,
+      "sha256": "5b44cc3754820bff20c3f25e50cf09c6be401f86e69df6b9d3ee7a4cf64ac5af",
+      "expected_sha256": "5b44cc3754820bff20c3f25e50cf09c6be401f86e69df6b9d3ee7a4cf64ac5af",
+      "size": 2371584
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/support.sql",
+      "verified": true,
+      "sha256": "5248cd64cddf4936027859c5d6f74b2d32fbeb4e1939d784b2ff26d45d83950c",
+      "expected_sha256": "5248cd64cddf4936027859c5d6f74b2d32fbeb4e1939d784b2ff26d45d83950c",
+      "size": 8860941
+    },
+    {
+      "path": "query_crmarenapro/query_dataset/territory.db",
+      "verified": true,
+      "sha256": "1a9650d4ba3c0a3690b936d294feb31a3227bf6f2ebe886f74cf12e14936366a",
+      "expected_sha256": "1a9650d4ba3c0a3690b936d294feb31a3227bf6f2ebe886f74cf12e14936366a",
+      "size": 24576
+    },
+    {
+      "path": "query_cve/query_dataset/cpe.duckdb",
+      "verified": true,
+      "sha256": "efca9e48cd400fd8f65f69102c1e1c1f2c3b2813dfeb19cd0633335cdcf61970",
+      "expected_sha256": null,
+      "size": 94384128
+    },
+    {
+      "path": "query_cve/query_dataset/descriptions/cve_descriptions/cve_documents.bson",
+      "verified": true,
+      "sha256": "7a938a5fc2852dd7559df0bf667ed3f9195956237ddba259774e617a7fd184d0",
+      "expected_sha256": null,
+      "size": 97176952
+    },
+    {
+      "path": "query_cve/query_dataset/descriptions/cve_descriptions/cve_documents.metadata.json",
+      "verified": true,
+      "sha256": "8dc5a8e83e8207108de4a4d6d0d7d7dbe31ebdc27cdb2794942e6c18d417b5b8",
+      "expected_sha256": null,
+      "size": 188
+    },
+    {
+      "path": "query_cve/query_dataset/kev.sql",
+      "verified": true,
+      "sha256": "76f15a345a8dd1006a5b21c198e52952846efa7dc5581727d5052137218a8bfe",
+      "expected_sha256": "76f15a345a8dd1006a5b21c198e52952846efa7dc5581727d5052137218a8bfe",
+      "size": 1030796
+    },
+    {
+      "path": "query_cve/query_dataset/vulns.db",
+      "verified": true,
+      "sha256": "e76efe1a177354afcc0929610eabbcf088f29af7bc1638d1def78085f4ca601b",
+      "expected_sha256": "e76efe1a177354afcc0929610eabbcf088f29af7bc1638d1def78085f4ca601b",
+      "size": 20504576
+    },
+    {
+      "path": "query_googlelocal/query_dataset/business_description.sql",
+      "verified": true,
+      "sha256": "cac36db1c60ab1fcbc661cc7df46c9980db1c2fcdaedb65b57f7a2618339ddd4",
+      "expected_sha256": "cac36db1c60ab1fcbc661cc7df46c9980db1c2fcdaedb65b57f7a2618339ddd4",
+      "size": 38204
+    },
+    {
+      "path": "query_googlelocal/query_dataset/review_query.db",
+      "verified": true,
+      "sha256": "1e9ef561d4edf62ff49bf874253935caf8d404a79c60d21b9b0fc40ee041692c",
+      "expected_sha256": "1e9ef561d4edf62ff49bf874253935caf8d404a79c60d21b9b0fc40ee041692c",
+      "size": 585728
+    },
+    {
+      "path": "query_imdb/query_dataset/movies.sql",
+      "verified": true,
+      "sha256": "9ef5452628ec8d07fbdc283fdb420168bd97b718dda25648087f2fe178bb1daa",
+      "expected_sha256": "9ef5452628ec8d07fbdc283fdb420168bd97b718dda25648087f2fe178bb1daa",
+      "size": 1622189538
+    },
+    {
+      "path": "query_imdb/query_dataset/people.sqlite",
+      "verified": true,
+      "sha256": "ba583402740f2f5ef42b5be7ac1dd4c47a0cac990ddf7332575e203b976c1b10",
+      "expected_sha256": "ba583402740f2f5ef42b5be7ac1dd4c47a0cac990ddf7332575e203b976c1b10",
+      "size": 2639507456
+    },
+    {
+      "path": "query_krama/query_dataset/domain_assets.db",
+      "verified": true,
+      "sha256": "d657f2253337b19694e7785b7d7ccf4398df95fe78012fc3b9e803715d15a3d1",
+      "expected_sha256": "d657f2253337b19694e7785b7d7ccf4398df95fe78012fc3b9e803715d15a3d1",
+      "size": 160571392
+    },
+    {
+      "path": "query_krama/query_dataset/domain_docs/domain_docs_db/files.bson",
+      "verified": true,
+      "sha256": "3bab163bfef5761e4e1407943eed4f9b2b1af0f6c14dd08931980f5df3dbd376",
+      "expected_sha256": "3bab163bfef5761e4e1407943eed4f9b2b1af0f6c14dd08931980f5df3dbd376",
+      "size": 528766506
+    },
+    {
+      "path": "query_krama/query_dataset/us_geo.db",
+      "verified": true,
+      "sha256": "bf442d08de0ffc396d8b750597dba7d0df6659fac44af98ec53b73ae7a31514c",
+      "expected_sha256": "bf442d08de0ffc396d8b750597dba7d0df6659fac44af98ec53b73ae7a31514c",
+      "size": 28504064
+    },
+    {
+      "path": "query_music_brainz_20k/query_dataset/sales.duckdb",
+      "verified": true,
+      "sha256": "52ce48c0027eab1b3f85932139425107dd5cf7422217bd8adedfc3edf21ad0e2",
+      "expected_sha256": null,
+      "size": 1060864
+    },
+    {
+      "path": "query_music_brainz_20k/query_dataset/tracks.db",
+      "verified": true,
+      "sha256": "0c349f70e5bafcba1deb605b49e224abfa95c5a83a44688faa511f9e123a02cc",
+      "expected_sha256": "0c349f70e5bafcba1deb605b49e224abfa95c5a83a44688faa511f9e123a02cc",
+      "size": 2035712
+    },
+    {
+      "path": "query_stockindex/query_dataset/indexInfo_query.db",
+      "verified": true,
+      "sha256": "976511f3eb213269c81b286dd4517e4948b3d3bb776e221559943f0439916b55",
+      "expected_sha256": "976511f3eb213269c81b286dd4517e4948b3d3bb776e221559943f0439916b55",
+      "size": 8192
+    },
+    {
+      "path": "query_stockindex/query_dataset/indextrade_query.db",
+      "verified": true,
+      "sha256": "12e9cf350be2a6396f6be9f0c2bb057013859956bc8269952dc7a85008973bb1",
+      "expected_sha256": "12e9cf350be2a6396f6be9f0c2bb057013859956bc8269952dc7a85008973bb1",
+      "size": 4468736
+    },
+    {
+      "path": "query_stockmarket/query_dataset/stockinfo_query.db",
+      "verified": true,
+      "sha256": "b8cf6b5627c92e17c10e27779afa8aa77c659e44bd4ccc14b10f1116053bc6a2",
+      "expected_sha256": "b8cf6b5627c92e17c10e27779afa8aa77c659e44bd4ccc14b10f1116053bc6a2",
+      "size": 737280
+    },
+    {
+      "path": "query_stockmarket/query_dataset/stocktrade_query.db",
+      "verified": true,
+      "sha256": "e9cbf3c4d05d2eeb919c5b207374aefd19aa02e40dca49f2688618beb180350d",
+      "expected_sha256": "e9cbf3c4d05d2eeb919c5b207374aefd19aa02e40dca49f2688618beb180350d",
+      "size": 964964352
+    },
+    {
+      "path": "query_usaspending/query_dataset/agencies.duckdb",
+      "verified": true,
+      "sha256": "3ec7cb010ad78868358b4a3cffe81a5adc037def483669d11a34bc3452253bb7",
+      "expected_sha256": null,
+      "size": 1323008
+    },
+    {
+      "path": "query_usaspending/query_dataset/contracts.sql",
+      "verified": true,
+      "sha256": "7fdde155670e23568458570bdb17171b36f4789b49c95dde5461b03ca951a861",
+      "expected_sha256": "7fdde155670e23568458570bdb17171b36f4789b49c95dde5461b03ca951a861",
+      "size": 4840083
+    },
+    {
+      "path": "query_usaspending/query_dataset/descriptions/usaspending_descriptions/contract_documents.bson",
+      "verified": true,
+      "sha256": "a964552f7bbda8bb608046bae63714b791fcb90294e2956d9f1c8fe29b860518",
+      "expected_sha256": null,
+      "size": 1552995
+    },
+    {
+      "path": "query_usaspending/query_dataset/descriptions/usaspending_descriptions/contract_documents.metadata.json",
+      "verified": true,
+      "sha256": "470f6313ea2dce1a2f72e14665c27d6999e4332d2513b7ddb43dd7acc18c620e",
+      "expected_sha256": null,
+      "size": 203
+    },
+    {
+      "path": "query_usaspending/query_dataset/recipients.db",
+      "verified": true,
+      "sha256": "008916d8764ba11e759be1499a78c0c090da2fa8b72ff409ed69623c2f1733b5",
+      "expected_sha256": "008916d8764ba11e759be1499a78c0c090da2fa8b72ff409ed69623c2f1733b5",
+      "size": 225280
+    },
+    {
+      "path": "query_yelp/query_dataset/yelp_business/yelp_db/business.bson",
+      "verified": true,
+      "sha256": "3aed3f77a2b0360b0f431decc63aaa0fd69e539a3fe4cb7e08f5ea081eb65c01",
+      "expected_sha256": null,
+      "size": 80597
+    },
+    {
+      "path": "query_yelp/query_dataset/yelp_business/yelp_db/checkin.bson",
+      "verified": true,
+      "sha256": "879afe04080efd1bfc405109eb87efe4b127bf52d1c749224ca5e9c2f914fc6c",
+      "expected_sha256": null,
+      "size": 248418
+    },
+    {
+      "path": "query_yelp/query_dataset/yelp_user.db",
+      "verified": true,
+      "sha256": "155ecf989e62e0d087ed9d4586893e6825ab56504bc5e62ad46d454067f9b730",
+      "expected_sha256": "155ecf989e62e0d087ed9d4586893e6825ab56504bc5e62ad46d454067f9b730",
+      "size": 3420160
+    }
+  ],
+  "queries": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 1,
+      "sha256": "0cedd62ce3f61e3fa7d45f1db9809b912273bded66b13310823fed671607c0a5"
+    },
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 2,
+      "sha256": "5fe660eaae9c882a79e1afcb8e91baccdfaf88a0aa59197e3ac1a790fb2f4aed"
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 1,
+      "sha256": "c1ec5a8a222f1df528c246e18cc7791cfc5ffd5bdba3cd3da1f6362a526bd40f"
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 2,
+      "sha256": "d643fbf44aef32f8b5f4c24cc5ab9ffc642ac2b5a6a52b6f7bae65b8087b632b"
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 3,
+      "sha256": "be348f0f9207fd049040a6cb3785a2e7d18a24aeb5d75a877e34e28d7916e0f0"
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 4,
+      "sha256": "e19192b4f504d1c0dd8f61c13b36022f95a0f125fa82a5383d893a6bc0f63f88"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 1,
+      "sha256": "7a127ebaa5aadfdd3eabf6a01891eda9211b15fa462f3e03f15e67f3a98ec328"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 2,
+      "sha256": "352c6f13e64220ec8cb518ac3411382a66577f98f3c536d9610ea7f5a3e8b628"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 3,
+      "sha256": "c21bb23a1d4c9e40717b73a55edf04b237a953a5c79a894e44672a5eab36d1b5"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 1,
+      "sha256": "b181e9bd7ee711fe45783c7bcdd04cc9c44da38ad96592d5895d90b5a33a5912"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 2,
+      "sha256": "85222e70a218b55a186a5be14e3ec047739558afbaf98b21b7f824dc9f6ce7ba"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 3,
+      "sha256": "65a4054537b7662556db4ab5e0d04b290b5103080b8759da3d65573fe6034968"
+    },
+    {
+      "dataset": "agnews",
+      "query": 1,
+      "sha256": "bbc94a9e190cc3efe66b92537cb856622c111e52964c9c8bb7c530f3d9e182ce"
+    },
+    {
+      "dataset": "agnews",
+      "query": 2,
+      "sha256": "79f736db6659b00b8ce85f03ce0eb9af962ec283404a72ee9e10fb8a477c2ae8"
+    },
+    {
+      "dataset": "agnews",
+      "query": 3,
+      "sha256": "2444519816264b71fb76ba72cb641e04daebb340d8232651f2ab04e4d1b5a855"
+    },
+    {
+      "dataset": "agnews",
+      "query": 4,
+      "sha256": "b9e4940960a6376ea3ebec7bbb46e82fb470862ea7cd083c122dddaa1bedf6f1"
+    },
+    {
+      "dataset": "bookreview",
+      "query": 1,
+      "sha256": "908099cc5c9202b498f2f21233bbe0dc1f1d346eb7c79ad4f836d0bb53567289"
+    },
+    {
+      "dataset": "bookreview",
+      "query": 2,
+      "sha256": "97b6ecbd39ac559caab7f0cf6bec74a32011583db87f153afe6cbffeeb18c8b6"
+    },
+    {
+      "dataset": "bookreview",
+      "query": 3,
+      "sha256": "118b330352dd14214a20a7bea1c2691ff18aa65e7546fb8e270af2e2ff62b976"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 1,
+      "sha256": "478b10a51b6c113a2ff243187a70c3eda78c51169855cc72b94a57344d7600d5"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 10,
+      "sha256": "0f122a8b31d6437696806a179c605cc375f8b9927345ad94927f0787d002b3d0"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 2,
+      "sha256": "67e1a5c7067c1ee50d4bd0c9ce53618ebabc469aa2cd52c5a80f97aa729be2cf"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 3,
+      "sha256": "aa4dad7d1cd220f7d77da443765ac16716fbffb785ab7a9945cedc853bcbbd5c"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 4,
+      "sha256": "4510a767209e3ab2d4856cb73efb704fc11ff61a0d77fde4a09582d2de6cd38c"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 5,
+      "sha256": "798b7753a803fd9b6ea858ec1f73b45c761ad5304eb27833763d54ee2aafaa8a"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 6,
+      "sha256": "c7ebbe9df618af350208be2fa75c622f4ce5bfc507870ed33f5ba43fa18d62d4"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 7,
+      "sha256": "0c1176f587a90ec671b194cf71ef605be962e5e5a790f94a6c328f7567de5e66"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 8,
+      "sha256": "cbab82b223e19aae99e6d785143fa1dce585f7bb591920f8be711f97fadb6db5"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 9,
+      "sha256": "8b7d7e519f573176d9ff4a3f6c60bb7ba2f53ba9272cbfc74db8e703611caf77"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 1,
+      "sha256": "894e6fb92a2c798b3dd29e486a7ec78c5c9f8aa7ff398bef227b8784529d5f66"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 10,
+      "sha256": "cad473f5f29c0965ea73e0c136a96034e3436df59c016c2a3549d03beeca2010"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 11,
+      "sha256": "f26f335645c4383dde4f4532c4c84f21f4b01a26f9dd2738be6d151e8116b0f1"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 12,
+      "sha256": "c4a10a08df2a82e5bbba81c38820f441acc4e69f0e8784b4cd9df76045244a20"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 13,
+      "sha256": "e45a2ab8feb029efd1fdc6dd175053d253ec6a833bec576015ca0fff5bde1044"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 2,
+      "sha256": "9e4834b6399ed135885379b58092992df72a6abfda6d63289c3c6d632ff7a67b"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 3,
+      "sha256": "3413c9ccae6924385e20ca4e5683a2b2bb53e988df87cbd40b2154885824d294"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 4,
+      "sha256": "e7b8341035f0e32bb2dfe08a1112b2e973bf45ebffde77ec42de102d427f0da3"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 5,
+      "sha256": "12f4ad0de8c065b851dd9edb53f9003c58ddd02516c73d7b941c7b08ff432962"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 6,
+      "sha256": "366e380fb2873420a22a287a85a3eeea802bc10985709a0b1ded7eb90aa8736f"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 7,
+      "sha256": "82d93f1e5317b087cb59b785270191915f0d1d542779dc1d7035efe99277689a"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 8,
+      "sha256": "c0d1d62e8696fc91c2469b719753ba8c6e4273c3cdeade0f4c58b5d9df5a8408"
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 9,
+      "sha256": "ad49f3909ed2da0fd72a99db50de26652f1a4c7b7b35aead6656092918357a71"
+    },
+    {
+      "dataset": "cve",
+      "query": 1,
+      "sha256": "68fa0a0ad2d7a95b6b3e53ceafde1d96546797583d7cab13956fd4d85c150899"
+    },
+    {
+      "dataset": "cve",
+      "query": 10,
+      "sha256": "840cb4552caa0d0ebb5f5e8a59f4012370bf1bb4e7dd5ee7a4d5f5b68fa9eb69"
+    },
+    {
+      "dataset": "cve",
+      "query": 2,
+      "sha256": "e4e2dcc57237f3cf282dccc99be9bfe6715b547035bce41eaca531b46a7eaede"
+    },
+    {
+      "dataset": "cve",
+      "query": 3,
+      "sha256": "635b65110a16c02d8867f6f43caae33308f29531557b7edd5fe11038b2e6fdf7"
+    },
+    {
+      "dataset": "cve",
+      "query": 4,
+      "sha256": "3c04bfab52656b4b47e4cce0eec136e2641a919ed61c9787799845bd3805f3e8"
+    },
+    {
+      "dataset": "cve",
+      "query": 5,
+      "sha256": "f4c0184c08ace23835c7e8af0c2f99c012d4ae280d7b4af1a4efef8254ba4512"
+    },
+    {
+      "dataset": "cve",
+      "query": 6,
+      "sha256": "0cbae4d7dfbc38d0df063716676f23450cff321ccca79d709b25681036a1f528"
+    },
+    {
+      "dataset": "cve",
+      "query": 7,
+      "sha256": "71f002aa4edde80a7024289c36b0dfcf6f903d2cfbbed8d5298afdfc5f831cd6"
+    },
+    {
+      "dataset": "cve",
+      "query": 8,
+      "sha256": "8d0a9deff05d14d74cb2919251575d348d51816749057da787ecfbc081ef0ddb"
+    },
+    {
+      "dataset": "cve",
+      "query": 9,
+      "sha256": "971fd1ad71ba0b02e7b310267ca86830ad33e4b31b47e621899368ad0d18862b"
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 1,
+      "sha256": "3f9cae56516b7ae78edb2d96a28634746762b983219b85d995db679c554226be"
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 2,
+      "sha256": "d4b527325a39563c28e17bb29a694082677ba6190ecd7d8b232f923de947e2a6"
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 3,
+      "sha256": "edc69dda56e12bd4b5c1b4ec50d98fef8a1f24a1af951aa3933511dae7cc651d"
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 4,
+      "sha256": "1ffd55d9fca7f959216dc13dda75bfc37c3dddadd939b3fad072b1a1f3e48cae"
+    },
+    {
+      "dataset": "imdb",
+      "query": 1,
+      "sha256": "c793097ab4a44e8ee577da16fd05af0e85f94efbf9dbe88d4c58b85e6bc631ed"
+    },
+    {
+      "dataset": "imdb",
+      "query": 10,
+      "sha256": "f031e597be8e3df4bbdd9803e70ea5a8b84da58f9e2efe5b143804a74f4f3e4d"
+    },
+    {
+      "dataset": "imdb",
+      "query": 2,
+      "sha256": "01454a4638d80b611edd5f4b0cd61ca521c6b3c1a64aeb65829af597ed31a3b0"
+    },
+    {
+      "dataset": "imdb",
+      "query": 3,
+      "sha256": "5bac637a7c0f8fa24dffffe7ed7558a855317227f638e57d67bd101bc5072525"
+    },
+    {
+      "dataset": "imdb",
+      "query": 4,
+      "sha256": "366626c94f4ec2f075db15598dc465e80912b35601eb6bbf9427d724557d49cb"
+    },
+    {
+      "dataset": "imdb",
+      "query": 5,
+      "sha256": "f8a1a358d62316d7e71cc5b8df0ca2740f1c464dcf4459285b3ea95977fd22bc"
+    },
+    {
+      "dataset": "imdb",
+      "query": 6,
+      "sha256": "33c93f6cff1b2fa1942488fb45c4f9601a73294a1e00eada44fe387d2c026c90"
+    },
+    {
+      "dataset": "imdb",
+      "query": 7,
+      "sha256": "a9f380213e0ffa6951de64e2651249eb49751bacd6f46313a6d7c72c4b7e3891"
+    },
+    {
+      "dataset": "imdb",
+      "query": 8,
+      "sha256": "bf0dc7b997c7848097b14182074f970d4f08b82b4abcaf6b0ebdb221d02b3e9c"
+    },
+    {
+      "dataset": "imdb",
+      "query": 9,
+      "sha256": "47ecd58d5dc8589dd585d4cf9dae15d59622d8a3292a1f4b126d24ea18a6575b"
+    },
+    {
+      "dataset": "krama",
+      "query": 1,
+      "sha256": "763a1ff345f7e214d0229962d6db17485ab78a7a74d0255cf13387226846d740"
+    },
+    {
+      "dataset": "krama",
+      "query": 10,
+      "sha256": "256d200f622fe5e202d25d9eebcb60dd4247affb4cf440b7cf4392a6979a8941"
+    },
+    {
+      "dataset": "krama",
+      "query": 2,
+      "sha256": "deaa6387c35af3a7f07095b742b5d67ca8196ff43fe2ff02b11cd32b403d3471"
+    },
+    {
+      "dataset": "krama",
+      "query": 3,
+      "sha256": "c0df64487d7b1c548ef4cda0b1548a4ae7bf87e54f55f7b707ce7a584dca5b07"
+    },
+    {
+      "dataset": "krama",
+      "query": 4,
+      "sha256": "0a0dc81930b47134a2f85a592862443953712ac8f1c91d9d7bf68d8ac91773b0"
+    },
+    {
+      "dataset": "krama",
+      "query": 5,
+      "sha256": "323bf1c00160d7b30d9a47dcb3a26d6c08c9e34e89c5b11bee3ffb08806ae99f"
+    },
+    {
+      "dataset": "krama",
+      "query": 6,
+      "sha256": "c4034809052df234fdcecf5be55ca8f377fcf44bc71d68762baaf900918b9b96"
+    },
+    {
+      "dataset": "krama",
+      "query": 7,
+      "sha256": "e2cdff8cb2ebab06a12974736806ca26404a0c2e6cc2d5bb7f5c1fc4047100cd"
+    },
+    {
+      "dataset": "krama",
+      "query": 8,
+      "sha256": "bf8423a7b09d96ea16e477c0ba05472b97a3f9e3d92090e9daa495794cbc034e"
+    },
+    {
+      "dataset": "krama",
+      "query": 9,
+      "sha256": "41b8f632a5ae6e7212ffe357b3c986b5306aa552c07ad5ef4778c6eae60ef1ba"
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "query": 1,
+      "sha256": "b49b9e624260d2ea09ec1191ef32bf7a85fe00a428288140a2ea4fb9233e267f"
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "query": 2,
+      "sha256": "8918f918a333b6c28250bfa169a4acd2e7c36876c98b946c30b64e0aeb0c677c"
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "query": 3,
+      "sha256": "c73ce87fbc8a1a57563705070de6867e9d275656ef48d5be0b1b28dfa3375146"
+    },
+    {
+      "dataset": "stockindex",
+      "query": 1,
+      "sha256": "cdf0ad83ee620ca66a1c46cdf8eb3ee24ecffc65c362802ab722c7a19ea4a8d7"
+    },
+    {
+      "dataset": "stockindex",
+      "query": 2,
+      "sha256": "1f06ad9ec6f8dbd571ef75b77c411bb72349ca2a64d5ae4e4ae1efa3b56fc296"
+    },
+    {
+      "dataset": "stockindex",
+      "query": 3,
+      "sha256": "d872cc5cce95bfa4f498fecbb8947b143f0cc75bc195c6647b5cdb92a47c903e"
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 1,
+      "sha256": "ec4541f3706936b4950c984be32b011dee7c47cf0333b75c2f45a59d93a29c4d"
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 2,
+      "sha256": "1dfdfba655707afbb3e02084a572b173b79e20e47be036f413975ecd57664473"
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 3,
+      "sha256": "0770ab30b8e79b9af5a3e91d0dd180a1d5f4708981a6c48f8ebf2716baf55010"
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 4,
+      "sha256": "01590225dde474c7496ca27c8c79a15a908da8b1388eef730d8b660146c59bc7"
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 5,
+      "sha256": "a40bc9e12f4723c5b54e3661c8d58518854e0cef2abf330612215d5de2fedd53"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 1,
+      "sha256": "c9ce8a7b01ede66b1e6d736917f8da591b812a789a159bb27a0675fc81b52df3"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 10,
+      "sha256": "a78c1bf80b62433db715d637ed3a1e0bbf13aef00479cedb03bd4f5283bd56fa"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 2,
+      "sha256": "a324678b68c40154c9489b667bc1e8c0e7f30231879e3bc3e75b55013a0e6f76"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 3,
+      "sha256": "9f25bdb74e5cb40dbf4ffe03624d462404544b5295615f908ff7ad3650bb457a"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 4,
+      "sha256": "9e992a161e72fde2c80596ac78e27efdd7e816a6ed7a803bbb40cc361071b8ec"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 5,
+      "sha256": "2f3f9ec0206a40eb639d77c2d018a122f2a18c44c3c0c09f6e04b39493fc78fe"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 6,
+      "sha256": "5aa03986bb165bac1bc7ad3173bf0f101636255bbda385fe897aa5caaa4a5cef"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 7,
+      "sha256": "c52c818623e17691d18527d38fd16bb2af214de9aa1bd2653c7c66659314680d"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 8,
+      "sha256": "db6e4abad532e634b350a1b129d05e30ef48410fcc0fab38a492378c152eedcf"
+    },
+    {
+      "dataset": "usaspending",
+      "query": 9,
+      "sha256": "fa95fb5f9793cc68e7f2f5e942dd315efbcfb317fb86a8e07f07cedb5c18485d"
+    },
+    {
+      "dataset": "yelp",
+      "query": 1,
+      "sha256": "6d7feb548d68d731ea7c3b4cfeed0cc86bd796d4aaf4f142cd00ba02307d0be8"
+    },
+    {
+      "dataset": "yelp",
+      "query": 2,
+      "sha256": "271ac8527fd063db0d58911d55429175cdb815d83fc39ba6b3794bafcda0e027"
+    },
+    {
+      "dataset": "yelp",
+      "query": 3,
+      "sha256": "1dcf772c1298a4df34e9f486ff9ae56dfd6e379fcef4986dbff6f00967af99a1"
+    },
+    {
+      "dataset": "yelp",
+      "query": 4,
+      "sha256": "23ec6db6b39fb023c42c753c3b8a834190220b4bfe994bb69c7580fdedcd0080"
+    },
+    {
+      "dataset": "yelp",
+      "query": 5,
+      "sha256": "26cb0e7d3cadead760b4201dfadfacf333aa6b143637b72c31d6609cd8db8848"
+    },
+    {
+      "dataset": "yelp",
+      "query": 6,
+      "sha256": "5b9b951319a32b32a070b29ea598f25332afb5529f92926f8268eedb07a49114"
+    },
+    {
+      "dataset": "yelp",
+      "query": 7,
+      "sha256": "5f226f1a026b89cc7d22903987c215df6837d561ebc193f607c12ccb48e40d3f"
+    }
+  ]
+}
