@@ -1,0 +1,13 @@
+{
+  "images": {
+    "postgres17.sif": {
+      "sha256": "95c1b6f01bffb86956b0ff9e778e30fba0aa6e3a5e37c70a5bc30ae8f1dea789",
+      "bytes": 156344320
+    },
+    "mongo8.sif": {
+      "sha256": "885912ae5c74176ef03313e1ebab161a712ddfed9216935fb71b60ab9adebccf",
+      "bytes": 319614976
+    }
+  },
+  "singularity": "singularity-ce version 4.4.1"
+}
