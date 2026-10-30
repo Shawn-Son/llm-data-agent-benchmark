@@ -1,0 +1,135 @@
+dataset,query,category,official_reason,answer,command_errors,trace,semantic_root_cause,review_evidence,review_status
+DEPS_DEV_V1,1,answer_mismatch,Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2,"Using the latest release (`IsRelease = true`, highest ordinal) for each NPM package:
+
+| Package | Latest version | GitHub repo | Stars |
+|---|---:|---|---:|
+| `@ec-nordbund/leaflet` | `1.7.1` | `leaflet/leaflet` | 38,715 |
+| `@dongjiang/textmate-grammars` | `0.0.5` | `theia-ide/theia` | 18,526 |
+| `@dpoineau/react-scripts>1.0.0>node-sass` | `3.10.1` | `sass/node-sass` | 8,498 |
+| `@dollarshaveclub/cli>1.0.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |
+| `@dollarshaveclub/cli>1.1.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |
+
+There are 42 package records tied at 8,073 stars for `ljharb/qs`; the final two were selected alphabetically among that tie.",2,runs/DEPS_DEV_V1/query1/events.jsonl,incomplete_text_number_extraction,"Trace item_7 extracts only ([0-9]+) stars from project text. Read-only data verification finds TypeScript described as stars count of 94931, lodash as stars count of 57779, and Svelte as 73,499 stars. The regex excludes the first wording and truncates comma-formatted counts, yielding the wrong ranking. Original validator correctly rejects the missing above-cutoff packages.",trace_validator_and_data_verified
+GITHUB_REPOS,1,answer_mismatch,No value in LLM output rounds to 0.33,**16 of 111** `README.md` files in repositories whose language description does not mention Python contain “copyright” information: **14.4%**.,1,runs/GITHUB_REPOS/query1/events.jsonl,numeric_mismatch_unresolved,Trace item_13 computes 17/115 when including lowercase readme.md; final answer narrows to 16/111 exact-case README.md and reports 14.4%. Original grader requires a numeric value rounding to 0.33. Independent read-only probes reproduced the trace counts but did not establish the official denominator. Do not claim a verified semantic root cause for this case.,trace_grade_and_partial_data_probe_reviewed
+PANCANCER_ATLAS,1,answer_mismatch,Missing histology type: 9382/3,"Average IGF2 expression (`mean(log10(normalized_count + 1))`) for eligible LGG patients:
+
+| Histology type | Patients | Average |
+|---|---:|---:|
+| Astrocytoma | 10 | 2.5713 |
+| Oligoastrocytoma | 5 | 2.7136 |
+| Oligodendroglioma | 8 | 2.6825 |",0,runs/PANCANCER_ATLAS/query1/events.jsonl,grouping_field_mismatch,Valid run trace item_9 groups by histological_type and returns Astrocytoma/Oligoastrocytoma/Oligodendroglioma. The unchanged validator expects five ICD-O-3 histology codes. The answer omits the required codes and merges distinct expected groups.,trace_and_original_validator_reviewed
+PANCANCER_ATLAS,3,answer_mismatch,"No value in LLM output matches 305.12, 305.1, or 305","χ² = **325.34** (df = 4; p ≈ 3.7 × 10⁻⁶⁹).
+
+I used female BRCA patients with known histology and at least one `FILTER = 'PASS'` mutation-data entry. CDH1-positive means ≥1 reliable (`PASS`) CDH1 mutation. Histology groups with totals ≤10 were excluded.
+
+| Histological type | CDH1 mutated | Not mutated | Total |
+|---|---:|---:|---:|
+| Infiltrating Ductal Carcinoma | 9 | 540 | 549 |
+| Infiltrating Lobular Carcinoma | 83 | 59 | 142 |
+| Mixed Histology | 4 | 18 | 22 |
+| Mucinous Carcinoma | 0 | 13 | 13 |
+| Other specify | 3 | 33 | 36 |
+
+Total analyzed: 762 patients (99 mutated, 663 not mutated). The very large statistic indicates a strong association, driven chiefly by the much higher CDH1 mutation rate in infiltrating lobular carcinoma.",0,runs/PANCANCER_ATLAS/query3/events.jsonl,cohort_filter_mismatch,"Valid trace item_8 computes the official 305.1239198 for all clinical patients (N=1059), but final answer selects the PASS-coverage cohort (N=762) and reports 325.34. It restricts the non-mutated denominator to patients with at least one PASS mutation entry; the official expected cohort does not.",trace_and_official_grade_reviewed
+PATENTS,3,answer_mismatch,"No match for: BLOOM ENERGY CORP + PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY","- CALIFORNIA INST OF TECHN — **G01V1/01:** *Measuring or predicting earthquakes*
+- SCHOWALTER LEO J — **H01L21/0262:** *Reduction or decomposition of gaseous compounds, e.g. CVD*
+
+These are the non-UC assignees of publications citing UC-assigned patents, using each citing publication’s primary CPC code.",1,runs/PATENTS/query3/events.jsonl,entity_extraction_and_code_granularity,Valid session patch for investigate.py uses only the phrase publication number to extract identifiers; it finds 55 UC entries although item_5 reports 169 descriptions mentioning UNIV CALIFORNIA. This restricts the citation join. The final answer also supplies detailed codes G01V1/01 and H01L21/0262 although the question requests CPC subclasses. Official grader reports missing BLOOM ENERGY CORP and its expected subclass title.,session_patch_query_and_grade_reviewed
+agnews,2,answer_mismatch,"Ground truth '0.14414414414414414' (tol=0.0001) not found in LLM output: Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.
+
+The fraction is **18/111 = 6/37**, or approximately **16.2%**.","Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.
+
+The fraction is **18/111 = 6/37**, or approximately **16.2%**.",0,runs/agnews/query2/events.jsonl,semantic_classification_mismatch,Valid run reads the article texts and reports 18 Science/Technology articles among 111 by Amy Jones. Official fraction is 0.144144... (=16/111). The denominator agrees; the classified numerator differs. Exact two misclassified documents were not independently adjudicated.,trace_and_official_grade_reviewed
+agnews,3,answer_mismatch,Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).,The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).,1,runs/agnews/query3/events.jsonl,heuristic_topic_classification,Valid trace item_13 uses topical regular-expression cues over article texts after metadata filtering. It reports 337.73 per year; the original grader expects 336.63636 within 0.01. The topic-selection heuristic does not reproduce the required count.,trace_and_official_grade_reviewed
+agnews,4,answer_mismatch,Ground truth 'Africa' not found in LLM output: South America published the most World-category articles in 2015.,South America published the most World-category articles in 2015.,1,runs/agnews/query4/events.jsonl,heuristic_topic_classification,Valid trace items_11 and_12 build keyword/naive-Bayes-like topic classifications; the leading region changes across smoothing settings. Final answer chooses South America; original validator expects Africa.,trace_and_official_grade_reviewed
+civic_unstructured,10,answer_mismatch,Ground truth '0.69' (tol=0.01) not found in LLM output: 0.66,0.66,1,runs/civic_unstructured/query10/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,2,answer_mismatch,"Missing in LLM output: project name 'Corral Canyon Culvert Repairs', amount '13460000'","The project is **Michael Landon Center HVAC Replacement Project**, with accumulated funding of **$15,509,000 USD** as of 2023-01-01.
+
+Its latest eligible agenda report is dated November 10, 2022, which states that the project “is now completed.” The total sums its 10 grants dated through October 8, 2022.",0,runs/civic_unstructured/query2/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,3,answer_mismatch,"Ground truth is empty, but output lists funding source(s): ['Public-Private Partnership', 'Municipal Fund']","Funding sources meeting the ≥25% completed-project threshold as of 2022-08-01:
+
+- Municipal Fund — 8 of 29 distinct funded projects completed (27.6%)
+- Public-Private Partnership — 9 of 34 distinct funded projects completed (26.5%)
+
+I deduplicated project-name variants and excluded the non-project funding-record noise.",0,runs/civic_unstructured/query3/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,4,answer_mismatch,Ground truth '0.34' (tol=0.01) not found in LLM output: 0.31,0.31,0,runs/civic_unstructured/query4/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,5,answer_mismatch,"Ground truth '4401352.94' (tol=0.1) not found in LLM output: The average total funding received was **$4,238,882.35** per qualifying project.
+
+This is based on 17 projects with status changes and $72,061,000 in combined in-period funding.","The average total funding received was **$4,238,882.35** per qualifying project.
+
+This is based on 17 projects with status changes and $72,061,000 in combined in-period funding.",0,runs/civic_unstructured/query5/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,6,answer_mismatch,Missing in LLM output: amount '88615000',"**2023** had the highest total funding for capital projects: **$123,003,000 USD**.",0,runs/civic_unstructured/query6/events.jsonl,Not yet manually reviewed,,
+civic_unstructured,9,answer_mismatch,Missing funding source(s) in LLM output: ['Public-Private Partnership'],"Funding sources exceeding 55% disaster projects:
+
+- Emergency Relief Fund — 16 of 27 projects (59.3%)
+- Federal Grant — 15 of 26 projects (57.7%)
+- Private Donation — 16 of 29 projects (55.2%)
+
+I excluded non-project funding-record noise and consolidated alternate names for the same civic project.",0,runs/civic_unstructured/query9/events.jsonl,Not yet manually reviewed,,
+crmarenapro,12,answer_mismatch,"Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",005Wt000003NJgAIAW,2,runs/crmarenapro/query12/events.jsonl,Not yet manually reviewed,,
+crmarenapro,13,answer_mismatch,"Found agent IDs ['005Wt000003NEa3IAG'], but expected '005Wt000003NIXCIA4'",005Wt000003NEa3IAG,1,runs/crmarenapro/query13/events.jsonl,Not yet manually reviewed,,
+crmarenapro,7,answer_mismatch,"LLM output indicates no policy violation, but expected knowledge article ID",None,1,runs/crmarenapro/query7/events.jsonl,Not yet manually reviewed,,
+cve,10,answer_mismatch,expected 5,14 distinct Microsoft KEV products have at least one associated CVE with a CVSS v3 base score of 9.0 or higher.,3,runs/cve/query10/events.jsonl,Not yet manually reviewed,,
+cve,2,answer_mismatch,expected 'fortinet',microsoft,0,runs/cve/query2/events.jsonl,Not yet manually reviewed,,
+cve,3,answer_mismatch,expected 1262,"**1,238** KEV catalog entries reference a CVE with no matching record in `vulns_db`.",1,runs/cve/query3/events.jsonl,Not yet manually reviewed,,
+cve,4,answer_mismatch,expected 'ivanti',d-link,4,runs/cve/query4/events.jsonl,Not yet manually reviewed,,
+cve,5,answer_mismatch,expected 1,"6 distinct affected versions.
+
+After normalizing and deduplicating the matching KEV/CPE records, they are: `9.0.0`, `9.0.98`, `10.1.0`, `10.1.34`, `11.0.0`, and `11.0.2`. Wildcard `*` values were excluded.",1,runs/cve/query5/events.jsonl,range_endpoints_vs_version_values,Valid trace item_16 shows version_text is * and separate start/end bounds for three ranges. The final answer excludes * and counts six boundary strings as distinct affected versions. Original grader expects 1. This changes the counted field from stored version values to range endpoints.,trace_and_official_grade_reviewed
+cve,6,answer_mismatch,expected 13,60 distinct CVEs.,3,runs/cve/query6/events.jsonl,Not yet manually reviewed,,
+cve,8,answer_mismatch,expected 58,**244** distinct CVEs meet all three conditions.,4,runs/cve/query8/events.jsonl,Not yet manually reviewed,,
+cve,9,answer_mismatch,expected 8,**74** distinct CVEs satisfy both conditions.,0,runs/cve/query9/events.jsonl,Not yet manually reviewed,,
+imdb,5,answer_mismatch,Rating '1.0' not found in LLM output.,"The first matching record is:
+
+- Company: `""O"" Films`
+- Rating: `6.5`
+- Title: `Parking Ticket`",0,runs/imdb/query5/events.jsonl,row_selection_instead_of_independent_minima,"Original query.json asks for the alphabetically first company name, first rating value and first title among qualifying movies. Valid trace item_11 loops through sorted companies and breaks at the first matching company, then chooses a rating/title within that company. Final answer returns one matching record (O Films / 6.5 / Parking Ticket), rather than independently minimizing each requested column over the full qualifying set. Official grader requires rating 1.0.",original_query_trace_and_grade_reviewed
+imdb,6,answer_mismatch,Character name 'Lola' not found in LLM output.,"- Character: **Bridget**
+- Actress: **Andrews, Julie**
+- Title: **Monster House**",2,runs/imdb/query6/events.jsonl,Not yet manually reviewed,,
+imdb,9,answer_mismatch,Vote count '1040' not found in LLM output.,"The alphabetically first qualifying values are:
+
+- Genre: **Horror**
+- Vote count: **101188**
+- Writer: **Agnew, Jim**
+- Title: **2001 Maniacs**",6,runs/imdb/query9/events.jsonl,Not yet manually reviewed,,
+krama,10,answer_mismatch,"Found numbers ['10', '13', '2024.', '14', '43180'], but expected 0.000748 (±5e-07)","The geomagnetic-storm observations span 10–13 May 2024. Averaging the 14 corresponding NORAD 43180 TLE BSTAR entries gives:
+
+**0.000708**",3,runs/krama/query10/events.jsonl,Not yet manually reviewed,,
+krama,2,answer_mismatch,"Found states ['Wyoming'], but expected 'Idaho'",Wyoming.,2,runs/krama/query2/events.jsonl,Not yet manually reviewed,,
+krama,3,answer_mismatch,"Found numbers ['12', '751.9643', '2023', '2020', '0.75'], but expected 12964.8727 (±5e-05)","The average is **12,751.9643 reported identity thefts**.
+
+I linearly estimated 2023 population as `2020 census + 0.75 × (2024 estimate − 2020 census)`, retained the 56 shared MSAs above one million residents (including San Juan–Bayamón–Caguas), and averaged their 2024 identity-theft counts: 714,110 ÷ 56.",4,runs/krama/query3/events.jsonl,Not yet manually reviewed,,
+krama,6,answer_mismatch,"Found numbers ['10.55', '2008', '2016', '4.12', '4'], but expected 3.88 (±0.1)","Ocean @ Squibnocket Beach (Chilmark, Dukes) had the lowest average water temperature: 10.55 °C across its 2008–2016 readings.
+
+Its bacterial exceedance rate was **4.12%**: 4 violations out of 97 samples.",0,runs/krama/query6/events.jsonl,Not yet manually reviewed,,
+krama,7,answer_mismatch,"Found numbers ['63.82', '62', '12'], but expected 60.0 (±0.005)",The average age is **63.82 years** (62 patients with recorded ages and hyperactivated CDK12).,1,runs/krama/query7/events.jsonl,Not yet manually reviewed,,
+krama,9,answer_mismatch,"Found numbers ['2024.', '2', '2.4432'], but expected 2.4431 (±5e-05)",Swarm-B’s highest mean thermospheric density occurred in October 2024. The mean hourly OMNI2 Kp index that month was **2.4432**.,3,runs/krama/query9/events.jsonl,Not yet manually reviewed,,
+stockmarket,4,answer_mismatch,"Name not found within 5 edits: 'MFA Financial, Inc', closest: 'rnational, inc' (distance=8)","Ranked by number of 2017 up days, the top five NYSE non-ETF stocks were:
+
+1. HDFC Bank Limited — 146 up days, 102 down days  
+2. Albany International Corporation — 143 up days, 101 down days  
+3. Getty Realty Corporation — 143 up days, 104 down days  
+4. Mettler-Toledo International, Inc. — 143 up days, 108 down days  
+5. Pfizer, Inc. — 141 up days, 105 down days",0,runs/stockmarket/query4/events.jsonl,Not yet manually reviewed,,
+usaspending,1,answer_mismatch,expected 898,"There are **900** distinct Department of Defense contract awards with an award amount greater than **$1,000,000**.",1,runs/usaspending/query1/events.jsonl,Not yet manually reviewed,,
+usaspending,2,answer_mismatch,expected 75,61 contract awards.,3,runs/usaspending/query2/events.jsonl,Not yet manually reviewed,,
+usaspending,5,answer_mismatch,expected 12,11 distinct two-digit NAICS sectors are represented.,1,runs/usaspending/query5/events.jsonl,Not yet manually reviewed,,
+usaspending,6,answer_mismatch,expected 56,"57 distinct recipient entities are associated with more than one UEI.
+
+I normalized recipient names for case, punctuation/whitespace, and terminal corporate suffix variants (e.g., Inc./Incorporated, Co./Company, LLC/L.L.C.).",0,runs/usaspending/query6/events.jsonl,Not yet manually reviewed,,
+usaspending,8,answer_mismatch,expected 25,"**23** contract awards met the criteria: awarded by the Department of Defense, to Lockheed Martin, and exceeding $1,000,000.",1,runs/usaspending/query8/events.jsonl,Not yet manually reviewed,,
+usaspending,9,answer_mismatch,expected 147,142 contracts.,0,runs/usaspending/query9/events.jsonl,Not yet manually reviewed,,
+yelp,2,answer_mismatch,No occurrence of 3.7 near PA/Pennsylvania.,"Missouri has the most business reviews: 2,243 total. Its businesses’ average review rating is approximately 3.91 out of 5.",1,runs/yelp/query2/events.jsonl,Not yet manually reviewed,,
+yelp,3,answer_mismatch,Number 35 not found in LLM output.,"21 businesses.
+
+There were 36 distinct businesses with at least one review in 2018; 18 offered business parking, 15 offered bike parking, with 12 offering both.",1,runs/yelp/query3/events.jsonl,Not yet manually reviewed,,
+yelp,7,answer_mismatch,Missing category: Breakfast & Brunch,"The top five categories (counting reviews dated 2016 onward) are:
+
+1. Restaurants — 15 reviews  
+2. Food — 13  
+3. Shopping — 9  
+4. American (New) — 6  
+5. Grocery — 6  
+
+This is based on 36 qualifying reviews written by users whose `yelping_since` date fell in 2016.",0,runs/yelp/query7/events.jsonl,Not yet manually reviewed,,
