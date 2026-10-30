@@ -24,6 +24,24 @@ summary.update(question_micro_accuracy=sum(r['passed'] for r in rows)/104,
  median_duration_s=statistics.median(r['duration_s'] for r in rows),
  total_agent_duration_s=sum(r['duration_s'] for r in rows))
 write(OUT/'reports/aggregate_metrics.json',summary)
+
+excluded=[json.loads(p.read_text()) for p in sorted(OUT.glob('excluded-attempts/*/*/*/result.json'))]
+usage_fields=['input_tokens','cached_input_tokens','cache_write_input_tokens','output_tokens','reasoning_output_tokens']
+usage_rows=[]
+for f in sorted(OUT.glob('**/events.jsonl')):
+    usage={k:0 for k in usage_fields};available=False
+    for line in f.read_text(errors='replace').splitlines():
+        try:e=json.loads(line)
+        except ValueError:continue
+        if e.get('type')=='turn.completed' and e.get('usage'):
+            available=True
+            for k in usage_fields:usage[k]+=e['usage'].get(k,0) or 0
+    usage_rows.append({'trace':str(f.relative_to(OUT)),'excluded':'excluded-attempts' in f.parts,'usage_available':available,**usage})
+accounting={'valid_trials':len(rows),'excluded_scored_attempts':len(excluded),'recorded_usage_all_attempts':{k:sum(r[k] for r in usage_rows) for k in usage_fields},'attempts_without_terminal_usage':sum(not r['usage_available'] for r in usage_rows),'note':'Excluded harness attempts are not counted in accuracy. Their recorded usage remains included here. Interrupted calls may lack terminal usage; this is not a billing total.','attempts':usage_rows}
+write(OUT/'reports/attempt-accounting.json',accounting)
+notes=PROJECT/'review-notes.json'
+if notes.exists():shutil.copyfile(notes,OUT/'reports/review-notes.json')
+
 evidence=[]
 for r in rows:
  if r['passed']:continue
@@ -60,5 +78,5 @@ record={'path':str(archive),'sha256':digest(archive),'bytes':archive.stat().st_s
 write(OUT/'ARCHIVE.json',record)
 (archive_dir/'terra-native-104x1.tar.gz.sha256').write_text(record['sha256']+'  '+archive.name+'\n')
 dest=PROJECT/'results/terra-native-104x1';shutil.copytree(OUT/'reports',dest,dirs_exist_ok=True)
-for n in ['protocol.json','ARCHIVE.json','original-data-manifest.json','runtime-packages.json','archive-manifest.json']:shutil.copyfile(OUT/n,dest/n)
+for n in ['protocol.json','ARCHIVE.json','original-data-manifest.json','runtime-packages.json','archive-manifest.json','harness-correction.json','database-preflight.json']:shutil.copyfile(OUT/n,dest/n)
 print('FINALIZED',json.dumps({'metrics':summary,'archive':record}),flush=True)
