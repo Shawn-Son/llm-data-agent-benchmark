@@ -1,6 +1,12 @@
 # DataAgentBench: one-model reproduction
 
-Current run: **gpt-5.6-terra, 104 original questions, 17 datasets, one independent trial per question**. The sweep is running on Great Lakes as Slurm job **65052253**. Verification and archival run in the same allocation after all questions are scored. Partial results are not a completed benchmark score.
+Completed evaluation: **gpt-5.6-terra, 104 original questions, 17 datasets, one independent trial per question**. All 104 trials completed and were scored by unchanged original validators; no unscored or runtime-failed primary trials.
+
+- Correct: **59/104**; question-weighted accuracy: **56.73%**.
+- Equal-dataset macro Pass@1: **62.59%**. Pass@5 is unavailable.
+- Recorded valid-trial usage: **34,994,764 input tokens** (14,814,739 cached), **558,239 output tokens**, **1,226 tool calls**. No unverified dollar estimate.
+- [Final report](results/terra-native-104x1/report.md), [dataset chart](results/terra-native-104x1/accuracy.svg), [per-question results](results/terra-native-104x1/runs.csv), [archive record](results/terra-native-104x1/ARCHIVE.json).
+- Great Lakes Slurm job **65052253** completed the sweep and verification. The archive was checked against every retained file checksum; it preserves all 104 valid trajectories plus excluded harness attempts.
 
 ## Protocol and provenance
 
@@ -34,7 +40,8 @@ Deployment: `/home/minhyeok/llm-data-agent-benchmark`, upstream `/home/minhyeok/
 ```bash
 module load python/3.12.1 singularity
 strict/.venv/bin/python native104.py --submit
-# After all questions finish:
+# --submit also runs finalization after the sweep.
+# To regenerate reports/archive without inference:
 strict/.venv/bin/python finalize104.py
 ```
 
@@ -46,8 +53,8 @@ Each question retains prompt, manifest, full CLI events, stderr, extracted comma
 
 - Runs: `/home/minhyeok/dab-artifacts/terra-native-104x1/runs`.
 - Reports: `/home/minhyeok/dab-artifacts/terra-native-104x1/reports`.
-- Archive after complete coverage: `/home/minhyeok/dab-archives/terra-native-104x1.tar.gz`.
-- Small reports will be committed under `results/terra-native-104x1/`.
+- Verified archive: `/home/minhyeok/dab-archives/terra-native-104x1.tar.gz`.
+- Final reports and provenance: [`results/terra-native-104x1/`](results/terra-native-104x1/).
 
 The archive keeps one representative auto-downloaded plugin cache and each session’s revision markers, while avoiding repeated cache copies. Agent-deleted intermediate scripts remain in session patch events. Archive includes full trajectories, original tasks/validators, source, installed versions, data provenance and per-file checksums. Original databases remain in the pinned checkout; symlinks do not duplicate them. Restore data against original-data-manifest.json when moving the archive.
 
