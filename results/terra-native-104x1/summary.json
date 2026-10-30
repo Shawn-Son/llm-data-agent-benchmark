@@ -1,0 +1,668 @@
+{
+  "summary": {
+    "model": "gpt-5.6-terra",
+    "attempted": 104,
+    "expected": 104,
+    "datasets": 17,
+    "expected_datasets": 17,
+    "complete": true,
+    "dataset_macro_pass1": 0.6259211376858436,
+    "pass5": null,
+    "scored": 104,
+    "correct": 59,
+    "unscored": 0,
+    "coverage_note": "Macro score is partial unless complete is true.",
+    "estimated_cost_usd": null,
+    "cost_note": "Pricing was not verified; estimated cost is unavailable. Token usage is retained; consult actual U-M Toolkit billing.",
+    "question_micro_accuracy": 0.5673076923076923,
+    "input_tokens": 34994764,
+    "cached_input_tokens": 14814739,
+    "output_tokens": 558239,
+    "tool_calls": 1226
+  },
+  "datasets": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "attempted": 2,
+      "scored": 2,
+      "correct": 1,
+      "accuracy": 0.5,
+      "unscored": 0
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 3,
+      "accuracy": 0.75,
+      "unscored": 0
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 1,
+      "accuracy": 0.3333333333333333,
+      "unscored": 0
+    },
+    {
+      "dataset": "PATENTS",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 2,
+      "accuracy": 0.6666666666666666,
+      "unscored": 0
+    },
+    {
+      "dataset": "agnews",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 1,
+      "accuracy": 0.25,
+      "unscored": 0
+    },
+    {
+      "dataset": "bookreview",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "civic_unstructured",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 3,
+      "accuracy": 0.3,
+      "unscored": 0
+    },
+    {
+      "dataset": "crmarenapro",
+      "attempted": 13,
+      "scored": 13,
+      "correct": 10,
+      "accuracy": 0.7692307692307693,
+      "unscored": 0
+    },
+    {
+      "dataset": "cve",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "unscored": 0
+    },
+    {
+      "dataset": "googlelocal",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 4,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "imdb",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 7,
+      "accuracy": 0.7,
+      "unscored": 0
+    },
+    {
+      "dataset": "krama",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 4,
+      "accuracy": 0.4,
+      "unscored": 0
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "stockindex",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "stockmarket",
+      "attempted": 5,
+      "scored": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "unscored": 0
+    },
+    {
+      "dataset": "usaspending",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 4,
+      "accuracy": 0.4,
+      "unscored": 0
+    },
+    {
+      "dataset": "yelp",
+      "attempted": 7,
+      "scored": 7,
+      "correct": 4,
+      "accuracy": 0.5714285714285714,
+      "unscored": 0
+    }
+  ],
+  "failures": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2",
+      "answer": "Using the latest release (`IsRelease = true`, highest ordinal) for each NPM package:\n\n| Package | Latest version | GitHub repo | Stars |\n|---|---:|---|---:|\n| `@ec-nordbund/leaflet` | `1.7.1` | `leaflet/leaflet` | 38,715 |\n| `@dongjiang/textmate-grammars` | `0.0.5` | `theia-ide/theia` | 18,526 |\n| `@dpoineau/react-scripts>1.0.0>node-sass` | `3.10.1` | `sass/node-sass` | 8,498 |\n| `@dollarshaveclub/cli>1.0.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |\n| `@dollarshaveclub/cli>1.1.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |\n\nThere are 42 package records tied at 8,073 stars for `ljharb/qs`; the final two were selected alphabetically among that tie.",
+      "command_errors": 2,
+      "trace": "runs/DEPS_DEV_V1/query1/events.jsonl",
+      "semantic_root_cause": "incomplete_text_number_extraction",
+      "review_evidence": "Trace item_7 extracts only ([0-9]+) stars from project text. Read-only data verification finds TypeScript described as stars count of 94931, lodash as stars count of 57779, and Svelte as 73,499 stars. The regex excludes the first wording and truncates comma-formatted counts, yielding the wrong ranking. Original validator correctly rejects the missing above-cutoff packages.",
+      "review_status": "trace_validator_and_data_verified"
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "No value in LLM output rounds to 0.33",
+      "answer": "**16 of 111** `README.md` files in repositories whose language description does not mention Python contain \u201ccopyright\u201d information: **14.4%**.",
+      "command_errors": 1,
+      "trace": "runs/GITHUB_REPOS/query1/events.jsonl",
+      "semantic_root_cause": "numeric_mismatch_unresolved",
+      "review_evidence": "Trace item_13 computes 17/115 when including lowercase readme.md; final answer narrows to 16/111 exact-case README.md and reports 14.4%. Original grader requires a numeric value rounding to 0.33. Independent read-only probes reproduced the trace counts but did not establish the official denominator. Do not claim a verified semantic root cause for this case.",
+      "review_status": "trace_grade_and_partial_data_probe_reviewed"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "Missing histology type: 9382/3",
+      "answer": "Average IGF2 expression (`mean(log10(normalized_count + 1))`) for eligible LGG patients:\n\n| Histology type | Patients | Average |\n|---|---:|---:|\n| Astrocytoma | 10 | 2.5713 |\n| Oligoastrocytoma | 5 | 2.7136 |\n| Oligodendroglioma | 8 | 2.6825 |",
+      "command_errors": 0,
+      "trace": "runs/PANCANCER_ATLAS/query1/events.jsonl",
+      "semantic_root_cause": "grouping_field_mismatch",
+      "review_evidence": "Valid run trace item_9 groups by histological_type and returns Astrocytoma/Oligoastrocytoma/Oligodendroglioma. The unchanged validator expects five ICD-O-3 histology codes. The answer omits the required codes and merges distinct expected groups.",
+      "review_status": "trace_and_original_validator_reviewed"
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "No value in LLM output matches 305.12, 305.1, or 305",
+      "answer": "\u03c7\u00b2 = **325.34** (df = 4; p \u2248 3.7 \u00d7 10\u207b\u2076\u2079).\n\nI used female BRCA patients with known histology and at least one `FILTER = 'PASS'` mutation-data entry. CDH1-positive means \u22651 reliable (`PASS`) CDH1 mutation. Histology groups with totals \u226410 were excluded.\n\n| Histological type | CDH1 mutated | Not mutated | Total |\n|---|---:|---:|---:|\n| Infiltrating Ductal Carcinoma | 9 | 540 | 549 |\n| Infiltrating Lobular Carcinoma | 83 | 59 | 142 |\n| Mixed Histology | 4 | 18 | 22 |\n| Mucinous Carcinoma | 0 | 13 | 13 |\n| Other specify | 3 | 33 | 36 |\n\nTotal analyzed: 762 patients (99 mutated, 663 not mutated). The very large statistic indicates a strong association, driven chiefly by the much higher CDH1 mutation rate in infiltrating lobular carcinoma.",
+      "command_errors": 0,
+      "trace": "runs/PANCANCER_ATLAS/query3/events.jsonl",
+      "semantic_root_cause": "cohort_filter_mismatch",
+      "review_evidence": "Valid trace item_8 computes the official 305.1239198 for all clinical patients (N=1059), but final answer selects the PASS-coverage cohort (N=762) and reports 325.34. It restricts the non-mutated denominator to patients with at least one PASS mutation entry; the official expected cohort does not.",
+      "review_status": "trace_and_official_grade_reviewed"
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "No match for: BLOOM ENERGY CORP + PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY",
+      "answer": "- CALIFORNIA INST OF TECHN \u2014 **G01V1/01:** *Measuring or predicting earthquakes*\n- SCHOWALTER LEO J \u2014 **H01L21/0262:** *Reduction or decomposition of gaseous compounds, e.g. CVD*\n\nThese are the non-UC assignees of publications citing UC-assigned patents, using each citing publication\u2019s primary CPC code.",
+      "command_errors": 1,
+      "trace": "runs/PATENTS/query3/events.jsonl",
+      "semantic_root_cause": "entity_extraction_and_code_granularity",
+      "review_evidence": "Valid session patch for investigate.py uses only the phrase publication number to extract identifiers; it finds 55 UC entries although item_5 reports 169 descriptions mentioning UNIV CALIFORNIA. This restricts the citation join. The final answer also supplies detailed codes G01V1/01 and H01L21/0262 although the question requests CPC subclasses. Official grader reports missing BLOOM ENERGY CORP and its expected subclass title.",
+      "review_status": "session_patch_query_and_grade_reviewed"
+    },
+    {
+      "dataset": "agnews",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '0.14414414414414414' (tol=0.0001) not found in LLM output: Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.\n\nThe fraction is **18/111 = 6/37**, or approximately **16.2%**.",
+      "answer": "Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.\n\nThe fraction is **18/111 = 6/37**, or approximately **16.2%**.",
+      "command_errors": 0,
+      "trace": "runs/agnews/query2/events.jsonl",
+      "semantic_root_cause": "semantic_classification_mismatch",
+      "review_evidence": "Valid run reads the article texts and reports 18 Science/Technology articles among 111 by Amy Jones. Official fraction is 0.144144... (=16/111). The denominator agrees; the classified numerator differs. Exact two misclassified documents were not independently adjudicated.",
+      "review_status": "trace_and_official_grade_reviewed"
+    },
+    {
+      "dataset": "agnews",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).",
+      "answer": "The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).",
+      "command_errors": 1,
+      "trace": "runs/agnews/query3/events.jsonl",
+      "semantic_root_cause": "heuristic_topic_classification",
+      "review_evidence": "Valid trace item_13 uses topical regular-expression cues over article texts after metadata filtering. It reports 337.73 per year; the original grader expects 336.63636 within 0.01. The topic-selection heuristic does not reproduce the required count.",
+      "review_status": "trace_and_official_grade_reviewed"
+    },
+    {
+      "dataset": "agnews",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth 'Africa' not found in LLM output: South America published the most World-category articles in 2015.",
+      "answer": "South America published the most World-category articles in 2015.",
+      "command_errors": 1,
+      "trace": "runs/agnews/query4/events.jsonl",
+      "semantic_root_cause": "heuristic_topic_classification",
+      "review_evidence": "Valid trace items_11 and_12 build keyword/naive-Bayes-like topic classifications; the leading region changes across smoothing settings. Final answer chooses South America; original validator expects Africa.",
+      "review_status": "trace_and_official_grade_reviewed"
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 10,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '0.69' (tol=0.01) not found in LLM output: 0.66",
+      "answer": "0.66",
+      "command_errors": 1,
+      "trace": "runs/civic_unstructured/query10/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Missing in LLM output: project name 'Corral Canyon Culvert Repairs', amount '13460000'",
+      "answer": "The project is **Michael Landon Center HVAC Replacement Project**, with accumulated funding of **$15,509,000 USD** as of 2023-01-01.\n\nIts latest eligible agenda report is dated November 10, 2022, which states that the project \u201cis now completed.\u201d The total sums its 10 grants dated through October 8, 2022.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth is empty, but output lists funding source(s): ['Public-Private Partnership', 'Municipal Fund']",
+      "answer": "Funding sources meeting the \u226525% completed-project threshold as of 2022-08-01:\n\n- Municipal Fund \u2014 8 of 29 distinct funded projects completed (27.6%)\n- Public-Private Partnership \u2014 9 of 34 distinct funded projects completed (26.5%)\n\nI deduplicated project-name variants and excluded the non-project funding-record noise.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '0.34' (tol=0.01) not found in LLM output: 0.31",
+      "answer": "0.31",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '4401352.94' (tol=0.1) not found in LLM output: The average total funding received was **$4,238,882.35** per qualifying project.\n\nThis is based on 17 projects with status changes and $72,061,000 in combined in-period funding.",
+      "answer": "The average total funding received was **$4,238,882.35** per qualifying project.\n\nThis is based on 17 projects with status changes and $72,061,000 in combined in-period funding.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query5/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "Missing in LLM output: amount '88615000'",
+      "answer": "**2023** had the highest total funding for capital projects: **$123,003,000 USD**.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "Missing funding source(s) in LLM output: ['Public-Private Partnership']",
+      "answer": "Funding sources exceeding 55% disaster projects:\n\n- Emergency Relief Fund \u2014 16 of 27 projects (59.3%)\n- Federal Grant \u2014 15 of 26 projects (57.7%)\n- Private Donation \u2014 16 of 29 projects (55.2%)\n\nI excluded non-project funding-record noise and consolidated alternate names for the same civic project.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 12,
+      "category": "answer_mismatch",
+      "official_reason": "Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",
+      "answer": "005Wt000003NJgAIAW",
+      "command_errors": 2,
+      "trace": "runs/crmarenapro/query12/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 13,
+      "category": "answer_mismatch",
+      "official_reason": "Found agent IDs ['005Wt000003NEa3IAG'], but expected '005Wt000003NIXCIA4'",
+      "answer": "005Wt000003NEa3IAG",
+      "command_errors": 1,
+      "trace": "runs/crmarenapro/query13/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 7,
+      "category": "answer_mismatch",
+      "official_reason": "LLM output indicates no policy violation, but expected knowledge article ID",
+      "answer": "None",
+      "command_errors": 1,
+      "trace": "runs/crmarenapro/query7/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 10,
+      "category": "answer_mismatch",
+      "official_reason": "expected 5",
+      "answer": "14 distinct Microsoft KEV products have at least one associated CVE with a CVSS v3 base score of 9.0 or higher.",
+      "command_errors": 3,
+      "trace": "runs/cve/query10/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "expected 'fortinet'",
+      "answer": "microsoft",
+      "command_errors": 0,
+      "trace": "runs/cve/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "expected 1262",
+      "answer": "**1,238** KEV catalog entries reference a CVE with no matching record in `vulns_db`.",
+      "command_errors": 1,
+      "trace": "runs/cve/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "expected 'ivanti'",
+      "answer": "d-link",
+      "command_errors": 4,
+      "trace": "runs/cve/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "expected 1",
+      "answer": "6 distinct affected versions.\n\nAfter normalizing and deduplicating the matching KEV/CPE records, they are: `9.0.0`, `9.0.98`, `10.1.0`, `10.1.34`, `11.0.0`, and `11.0.2`. Wildcard `*` values were excluded.",
+      "command_errors": 1,
+      "trace": "runs/cve/query5/events.jsonl",
+      "semantic_root_cause": "range_endpoints_vs_version_values",
+      "review_evidence": "Valid trace item_16 shows version_text is * and separate start/end bounds for three ranges. The final answer excludes * and counts six boundary strings as distinct affected versions. Original grader expects 1. This changes the counted field from stored version values to range endpoints.",
+      "review_status": "trace_and_official_grade_reviewed"
+    },
+    {
+      "dataset": "cve",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "expected 13",
+      "answer": "60 distinct CVEs.",
+      "command_errors": 3,
+      "trace": "runs/cve/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 8,
+      "category": "answer_mismatch",
+      "official_reason": "expected 58",
+      "answer": "**244** distinct CVEs meet all three conditions.",
+      "command_errors": 4,
+      "trace": "runs/cve/query8/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "expected 8",
+      "answer": "**74** distinct CVEs satisfy both conditions.",
+      "command_errors": 0,
+      "trace": "runs/cve/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "imdb",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "Rating '1.0' not found in LLM output.",
+      "answer": "The first matching record is:\n\n- Company: `\"O\" Films`\n- Rating: `6.5`\n- Title: `Parking Ticket`",
+      "command_errors": 0,
+      "trace": "runs/imdb/query5/events.jsonl",
+      "semantic_root_cause": "row_selection_instead_of_independent_minima",
+      "review_evidence": "Original query.json asks for the alphabetically first company name, first rating value and first title among qualifying movies. Valid trace item_11 loops through sorted companies and breaks at the first matching company, then chooses a rating/title within that company. Final answer returns one matching record (O Films / 6.5 / Parking Ticket), rather than independently minimizing each requested column over the full qualifying set. Official grader requires rating 1.0.",
+      "review_status": "original_query_trace_and_grade_reviewed"
+    },
+    {
+      "dataset": "imdb",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "Character name 'Lola' not found in LLM output.",
+      "answer": "- Character: **Bridget**\n- Actress: **Andrews, Julie**\n- Title: **Monster House**",
+      "command_errors": 2,
+      "trace": "runs/imdb/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "imdb",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "Vote count '1040' not found in LLM output.",
+      "answer": "The alphabetically first qualifying values are:\n\n- Genre: **Horror**\n- Vote count: **101188**\n- Writer: **Agnew, Jim**\n- Title: **2001 Maniacs**",
+      "command_errors": 6,
+      "trace": "runs/imdb/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 10,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['10', '13', '2024.', '14', '43180'], but expected 0.000748 (\u00b15e-07)",
+      "answer": "The geomagnetic-storm observations span 10\u201313 May 2024. Averaging the 14 corresponding NORAD 43180 TLE BSTAR entries gives:\n\n**0.000708**",
+      "command_errors": 3,
+      "trace": "runs/krama/query10/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Found states ['Wyoming'], but expected 'Idaho'",
+      "answer": "Wyoming.",
+      "command_errors": 2,
+      "trace": "runs/krama/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['12', '751.9643', '2023', '2020', '0.75'], but expected 12964.8727 (\u00b15e-05)",
+      "answer": "The average is **12,751.9643 reported identity thefts**.\n\nI linearly estimated 2023 population as `2020 census + 0.75 \u00d7 (2024 estimate \u2212 2020 census)`, retained the 56 shared MSAs above one million residents (including San Juan\u2013Bayam\u00f3n\u2013Caguas), and averaged their 2024 identity-theft counts: 714,110 \u00f7 56.",
+      "command_errors": 4,
+      "trace": "runs/krama/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['10.55', '2008', '2016', '4.12', '4'], but expected 3.88 (\u00b10.1)",
+      "answer": "Ocean @ Squibnocket Beach (Chilmark, Dukes) had the lowest average water temperature: 10.55 \u00b0C across its 2008\u20132016 readings.\n\nIts bacterial exceedance rate was **4.12%**: 4 violations out of 97 samples.",
+      "command_errors": 0,
+      "trace": "runs/krama/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 7,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['63.82', '62', '12'], but expected 60.0 (\u00b10.005)",
+      "answer": "The average age is **63.82 years** (62 patients with recorded ages and hyperactivated CDK12).",
+      "command_errors": 1,
+      "trace": "runs/krama/query7/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['2024.', '2', '2.4432'], but expected 2.4431 (\u00b15e-05)",
+      "answer": "Swarm-B\u2019s highest mean thermospheric density occurred in October 2024. The mean hourly OMNI2 Kp index that month was **2.4432**.",
+      "command_errors": 3,
+      "trace": "runs/krama/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Name not found within 5 edits: 'MFA Financial, Inc', closest: 'rnational, inc' (distance=8)",
+      "answer": "Ranked by number of 2017 up days, the top five NYSE non-ETF stocks were:\n\n1. HDFC Bank Limited \u2014 146 up days, 102 down days  \n2. Albany International Corporation \u2014 143 up days, 101 down days  \n3. Getty Realty Corporation \u2014 143 up days, 104 down days  \n4. Mettler-Toledo International, Inc. \u2014 143 up days, 108 down days  \n5. Pfizer, Inc. \u2014 141 up days, 105 down days",
+      "command_errors": 0,
+      "trace": "runs/stockmarket/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "expected 898",
+      "answer": "There are **900** distinct Department of Defense contract awards with an award amount greater than **$1,000,000**.",
+      "command_errors": 1,
+      "trace": "runs/usaspending/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "expected 75",
+      "answer": "61 contract awards.",
+      "command_errors": 3,
+      "trace": "runs/usaspending/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "expected 12",
+      "answer": "11 distinct two-digit NAICS sectors are represented.",
+      "command_errors": 1,
+      "trace": "runs/usaspending/query5/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "expected 56",
+      "answer": "57 distinct recipient entities are associated with more than one UEI.\n\nI normalized recipient names for case, punctuation/whitespace, and terminal corporate suffix variants (e.g., Inc./Incorporated, Co./Company, LLC/L.L.C.).",
+      "command_errors": 0,
+      "trace": "runs/usaspending/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 8,
+      "category": "answer_mismatch",
+      "official_reason": "expected 25",
+      "answer": "**23** contract awards met the criteria: awarded by the Department of Defense, to Lockheed Martin, and exceeding $1,000,000.",
+      "command_errors": 1,
+      "trace": "runs/usaspending/query8/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "expected 147",
+      "answer": "142 contracts.",
+      "command_errors": 0,
+      "trace": "runs/usaspending/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "yelp",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "No occurrence of 3.7 near PA/Pennsylvania.",
+      "answer": "Missouri has the most business reviews: 2,243 total. Its businesses\u2019 average review rating is approximately 3.91 out of 5.",
+      "command_errors": 1,
+      "trace": "runs/yelp/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "yelp",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Number 35 not found in LLM output.",
+      "answer": "21 businesses.\n\nThere were 36 distinct businesses with at least one review in 2018; 18 offered business parking, 15 offered bike parking, with 12 offering both.",
+      "command_errors": 1,
+      "trace": "runs/yelp/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "yelp",
+      "query": 7,
+      "category": "answer_mismatch",
+      "official_reason": "Missing category: Breakfast & Brunch",
+      "answer": "The top five categories (counting reviews dated 2016 onward) are:\n\n1. Restaurants \u2014 15 reviews  \n2. Food \u2014 13  \n3. Shopping \u2014 9  \n4. American (New) \u2014 6  \n5. Grocery \u2014 6  \n\nThis is based on 36 qualifying reviews written by users whose `yelping_since` date fell in 2016.",
+      "command_errors": 0,
+      "trace": "runs/yelp/query7/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    }
+  ]
+}
