@@ -1,6 +1,6 @@
 # DataAgentBench: one-model reproduction
 
-Current run: **gpt-5.6-terra, 104 original questions, 17 datasets, one independent trial per question**. The sweep is running on Great Lakes as Slurm job **65051879**. Verification and archival job **65051954** depends on it. Partial results are not a completed benchmark score.
+Current run: **gpt-5.6-terra, 104 original questions, 17 datasets, one independent trial per question**. The sweep is running on Great Lakes as Slurm job **65052253**. Verification and archival run in the same allocation after all questions are scored. Partial results are not a completed benchmark score.
 
 ## Protocol and provenance
 
@@ -9,14 +9,14 @@ Current run: **gpt-5.6-terra, 104 original questions, 17 datasets, one independe
 - Pinned commit: `61fb21e0766d775acae443f6074f5d498e95f938`.
 - Exact original query text, database description and hints go to a fresh Codex session. Original query-specific `validate.py` files grade final answers unchanged.
 - Descriptions + hints, one trial per question. **Pass@5 is unavailable**. Report question-weighted accuracy and equal-dataset macro Pass@1.
-- Native Codex CLI **0.166.0**, U-M GPT Toolkit Responses gateway, **gpt-5.6-terra**, four concurrent tasks, 90-minute maximum per task.
+- Native Codex CLI **0.166.0**, U-M GPT Toolkit Responses gateway, **gpt-5.6-terra**, six concurrent tasks, 90-minute maximum per task.
 - This is a **reconstructed Codex harness**, not the authors' exact driver/system prompt/tool timeouts. Do not combine scores with older 54-question versions.
 
 ## Execution environment
 
 Native bubblewrap preflight passed: Python imports, task writes, data reads, blocked grader/credential reads, unchanged host sentinel and blocked outbound tool network. Inference runs outside the tool sandbox through the gateway. PostgreSQL/MongoDB use Singularity images, job-local Unix sockets and read-only users. All 17 datasets were loaded; data hashes and sizes are recorded.
 
-Earlier nested Singularity/Codex sandbox attempts failed before the sweep. Diagnostics remain on Great Lakes. **native104.py is the entry point**; container entry points in codex104/run.py and preflight.py are historical. The native runner imports helper functions from them.
+A local-socket defect in the initial sweep was corrected and all attempted server-backed tasks were excluded regardless of score. See [HARNESS_CORRECTION.md](HARNESS_CORRECTION.md) for the exact rule and tests. Earlier nested Singularity/Codex sandbox attempts failed before the sweep. Diagnostics remain on Great Lakes. **native104.py is the entry point**; container entry points in codex104/run.py and preflight.py are historical. The native runner imports helper functions from them.
 
 ## Files and execution
 
@@ -49,6 +49,6 @@ Each question retains prompt, manifest, full CLI events, stderr, extracted comma
 - Archive after complete coverage: `/home/minhyeok/dab-archives/terra-native-104x1.tar.gz`.
 - Small reports will be committed under `results/terra-native-104x1/`.
 
-Archive includes full trajectories, original tasks/validators, source, installed versions, data provenance and per-file checksums. Original databases remain in the pinned checkout; symlinks do not duplicate them. Restore data against original-data-manifest.json when moving the archive.
+The archive keeps one representative auto-downloaded plugin cache and each session’s revision markers, while avoiding repeated cache copies. Agent-deleted intermediate scripts remain in session patch events. Archive includes full trajectories, original tasks/validators, source, installed versions, data provenance and per-file checksums. Original databases remain in the pinned checkout; symlinks do not duplicate them. Restore data against original-data-manifest.json when moving the archive.
 
 No unverified dollar estimate is reported. Raw token usage is retained; actual Toolkit billing is authoritative. Infrastructure/grader exceptions are separate from wrong answers. Semantic failure diagnoses must cite trace evidence and distinguish hypotheses.
