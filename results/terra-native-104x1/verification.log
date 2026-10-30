@@ -1,0 +1,19 @@
+test_duplicate_trials_rejected (test_protocol.ProtocolTests.test_duplicate_trials_rejected) ... ok
+test_infrastructure_is_not_an_incorrect_model_answer (test_protocol.ProtocolTests.test_infrastructure_is_not_an_incorrect_model_answer) ... ok
+test_macro_is_dataset_stratified_not_pooled (test_protocol.ProtocolTests.test_macro_is_dataset_stratified_not_pooled) ... ok
+test_original_user_prompt_preserved_for_all_104_questions (test_protocol.ProtocolTests.test_original_user_prompt_preserved_for_all_104_questions) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.312s
+
+OK
+{
+  "finished": 104,
+  "correct": 59,
+  "unscored": 0,
+  "statuses": {
+    "completed": 104
+  }
+}
+ARCHIVE_MEMBERS_VERIFIED 50017
+FINALIZED {"metrics": {"model": "gpt-5.6-terra", "attempted": 104, "expected": 104, "datasets": 17, "expected_datasets": 17, "complete": true, "dataset_macro_pass1": 0.6259211376858436, "pass5": null, "scored": 104, "correct": 59, "unscored": 0, "coverage_note": "Macro score is partial unless complete is true.", "estimated_cost_usd": null, "cost_note": "Pricing was not verified; estimated cost is unavailable. Token usage is retained; consult actual U-M Toolkit billing.", "question_micro_accuracy": 0.5673076923076923, "input_tokens": 34994764, "cached_input_tokens": 14814739, "output_tokens": 558239, "tool_calls": 1226, "total_input_tokens": 34994764, "total_cached_input_tokens": 14814739, "total_output_tokens": 558239, "total_tool_calls": 1226, "median_duration_s": 85.52529822199722, "total_agent_duration_s": 14822.301694475056}, "archive": {"path": "/home/minhyeok/dab-archives/terra-native-104x1.tar.gz", "sha256": "4c2135f695e9ca03bd1d35e109465bbb1ba91ba5fea435aac9834b219abb8b00", "bytes": 484033085, "files": 50017, "coverage": 104, "datasets": 17, "data_included": false, "full_trajectories_included": true}}
