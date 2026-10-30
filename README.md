@@ -5,8 +5,12 @@ Completed evaluation: **gpt-5.6-terra, 104 original questions, 17 datasets, one 
 - Correct: **59/104**; question-weighted accuracy: **56.73%**.
 - Equal-dataset macro Pass@1: **62.59%**. Pass@5 is unavailable.
 - Recorded valid-trial usage: **34,994,764 input tokens** (14,814,739 cached), **558,239 output tokens**, **1,226 tool calls**. No unverified dollar estimate.
-- [Final report](results/terra-native-104x1/report.md), [dataset chart](results/terra-native-104x1/accuracy.svg), [per-question results](results/terra-native-104x1/runs.csv), [archive record](results/terra-native-104x1/ARCHIVE.json).
+- [Full report and all 45 failure reviews](results/terra-native-104x1/review45.md), [original execution report](results/terra-native-104x1/report.md), [dataset chart](results/terra-native-104x1/accuracy.svg), [per-question results](results/terra-native-104x1/runs.csv), [archive record](results/terra-native-104x1/ARCHIVE.json).
 - Great Lakes Slurm job **65052253** completed the sweep and verification. The archive was checked against every retained file checksum; it preserves all 104 valid trajectories plus excluded harness attempts.
+
+## Completed failure review
+
+All 45 wrong answers have a trace-based review in [review45.json](results/terra-native-104x1/review45.json): 16 have a directly visible mechanism or discrepancy; 29 retain unresolved exact causes. Categories include hypotheses, not measured repair rates. No grades were changed and no intervention was tested. Regenerate the Markdown, HTML and CSV with `python3 results/terra-native-104x1/build_review45.py`.
 
 ## Protocol and provenance
 
