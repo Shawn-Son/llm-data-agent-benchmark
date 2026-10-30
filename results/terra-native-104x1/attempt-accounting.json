@@ -1,0 +1,1325 @@
+{
+  "valid_trials": 104,
+  "excluded_scored_attempts": 23,
+  "recorded_usage_all_attempts": {
+    "input_tokens": 42007506,
+    "cached_input_tokens": 17513428,
+    "cache_write_input_tokens": 24489063,
+    "output_tokens": 679724,
+    "reasoning_output_tokens": 272215
+  },
+  "attempts_without_terminal_usage": 4,
+  "note": "Excluded harness attempts are not counted in accuracy. Their recorded usage remains included here. Interrupted calls may lack terminal usage; this is not a billing total.",
+  "attempts": [
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 96919,
+      "cached_input_tokens": 32413,
+      "cache_write_input_tokens": 64488,
+      "output_tokens": 1990,
+      "reasoning_output_tokens": 636
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query2/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 219304,
+      "cached_input_tokens": 105436,
+      "cache_write_input_tokens": 113829,
+      "output_tokens": 4481,
+      "reasoning_output_tokens": 851
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PANCANCER_ATLAS/query3/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 188546,
+      "cached_input_tokens": 50971,
+      "cache_write_input_tokens": 137542,
+      "output_tokens": 4319,
+      "reasoning_output_tokens": 1440
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PATENTS/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 325609,
+      "cached_input_tokens": 132111,
+      "cache_write_input_tokens": 193444,
+      "output_tokens": 6476,
+      "reasoning_output_tokens": 1118
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PATENTS/query2/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 301018,
+      "cached_input_tokens": 108087,
+      "cache_write_input_tokens": 192892,
+      "output_tokens": 5622,
+      "reasoning_output_tokens": 2142
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/PATENTS/query3/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 326173,
+      "cached_input_tokens": 149211,
+      "cache_write_input_tokens": 176905,
+      "output_tokens": 7013,
+      "reasoning_output_tokens": 2803
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/agnews/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 172673,
+      "cached_input_tokens": 51436,
+      "cache_write_input_tokens": 121207,
+      "output_tokens": 2804,
+      "reasoning_output_tokens": 625
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/agnews/query2/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 151694,
+      "cached_input_tokens": 45378,
+      "cache_write_input_tokens": 106283,
+      "output_tokens": 3917,
+      "reasoning_output_tokens": 2138
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/agnews/query3/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 322091,
+      "cached_input_tokens": 154844,
+      "cache_write_input_tokens": 167190,
+      "output_tokens": 9789,
+      "reasoning_output_tokens": 3162
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/agnews/query4/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 308121,
+      "cached_input_tokens": 123012,
+      "cache_write_input_tokens": 185052,
+      "output_tokens": 7837,
+      "reasoning_output_tokens": 3694
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/bookreview/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 135470,
+      "cached_input_tokens": 27363,
+      "cache_write_input_tokens": 108083,
+      "output_tokens": 2855,
+      "reasoning_output_tokens": 872
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/bookreview/query2/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 179763,
+      "cached_input_tokens": 63567,
+      "cache_write_input_tokens": 116169,
+      "output_tokens": 2797,
+      "reasoning_output_tokens": 759
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/bookreview/query3/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 181109,
+      "cached_input_tokens": 31914,
+      "cache_write_input_tokens": 149165,
+      "output_tokens": 3623,
+      "reasoning_output_tokens": 1117
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": false,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query10/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 733517,
+      "cached_input_tokens": 375707,
+      "cache_write_input_tokens": 357762,
+      "output_tokens": 8145,
+      "reasoning_output_tokens": 4436
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query2/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 395671,
+      "cached_input_tokens": 176602,
+      "cache_write_input_tokens": 219030,
+      "output_tokens": 4379,
+      "reasoning_output_tokens": 1694
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query3/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 543242,
+      "cached_input_tokens": 209024,
+      "cache_write_input_tokens": 334176,
+      "output_tokens": 7749,
+      "reasoning_output_tokens": 3408
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query4/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 644755,
+      "cached_input_tokens": 293412,
+      "cache_write_input_tokens": 351286,
+      "output_tokens": 11716,
+      "reasoning_output_tokens": 4499
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query5/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 551207,
+      "cached_input_tokens": 154773,
+      "cache_write_input_tokens": 396392,
+      "output_tokens": 8838,
+      "reasoning_output_tokens": 3804
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query6/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 421294,
+      "cached_input_tokens": 174849,
+      "cache_write_input_tokens": 246409,
+      "output_tokens": 7166,
+      "reasoning_output_tokens": 4692
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query7/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 410819,
+      "cached_input_tokens": 133227,
+      "cache_write_input_tokens": 277556,
+      "output_tokens": 5002,
+      "reasoning_output_tokens": 2726
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query8/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 257504,
+      "cached_input_tokens": 82409,
+      "cache_write_input_tokens": 175065,
+      "output_tokens": 3370,
+      "reasoning_output_tokens": 1478
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/civic_unstructured/query9/events.jsonl",
+      "excluded": true,
+      "usage_available": false,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/crmarenapro/query1/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 87468,
+      "cached_input_tokens": 22943,
+      "cache_write_input_tokens": 64507,
+      "output_tokens": 844,
+      "reasoning_output_tokens": 115
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/crmarenapro/query10/events.jsonl",
+      "excluded": true,
+      "usage_available": false,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/crmarenapro/query11/events.jsonl",
+      "excluded": true,
+      "usage_available": true,
+      "input_tokens": 58775,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 58760,
+      "output_tokens": 753,
+      "reasoning_output_tokens": 96
+    },
+    {
+      "trace": "excluded-attempts/unix-socket-blocked/crmarenapro/query12/events.jsonl",
+      "excluded": true,
+      "usage_available": false,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0
+    },
+    {
+      "trace": "runs/DEPS_DEV_V1/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 111428,
+      "cached_input_tokens": 23719,
+      "cache_write_input_tokens": 87685,
+      "output_tokens": 4506,
+      "reasoning_output_tokens": 1336
+    },
+    {
+      "trace": "runs/DEPS_DEV_V1/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 68205,
+      "cached_input_tokens": 10666,
+      "cache_write_input_tokens": 57524,
+      "output_tokens": 1933,
+      "reasoning_output_tokens": 574
+    },
+    {
+      "trace": "runs/GITHUB_REPOS/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 243691,
+      "cached_input_tokens": 123935,
+      "cache_write_input_tokens": 119714,
+      "output_tokens": 5174,
+      "reasoning_output_tokens": 1610
+    },
+    {
+      "trace": "runs/GITHUB_REPOS/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 94539,
+      "cached_input_tokens": 29067,
+      "cache_write_input_tokens": 65454,
+      "output_tokens": 2258,
+      "reasoning_output_tokens": 845
+    },
+    {
+      "trace": "runs/GITHUB_REPOS/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 277196,
+      "cached_input_tokens": 146049,
+      "cache_write_input_tokens": 131087,
+      "output_tokens": 4142,
+      "reasoning_output_tokens": 1308
+    },
+    {
+      "trace": "runs/GITHUB_REPOS/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 85967,
+      "cached_input_tokens": 22844,
+      "cache_write_input_tokens": 63102,
+      "output_tokens": 2000,
+      "reasoning_output_tokens": 382
+    },
+    {
+      "trace": "runs/PANCANCER_ATLAS/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 158047,
+      "cached_input_tokens": 33799,
+      "cache_write_input_tokens": 124218,
+      "output_tokens": 3496,
+      "reasoning_output_tokens": 1078
+    },
+    {
+      "trace": "runs/PANCANCER_ATLAS/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 90320,
+      "cached_input_tokens": 40014,
+      "cache_write_input_tokens": 50288,
+      "output_tokens": 2067,
+      "reasoning_output_tokens": 435
+    },
+    {
+      "trace": "runs/PANCANCER_ATLAS/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 123093,
+      "cached_input_tokens": 38688,
+      "cache_write_input_tokens": 84378,
+      "output_tokens": 3514,
+      "reasoning_output_tokens": 1186
+    },
+    {
+      "trace": "runs/PATENTS/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 454390,
+      "cached_input_tokens": 166483,
+      "cache_write_input_tokens": 287856,
+      "output_tokens": 5487,
+      "reasoning_output_tokens": 1520
+    },
+    {
+      "trace": "runs/PATENTS/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 172036,
+      "cached_input_tokens": 49594,
+      "cache_write_input_tokens": 122406,
+      "output_tokens": 4834,
+      "reasoning_output_tokens": 1742
+    },
+    {
+      "trace": "runs/PATENTS/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 154723,
+      "cached_input_tokens": 67343,
+      "cache_write_input_tokens": 87350,
+      "output_tokens": 2926,
+      "reasoning_output_tokens": 1159
+    },
+    {
+      "trace": "runs/agnews/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 230829,
+      "cached_input_tokens": 43377,
+      "cache_write_input_tokens": 187416,
+      "output_tokens": 3133,
+      "reasoning_output_tokens": 1092
+    },
+    {
+      "trace": "runs/agnews/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 145344,
+      "cached_input_tokens": 32939,
+      "cache_write_input_tokens": 112375,
+      "output_tokens": 3558,
+      "reasoning_output_tokens": 2194
+    },
+    {
+      "trace": "runs/agnews/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 197837,
+      "cached_input_tokens": 68354,
+      "cache_write_input_tokens": 129444,
+      "output_tokens": 8389,
+      "reasoning_output_tokens": 5271
+    },
+    {
+      "trace": "runs/agnews/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 237904,
+      "cached_input_tokens": 84263,
+      "cache_write_input_tokens": 153596,
+      "output_tokens": 8358,
+      "reasoning_output_tokens": 3531
+    },
+    {
+      "trace": "runs/bookreview/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 132435,
+      "cached_input_tokens": 21941,
+      "cache_write_input_tokens": 110467,
+      "output_tokens": 2746,
+      "reasoning_output_tokens": 588
+    },
+    {
+      "trace": "runs/bookreview/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 196486,
+      "cached_input_tokens": 21117,
+      "cache_write_input_tokens": 175336,
+      "output_tokens": 2957,
+      "reasoning_output_tokens": 615
+    },
+    {
+      "trace": "runs/bookreview/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 119477,
+      "cached_input_tokens": 27395,
+      "cache_write_input_tokens": 92058,
+      "output_tokens": 2248,
+      "reasoning_output_tokens": 286
+    },
+    {
+      "trace": "runs/civic_unstructured/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 480798,
+      "cached_input_tokens": 206319,
+      "cache_write_input_tokens": 274437,
+      "output_tokens": 5144,
+      "reasoning_output_tokens": 2314
+    },
+    {
+      "trace": "runs/civic_unstructured/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 1082114,
+      "cached_input_tokens": 540552,
+      "cache_write_input_tokens": 541496,
+      "output_tokens": 9725,
+      "reasoning_output_tokens": 5484
+    },
+    {
+      "trace": "runs/civic_unstructured/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 280235,
+      "cached_input_tokens": 47899,
+      "cache_write_input_tokens": 232306,
+      "output_tokens": 2846,
+      "reasoning_output_tokens": 947
+    },
+    {
+      "trace": "runs/civic_unstructured/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 573321,
+      "cached_input_tokens": 193694,
+      "cache_write_input_tokens": 379585,
+      "output_tokens": 6938,
+      "reasoning_output_tokens": 3947
+    },
+    {
+      "trace": "runs/civic_unstructured/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 615332,
+      "cached_input_tokens": 258085,
+      "cache_write_input_tokens": 357196,
+      "output_tokens": 8551,
+      "reasoning_output_tokens": 3903
+    },
+    {
+      "trace": "runs/civic_unstructured/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 616479,
+      "cached_input_tokens": 224328,
+      "cache_write_input_tokens": 392103,
+      "output_tokens": 11778,
+      "reasoning_output_tokens": 6742
+    },
+    {
+      "trace": "runs/civic_unstructured/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 820038,
+      "cached_input_tokens": 426945,
+      "cache_write_input_tokens": 393036,
+      "output_tokens": 10671,
+      "reasoning_output_tokens": 5605
+    },
+    {
+      "trace": "runs/civic_unstructured/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 431899,
+      "cached_input_tokens": 175366,
+      "cache_write_input_tokens": 256494,
+      "output_tokens": 5102,
+      "reasoning_output_tokens": 2417
+    },
+    {
+      "trace": "runs/civic_unstructured/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 390889,
+      "cached_input_tokens": 172469,
+      "cache_write_input_tokens": 218384,
+      "output_tokens": 4494,
+      "reasoning_output_tokens": 2060
+    },
+    {
+      "trace": "runs/civic_unstructured/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 426460,
+      "cached_input_tokens": 145522,
+      "cache_write_input_tokens": 280902,
+      "output_tokens": 5974,
+      "reasoning_output_tokens": 2391
+    },
+    {
+      "trace": "runs/crmarenapro/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 166402,
+      "cached_input_tokens": 60068,
+      "cache_write_input_tokens": 106301,
+      "output_tokens": 2273,
+      "reasoning_output_tokens": 311
+    },
+    {
+      "trace": "runs/crmarenapro/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 266748,
+      "cached_input_tokens": 79661,
+      "cache_write_input_tokens": 187048,
+      "output_tokens": 2880,
+      "reasoning_output_tokens": 1124
+    },
+    {
+      "trace": "runs/crmarenapro/query11/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 59942,
+      "cached_input_tokens": 11524,
+      "cache_write_input_tokens": 48403,
+      "output_tokens": 989,
+      "reasoning_output_tokens": 143
+    },
+    {
+      "trace": "runs/crmarenapro/query12/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 90655,
+      "cached_input_tokens": 25017,
+      "cache_write_input_tokens": 65617,
+      "output_tokens": 1891,
+      "reasoning_output_tokens": 327
+    },
+    {
+      "trace": "runs/crmarenapro/query13/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 115629,
+      "cached_input_tokens": 22749,
+      "cache_write_input_tokens": 92856,
+      "output_tokens": 3885,
+      "reasoning_output_tokens": 1212
+    },
+    {
+      "trace": "runs/crmarenapro/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 177657,
+      "cached_input_tokens": 65313,
+      "cache_write_input_tokens": 112320,
+      "output_tokens": 2415,
+      "reasoning_output_tokens": 696
+    },
+    {
+      "trace": "runs/crmarenapro/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 38201,
+      "cached_input_tokens": 11180,
+      "cache_write_input_tokens": 27012,
+      "output_tokens": 652,
+      "reasoning_output_tokens": 164
+    },
+    {
+      "trace": "runs/crmarenapro/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 83064,
+      "cached_input_tokens": 11174,
+      "cache_write_input_tokens": 71872,
+      "output_tokens": 1543,
+      "reasoning_output_tokens": 491
+    },
+    {
+      "trace": "runs/crmarenapro/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 145581,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 145560,
+      "output_tokens": 2146,
+      "reasoning_output_tokens": 370
+    },
+    {
+      "trace": "runs/crmarenapro/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 335453,
+      "cached_input_tokens": 44667,
+      "cache_write_input_tokens": 290753,
+      "output_tokens": 2454,
+      "reasoning_output_tokens": 809
+    },
+    {
+      "trace": "runs/crmarenapro/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 282165,
+      "cached_input_tokens": 68791,
+      "cache_write_input_tokens": 213344,
+      "output_tokens": 1904,
+      "reasoning_output_tokens": 788
+    },
+    {
+      "trace": "runs/crmarenapro/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 117858,
+      "cached_input_tokens": 11327,
+      "cache_write_input_tokens": 106507,
+      "output_tokens": 2597,
+      "reasoning_output_tokens": 1273
+    },
+    {
+      "trace": "runs/crmarenapro/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 123586,
+      "cached_input_tokens": 39742,
+      "cache_write_input_tokens": 83820,
+      "output_tokens": 2013,
+      "reasoning_output_tokens": 521
+    },
+    {
+      "trace": "runs/cve/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 488910,
+      "cached_input_tokens": 210269,
+      "cache_write_input_tokens": 278593,
+      "output_tokens": 7501,
+      "reasoning_output_tokens": 3980
+    },
+    {
+      "trace": "runs/cve/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 1263416,
+      "cached_input_tokens": 756674,
+      "cache_write_input_tokens": 506646,
+      "output_tokens": 18140,
+      "reasoning_output_tokens": 11374
+    },
+    {
+      "trace": "runs/cve/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 321513,
+      "cached_input_tokens": 76215,
+      "cache_write_input_tokens": 245259,
+      "output_tokens": 6170,
+      "reasoning_output_tokens": 4332
+    },
+    {
+      "trace": "runs/cve/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 662890,
+      "cached_input_tokens": 290854,
+      "cache_write_input_tokens": 371985,
+      "output_tokens": 11560,
+      "reasoning_output_tokens": 7277
+    },
+    {
+      "trace": "runs/cve/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 839541,
+      "cached_input_tokens": 406499,
+      "cache_write_input_tokens": 432973,
+      "output_tokens": 13871,
+      "reasoning_output_tokens": 7248
+    },
+    {
+      "trace": "runs/cve/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 582053,
+      "cached_input_tokens": 256644,
+      "cache_write_input_tokens": 325361,
+      "output_tokens": 6471,
+      "reasoning_output_tokens": 3648
+    },
+    {
+      "trace": "runs/cve/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 710026,
+      "cached_input_tokens": 260609,
+      "cache_write_input_tokens": 449360,
+      "output_tokens": 10840,
+      "reasoning_output_tokens": 5195
+    },
+    {
+      "trace": "runs/cve/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 258007,
+      "cached_input_tokens": 99288,
+      "cache_write_input_tokens": 158669,
+      "output_tokens": 5061,
+      "reasoning_output_tokens": 2083
+    },
+    {
+      "trace": "runs/cve/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 514809,
+      "cached_input_tokens": 191220,
+      "cache_write_input_tokens": 323538,
+      "output_tokens": 10332,
+      "reasoning_output_tokens": 5553
+    },
+    {
+      "trace": "runs/cve/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 877925,
+      "cached_input_tokens": 433283,
+      "cache_write_input_tokens": 444576,
+      "output_tokens": 13180,
+      "reasoning_output_tokens": 7272
+    },
+    {
+      "trace": "runs/googlelocal/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 107629,
+      "cached_input_tokens": 35907,
+      "cache_write_input_tokens": 71695,
+      "output_tokens": 1784,
+      "reasoning_output_tokens": 407
+    },
+    {
+      "trace": "runs/googlelocal/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 172468,
+      "cached_input_tokens": 69283,
+      "cache_write_input_tokens": 103146,
+      "output_tokens": 3250,
+      "reasoning_output_tokens": 785
+    },
+    {
+      "trace": "runs/googlelocal/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 202533,
+      "cached_input_tokens": 85985,
+      "cache_write_input_tokens": 116506,
+      "output_tokens": 4563,
+      "reasoning_output_tokens": 1392
+    },
+    {
+      "trace": "runs/googlelocal/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 68682,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 68664,
+      "output_tokens": 1189,
+      "reasoning_output_tokens": 168
+    },
+    {
+      "trace": "runs/imdb/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 477235,
+      "cached_input_tokens": 246555,
+      "cache_write_input_tokens": 230617,
+      "output_tokens": 5528,
+      "reasoning_output_tokens": 1311
+    },
+    {
+      "trace": "runs/imdb/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 669360,
+      "cached_input_tokens": 405430,
+      "cache_write_input_tokens": 263849,
+      "output_tokens": 9387,
+      "reasoning_output_tokens": 2955
+    },
+    {
+      "trace": "runs/imdb/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 242683,
+      "cached_input_tokens": 86290,
+      "cache_write_input_tokens": 156348,
+      "output_tokens": 5734,
+      "reasoning_output_tokens": 2092
+    },
+    {
+      "trace": "runs/imdb/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 379697,
+      "cached_input_tokens": 212258,
+      "cache_write_input_tokens": 167376,
+      "output_tokens": 9128,
+      "reasoning_output_tokens": 2736
+    },
+    {
+      "trace": "runs/imdb/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 689798,
+      "cached_input_tokens": 421135,
+      "cache_write_input_tokens": 268567,
+      "output_tokens": 14092,
+      "reasoning_output_tokens": 5912
+    },
+    {
+      "trace": "runs/imdb/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 181452,
+      "cached_input_tokens": 81685,
+      "cache_write_input_tokens": 99731,
+      "output_tokens": 4446,
+      "reasoning_output_tokens": 1715
+    },
+    {
+      "trace": "runs/imdb/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 704574,
+      "cached_input_tokens": 419370,
+      "cache_write_input_tokens": 285114,
+      "output_tokens": 11275,
+      "reasoning_output_tokens": 3391
+    },
+    {
+      "trace": "runs/imdb/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 700292,
+      "cached_input_tokens": 420441,
+      "cache_write_input_tokens": 279758,
+      "output_tokens": 15373,
+      "reasoning_output_tokens": 4880
+    },
+    {
+      "trace": "runs/imdb/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 907356,
+      "cached_input_tokens": 610019,
+      "cache_write_input_tokens": 297223,
+      "output_tokens": 17808,
+      "reasoning_output_tokens": 6014
+    },
+    {
+      "trace": "runs/imdb/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 687563,
+      "cached_input_tokens": 445180,
+      "cache_write_input_tokens": 242293,
+      "output_tokens": 13369,
+      "reasoning_output_tokens": 3620
+    },
+    {
+      "trace": "runs/krama/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 459919,
+      "cached_input_tokens": 205407,
+      "cache_write_input_tokens": 254461,
+      "output_tokens": 9572,
+      "reasoning_output_tokens": 3947
+    },
+    {
+      "trace": "runs/krama/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 606928,
+      "cached_input_tokens": 176581,
+      "cache_write_input_tokens": 430299,
+      "output_tokens": 4977,
+      "reasoning_output_tokens": 1333
+    },
+    {
+      "trace": "runs/krama/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 532890,
+      "cached_input_tokens": 247735,
+      "cache_write_input_tokens": 285098,
+      "output_tokens": 9288,
+      "reasoning_output_tokens": 3424
+    },
+    {
+      "trace": "runs/krama/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 489783,
+      "cached_input_tokens": 209513,
+      "cache_write_input_tokens": 280216,
+      "output_tokens": 8247,
+      "reasoning_output_tokens": 2854
+    },
+    {
+      "trace": "runs/krama/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 489436,
+      "cached_input_tokens": 225375,
+      "cache_write_input_tokens": 264007,
+      "output_tokens": 4616,
+      "reasoning_output_tokens": 1289
+    },
+    {
+      "trace": "runs/krama/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 566273,
+      "cached_input_tokens": 215724,
+      "cache_write_input_tokens": 350486,
+      "output_tokens": 7279,
+      "reasoning_output_tokens": 1382
+    },
+    {
+      "trace": "runs/krama/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 324788,
+      "cached_input_tokens": 56268,
+      "cache_write_input_tokens": 268484,
+      "output_tokens": 4797,
+      "reasoning_output_tokens": 1644
+    },
+    {
+      "trace": "runs/krama/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 1252747,
+      "cached_input_tokens": 754584,
+      "cache_write_input_tokens": 498085,
+      "output_tokens": 10140,
+      "reasoning_output_tokens": 3701
+    },
+    {
+      "trace": "runs/krama/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 1164662,
+      "cached_input_tokens": 545109,
+      "cache_write_input_tokens": 619490,
+      "output_tokens": 6641,
+      "reasoning_output_tokens": 1883
+    },
+    {
+      "trace": "runs/krama/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 597742,
+      "cached_input_tokens": 224054,
+      "cache_write_input_tokens": 373631,
+      "output_tokens": 4297,
+      "reasoning_output_tokens": 1041
+    },
+    {
+      "trace": "runs/music_brainz_20k/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 57259,
+      "cached_input_tokens": 22445,
+      "cache_write_input_tokens": 34799,
+      "output_tokens": 757,
+      "reasoning_output_tokens": 56
+    },
+    {
+      "trace": "runs/music_brainz_20k/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 72510,
+      "cached_input_tokens": 11443,
+      "cache_write_input_tokens": 61049,
+      "output_tokens": 1198,
+      "reasoning_output_tokens": 232
+    },
+    {
+      "trace": "runs/music_brainz_20k/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 312950,
+      "cached_input_tokens": 110622,
+      "cache_write_input_tokens": 202292,
+      "output_tokens": 6460,
+      "reasoning_output_tokens": 1857
+    },
+    {
+      "trace": "runs/stockindex/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 90242,
+      "cached_input_tokens": 34298,
+      "cache_write_input_tokens": 55923,
+      "output_tokens": 2114,
+      "reasoning_output_tokens": 465
+    },
+    {
+      "trace": "runs/stockindex/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 56678,
+      "cached_input_tokens": 21022,
+      "cache_write_input_tokens": 35641,
+      "output_tokens": 1014,
+      "reasoning_output_tokens": 128
+    },
+    {
+      "trace": "runs/stockindex/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 76107,
+      "cached_input_tokens": 22554,
+      "cache_write_input_tokens": 53535,
+      "output_tokens": 2497,
+      "reasoning_output_tokens": 994
+    },
+    {
+      "trace": "runs/stockmarket/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 56505,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 56490,
+      "output_tokens": 754,
+      "reasoning_output_tokens": 30
+    },
+    {
+      "trace": "runs/stockmarket/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 81236,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 81221,
+      "output_tokens": 1367,
+      "reasoning_output_tokens": 303
+    },
+    {
+      "trace": "runs/stockmarket/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 58715,
+      "cached_input_tokens": 23084,
+      "cache_write_input_tokens": 35616,
+      "output_tokens": 1831,
+      "reasoning_output_tokens": 510
+    },
+    {
+      "trace": "runs/stockmarket/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 58368,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 58353,
+      "output_tokens": 1513,
+      "reasoning_output_tokens": 410
+    },
+    {
+      "trace": "runs/stockmarket/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 46303,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 46291,
+      "output_tokens": 1117,
+      "reasoning_output_tokens": 260
+    },
+    {
+      "trace": "runs/usaspending/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 643702,
+      "cached_input_tokens": 191632,
+      "cache_write_input_tokens": 452022,
+      "output_tokens": 9589,
+      "reasoning_output_tokens": 4585
+    },
+    {
+      "trace": "runs/usaspending/query10/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 265972,
+      "cached_input_tokens": 108982,
+      "cache_write_input_tokens": 156951,
+      "output_tokens": 4568,
+      "reasoning_output_tokens": 1844
+    },
+    {
+      "trace": "runs/usaspending/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 295538,
+      "cached_input_tokens": 107418,
+      "cache_write_input_tokens": 188075,
+      "output_tokens": 6216,
+      "reasoning_output_tokens": 2803
+    },
+    {
+      "trace": "runs/usaspending/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 106826,
+      "cached_input_tokens": 26704,
+      "cache_write_input_tokens": 80101,
+      "output_tokens": 3166,
+      "reasoning_output_tokens": 1433
+    },
+    {
+      "trace": "runs/usaspending/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 405965,
+      "cached_input_tokens": 191552,
+      "cache_write_input_tokens": 214353,
+      "output_tokens": 9307,
+      "reasoning_output_tokens": 2764
+    },
+    {
+      "trace": "runs/usaspending/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 363764,
+      "cached_input_tokens": 176619,
+      "cache_write_input_tokens": 187091,
+      "output_tokens": 6636,
+      "reasoning_output_tokens": 2031
+    },
+    {
+      "trace": "runs/usaspending/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 95032,
+      "cached_input_tokens": 11830,
+      "cache_write_input_tokens": 83181,
+      "output_tokens": 2568,
+      "reasoning_output_tokens": 1297
+    },
+    {
+      "trace": "runs/usaspending/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 427879,
+      "cached_input_tokens": 144724,
+      "cache_write_input_tokens": 283110,
+      "output_tokens": 7934,
+      "reasoning_output_tokens": 3667
+    },
+    {
+      "trace": "runs/usaspending/query8/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 169982,
+      "cached_input_tokens": 18641,
+      "cache_write_input_tokens": 151314,
+      "output_tokens": 3910,
+      "reasoning_output_tokens": 2341
+    },
+    {
+      "trace": "runs/usaspending/query9/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 335987,
+      "cached_input_tokens": 137620,
+      "cache_write_input_tokens": 198331,
+      "output_tokens": 7118,
+      "reasoning_output_tokens": 3904
+    },
+    {
+      "trace": "runs/yelp/query1/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 57899,
+      "cached_input_tokens": 10714,
+      "cache_write_input_tokens": 47170,
+      "output_tokens": 1031,
+      "reasoning_output_tokens": 171
+    },
+    {
+      "trace": "runs/yelp/query2/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 113923,
+      "cached_input_tokens": 33998,
+      "cache_write_input_tokens": 79898,
+      "output_tokens": 2771,
+      "reasoning_output_tokens": 647
+    },
+    {
+      "trace": "runs/yelp/query3/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 88979,
+      "cached_input_tokens": 35801,
+      "cache_write_input_tokens": 53157,
+      "output_tokens": 2024,
+      "reasoning_output_tokens": 295
+    },
+    {
+      "trace": "runs/yelp/query4/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 168146,
+      "cached_input_tokens": 52958,
+      "cache_write_input_tokens": 115155,
+      "output_tokens": 2756,
+      "reasoning_output_tokens": 778
+    },
+    {
+      "trace": "runs/yelp/query5/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 105596,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 105572,
+      "output_tokens": 1774,
+      "reasoning_output_tokens": 383
+    },
+    {
+      "trace": "runs/yelp/query6/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 96853,
+      "cached_input_tokens": 22850,
+      "cache_write_input_tokens": 73979,
+      "output_tokens": 1656,
+      "reasoning_output_tokens": 154
+    },
+    {
+      "trace": "runs/yelp/query7/events.jsonl",
+      "excluded": false,
+      "usage_available": true,
+      "input_tokens": 75815,
+      "cached_input_tokens": 21806,
+      "cache_write_input_tokens": 53991,
+      "output_tokens": 2096,
+      "reasoning_output_tokens": 939
+    }
+  ]
+}
