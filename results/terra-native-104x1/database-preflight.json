@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "stdout": "[{\"kind\": \"postgres\", \"database\": \"pancancer_clinical\", \"tables\": 1}, {\"kind\": \"postgres\", \"database\": \"patent_CPCDefinition\", \"tables\": 1}, {\"kind\": \"mongo\", \"database\": \"articles_db\", \"documents\": {\"articles\": 127600}}, {\"kind\": \"postgres\", \"database\": \"bookreview_db\", \"tables\": 1}, {\"kind\": \"mongo\", \"database\": \"civic_db\", \"documents\": {\"civic_docs\": 19}}, {\"kind\": \"postgres\", \"database\": \"crm_support\", \"tables\": 6}, {\"kind\": \"postgres\", \"database\": \"cve_kev\", \"tables\": 2}, {\"kind\": \"mongo\", \"database\": \"cve_descriptions\", \"documents\": {\"cve_documents\": 71501}}, {\"kind\": \"postgres\", \"database\": \"googlelocal_db\", \"tables\": 1}, {\"kind\": \"postgres\", \"database\": \"movies_db\", \"tables\": 15}, {\"kind\": \"mongo\", \"database\": \"domain_docs_db\", \"documents\": {\"files\": 1651}}, {\"kind\": \"postgres\", \"database\": \"usaspending_contracts\", \"tables\": 2}, {\"kind\": \"mongo\", \"database\": \"usaspending_descriptions\", \"documents\": {\"contract_documents\": 9921}}, {\"kind\": \"mongo\", \"database\": \"yelp_db\", \"documents\": {\"checkin\": 90, \"business\": 100}}]\n",
+  "stderr": "",
+  "returncode": 0,
+  "inference_calls": 0
+}
