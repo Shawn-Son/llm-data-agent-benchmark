@@ -1,6 +1,6 @@
 """104x1 Codex evaluation with an explicitly tested native bubblewrap sandbox."""
 from pathlib import Path
-import argparse, concurrent.futures, datetime, errno, json, os, shutil, signal, subprocess, sys, time, urllib.parse
+import argparse, concurrent.futures, datetime, errno, json, os, shutil, signal, subprocess, sys, time, urllib.parse, yaml
 PROJECT=Path(__file__).resolve().parent
 sys.path.insert(0,str(PROJECT/'codex104'))
 from run import all_tasks, prompt, official_grade, stats, services, write, digest, PIN
@@ -119,6 +119,36 @@ def one(ds,qid,sockets,pf):
     write(folder/'result.json',record);write(folder/'manifest.json',record)
     print('RESULT',ds,qid,record['status'],record['passed'],flush=True)
     return record
+
+def services(project,root,rt):
+ rt.mkdir(parents=True,exist_ok=False);sock=rt/'sockets';sock.mkdir(mode=0o700)
+ pg=project/'runtime/postgres17.sif';mongo=project/'runtime/mongo8.sif'
+ def run(cmd,**kw):return subprocess.run(cmd,check=True,**kw)
+ pgbase=['singularity','exec','--bind',str(rt)+':'+str(rt),str(pg)]
+ pgdata=rt/'pgdata';run(pgbase+['/usr/lib/postgresql/17/bin/initdb','-D',str(pgdata),'-U','postgres','--auth-local=trust','--auth-host=reject'])
+ run(pgbase+['/usr/lib/postgresql/17/bin/pg_ctl','-D',str(pgdata),'-l',str(rt/'postgres.log'),'-o',f"-k {sock} -c listen_addresses=''",'start'])
+ ps=pgbase+['psql','-h',str(sock),'-U','postgres','-v','ON_ERROR_STOP=1']
+ run(ps+['-d','postgres','-c',"CREATE ROLE dab_readonly LOGIN; ALTER ROLE dab_readonly SET default_transaction_read_only=on;"])
+ mb=['singularity','exec','--bind',str(rt)+':'+str(rt),str(mongo)]
+ mdata=rt/'mongodata';mdata.mkdir()
+ # Start unauthenticated only during original dump loading; then restart with auth.
+ run(mb+['mongod','--dbpath',str(mdata),'--unixSocketPrefix',str(sock),'--bind_ip','127.0.0.1','--port','27017','--fork','--logpath',str(rt/'mongo.log')])
+ for ds in sorted({d for d,q in all_tasks(root)}):
+  cfg=yaml.safe_load((root/f'query_{ds}/db_config.yaml').read_text())['db_clients']
+  for c in cfg.values():
+   if c['db_type']=='postgres':
+    name=c['db_name'];run(pgbase+['createdb','-h',str(sock),'-U','postgres','--encoding=UTF8','--lc-collate=C','--lc-ctype=C','--template=template0',name])
+    with (root/f'query_{ds}'/c['sql_file']).open('rb') as f:run(ps+['-d',name],stdin=f,stdout=subprocess.DEVNULL)
+    run(ps+['-d',name,'-c','GRANT USAGE ON SCHEMA public TO dab_readonly; GRANT SELECT ON ALL TABLES IN SCHEMA public TO dab_readonly;'])
+   elif c['db_type']=='mongo':
+    run(['singularity','exec','--bind',str(rt)+':'+str(rt),'--bind',str(root)+':'+str(root)+':ro',str(mongo),
+         'mongorestore','--uri','mongodb://'+urllib.parse.quote(str(sock/'mongodb-27017.sock'),safe=''),'--nsInclude',c['db_name']+'.*',str(root/f'query_{ds}'/c['dump_folder'])])
+  print('DATABASES_LOADED',ds,flush=True)
+ script="db.getSiblingDB('admin').createUser({user:'dab_readonly',pwd:'dab_readonly',roles:[{role:'readAnyDatabase',db:'admin'}]})"
+ run(mb+['mongosh','mongodb://'+urllib.parse.quote(str(sock/'mongodb-27017.sock'),safe=''),'--quiet','--eval',script])
+ run(mb+['mongod','--dbpath',str(mdata),'--shutdown'])
+ run(mb+['mongod','--dbpath',str(mdata),'--unixSocketPrefix',str(sock),'--bind_ip','127.0.0.1','--port','27017','--auth','--fork','--logpath',str(rt/'mongo.log')])
+ return sock
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--execute',action='store_true');args=parser.parse_args()
