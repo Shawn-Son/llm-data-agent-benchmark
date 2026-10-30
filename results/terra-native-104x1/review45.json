@@ -1,0 +1,1123 @@
+{
+  "review_date": "2026-10-30",
+  "method": "Retrospective assistant review of original questions, unchanged validators, final answers and retained command traces. One primary review category per failed run; no independent second judge or repair experiment. Compact extraction limits each command output to 1400 characters, so unresolved causes are explicitly retained. Supported means the mechanism or discrepancy is directly visible, not that a repair was replayed or all causal rows proved.",
+  "reviews": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 1,
+      "category": "Extraction and representation",
+      "evidence_status": "Supported",
+      "observation": "Star parsing requires digits immediately before 'stars'; it misses 'stars count of 94931' and mishandles formatted counts. The resulting top packages omit an above-cutoff package required by the validator.",
+      "proposed_check": "Check parse coverage and retain raw text beside parsed stars; parse comma-separated and label-first forms before ranking.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_6",
+        "item_7"
+      ],
+      "question": "Considering only the latest release versions for each distinct NPM package, which packages are the top 5 most popular based on the Github star number, as well as their versions?",
+      "final_answer": "Using the latest release (`IsRelease = true`, highest ordinal) for each NPM package:\n\n| Package | Latest version | GitHub repo | Stars |\n|---|---:|---|---:|\n| `@ec-nordbund/leaflet` | `1.7.1` | `leaflet/leaflet` | 38,715 |\n| `@dongjiang/textmate-grammars` | `0.0.5` | `theia-ide/theia` | 18,526 |\n| `@dpoineau/react-scripts>1.0.0>node-sass` | `3.10.1` | `sass/node-sass` | 8,498 |\n| `@dollarshaveclub/cli>1.0.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |\n| `@dollarshaveclub/cli>1.1.0>qs` | `6.4.0` | `ljharb/qs` | 8,073 |\n\nThere are 42 package records tied at 8,073 stars for `ljharb/qs`; the final two were selected alphabetically among that tie.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2",
+        "status": "scored",
+        "validator_sha256": "691a1910f0eb76e20b7d0652141584320b5bcfcaa399f07d8601f0dbc00c2d35"
+      },
+      "source": "runs/DEPS_DEV_V1/query1/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 1,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Unresolved",
+      "observation": "Final 16/111 (14.4%) differs from validator 0.33; another normalization gives 17/115. The trace does not establish the benchmark's intended denominator or the exact missing repositories.",
+      "proposed_check": "Reconcile row-level numerator and denominator under the original task's repository and language definitions.",
+      "command_ids": [
+        "item_7",
+        "item_11",
+        "item_12",
+        "item_13"
+      ],
+      "question": "Among repositories that do not use Python, what proportion of their README.md files include copyright information?",
+      "final_answer": "**16 of 111** `README.md` files in repositories whose language description does not mention Python contain “copyright” information: **14.4%**.",
+      "official_grading": {
+        "passed": false,
+        "reason": "No value in LLM output rounds to 0.33",
+        "status": "scored",
+        "validator_sha256": "c8e979be70776b67ee32372ac1e77b75f7474946809dc81d4941821bf5683bd5"
+      },
+      "source": "runs/GITHUB_REPOS/query1/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 1,
+      "category": "Extraction and representation",
+      "evidence_status": "Supported",
+      "observation": "The answer lists histological_type names, while the validator requires five ICD-O-3 codes, including 9382/3. The queried representation and required answer representation differ.",
+      "proposed_check": "Check requested histology vocabulary against the schema and map names to the requested codes with provenance.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "For LGG patients, compute the average log10-transformed expression of the IGF2 gene across different histology types. Only include patients with valid IGF2 expression values and histology annotations that are not enclosed in square brackets. Report the final average values with at least four decimal places of precision.",
+      "final_answer": "Average IGF2 expression (`mean(log10(normalized_count + 1))`) for eligible LGG patients:\n\n| Histology type | Patients | Average |\n|---|---:|---:|\n| Astrocytoma | 10 | 2.5713 |\n| Oligoastrocytoma | 5 | 2.7136 |\n| Oligodendroglioma | 8 | 2.6825 |",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing histology type: 9382/3",
+        "status": "scored",
+        "validator_sha256": "3f1b15e3c24c1ce258ba064fcc3f2523ee4b7c8079ab58c5ac215cd90d1d6d7a"
+      },
+      "source": "runs/PANCANCER_ATLAS/query1/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 3,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "The full clinical cohort (N=1059) gives chi-square 305.1239198, matching the validator. The final answer instead uses the PASS-coverage subset (N=762), giving 325.34.",
+      "proposed_check": "Warn when a later join changes the analysis cohort; preserve counts and justify each added restriction.",
+      "command_ids": [
+        "item_5",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "Calculate the chi-square statistic to assess the association between histological types and the presence of CDH1 gene mutations in female BRCA patients from the PanCancer Atlas, excluding categories with marginal totals less than or equal to 10, and only focusing on patients with known histological types and consider only reliable mutation entries.",
+      "final_answer": "χ² = **325.34** (df = 4; p ≈ 3.7 × 10⁻⁶⁹).\n\nI used female BRCA patients with known histology and at least one `FILTER = 'PASS'` mutation-data entry. CDH1-positive means ≥1 reliable (`PASS`) CDH1 mutation. Histology groups with totals ≤10 were excluded.\n\n| Histological type | CDH1 mutated | Not mutated | Total |\n|---|---:|---:|---:|\n| Infiltrating Ductal Carcinoma | 9 | 540 | 549 |\n| Infiltrating Lobular Carcinoma | 83 | 59 | 142 |\n| Mixed Histology | 4 | 18 | 22 |\n| Mucinous Carcinoma | 0 | 13 | 13 |\n| Other specify | 3 | 33 | 36 |\n\nTotal analyzed: 762 patients (99 mutated, 663 not mutated). The very large statistic indicates a strong association, driven chiefly by the much higher CDH1 mutation rate in infiltrating lobular carcinoma.",
+      "official_grading": {
+        "passed": false,
+        "reason": "No value in LLM output matches 305.12, 305.1, or 305",
+        "status": "scored",
+        "validator_sha256": "14b8be8849e25f4ba71b0347589ade0e51dec3e8a51f1273b485244981427520"
+      },
+      "source": "runs/PANCANCER_ATLAS/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 3,
+      "category": "Extraction and representation",
+      "evidence_status": "Supported",
+      "observation": "The publication-number-only regex finds 55 UC records versus 169 relevant descriptions, losing join coverage. The answer also uses detailed CPC codes rather than subclass titles and omits BLOOM ENERGY CORP.",
+      "proposed_check": "Audit unmatched publication identifiers and CPC hierarchy; compare parse coverage across text forms before aggregation.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_7",
+        "item_8"
+      ],
+      "question": "Which assignees, excluding UNIV CALIFORNIA itself, have cited patents assigned to UNIV CALIFORNIA, and what are the titles of the primary CPC subclasses associated with these citations? Please provide the name of each citing assignee together with the full title of the CPC subclass.",
+      "final_answer": "- CALIFORNIA INST OF TECHN — **G01V1/01:** *Measuring or predicting earthquakes*\n- SCHOWALTER LEO J — **H01L21/0262:** *Reduction or decomposition of gaseous compounds, e.g. CVD*\n\nThese are the non-UC assignees of publications citing UC-assigned patents, using each citing publication’s primary CPC code.",
+      "official_grading": {
+        "passed": false,
+        "reason": "No match for: BLOOM ENERGY CORP + PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY",
+        "status": "scored",
+        "validator_sha256": "c34efa6c273789795d3bf52a02e11503924644a665fa81ca752914a0c5577d50"
+      },
+      "source": "runs/PATENTS/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "agnews",
+      "query": 2,
+      "category": "Semantic classification",
+      "evidence_status": "Unresolved",
+      "observation": "The agent labels 18 of Amy Jones's 111 articles Science/Technology; the validator implies 16/111. The exact two disputed labels have not been independently adjudicated.",
+      "proposed_check": "Compare article-level labels against an independently reviewed sample; do not infer the two incorrect rows from the aggregate alone.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "What fraction of all articles authored by Amy Jones belong to the Science/Technology category?",
+      "final_answer": "Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.\n\nThe fraction is **18/111 = 6/37**, or approximately **16.2%**.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth '0.14414414414414414' (tol=0.0001) not found in LLM output: Amy Jones authored 111 articles. Of those, 18 are Science/Technology articles.\n\nThe fraction is **18/111 = 6/37**, or approximately **16.2%**.",
+        "status": "scored",
+        "validator_sha256": "4f38f4768db4b5bc392efdc495fe5d98a20d937bed9a773ae876445dd6287145"
+      },
+      "source": "runs/agnews/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "agnews",
+      "query": 3,
+      "category": "Semantic classification",
+      "evidence_status": "Unresolved",
+      "observation": "Keyword-based topic assignment gives 337.73 business articles/year versus 336.6363636. This trace does not establish an answer-causing LIMIT truncation; topic labels remain the main hypothesis.",
+      "proposed_check": "Audit business labels and geographic/year filters on the difference set; measure label precision before changing the count.",
+      "command_ids": [
+        "item_7",
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11",
+        "item_13"
+      ],
+      "question": "What is the average number of business articles published per year in Europe from 2010 to 2020, inclusive?",
+      "final_answer": "The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: The average is **337.73 business articles per year** in Europe from 2010 through 2020 (inclusive).",
+        "status": "scored",
+        "validator_sha256": "809d8d3f011655336e2579577b93681b2f7170eadccf08551de74190e9a61b7f"
+      },
+      "source": "runs/agnews/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "agnews",
+      "query": 4,
+      "category": "Semantic classification",
+      "evidence_status": "Unresolved",
+      "observation": "Keyword and smoothed classifier variants lead to South America, while the validator expects Africa. The trace shows sensitivity to heuristic classification, not a verified corrected set of World articles.",
+      "proposed_check": "Compare category counts across classifiers and manually review records that change the winning continent.",
+      "command_ids": [
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_14"
+      ],
+      "question": "In 2015, which region published the largest number of articles in the World category?",
+      "final_answer": "South America published the most World-category articles in 2015.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth 'Africa' not found in LLM output: South America published the most World-category articles in 2015.",
+        "status": "scored",
+        "validator_sha256": "a90e70fefb2f2b97c408d9f236d1b1f07037e5bf553162157c6df36b627a8776"
+      },
+      "source": "runs/agnews/query4/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 10,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "Hard-coded completed-project sets and manual temporal adjustments produce 12031000/18143000, reported as 0.66, versus 0.69. Exact grant-to-status reconciliation remains open.",
+      "proposed_check": "Build a dated project-status ledger and attach each grant to the latest report available at its date.",
+      "command_ids": [
+        "item_17",
+        "item_18",
+        "item_19",
+        "item_21"
+      ],
+      "question": "What is the ratio of total funding granted to projects with a status of 'completed' versus projects with a status of 'not started' between 2021-09-01 and 2022-09-01 (inclusive)? For each funding record, the project's status is determined by its most recent report dated on or before the date that funding was granted. A project whose status changes within the period may contribute amounts to both categories. Express the answer as a single decimal number rounded to 2 decimal places (completed_total / not_started_total).",
+      "final_answer": "0.66",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth '0.69' (tol=0.01) not found in LLM output: 0.66",
+        "status": "scored",
+        "validator_sha256": "91330e6b5237efd23331ff9536981bb448b885f0ec4b08bf4a5c4525f47f2ac6"
+      },
+      "source": "runs/civic_unstructured/query10/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 2,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "The answer selects Michael Landon HVAC at 15509000; the validator expects Corral Canyon Culvert Repairs at 13460000. Narrative completion statements and report-section status may differ; the precise status interpretation is unresolved.",
+      "proposed_check": "Adjudicate dated section headers versus narrative status before ranking completed projects.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "As of 2023-01-01, among all projects whose most recent report (dated on or before 2023-01-01) records a status of 'completed', which project has the highest accumulated total funding, and what is that funding amount in USD? Accumulated total funding means the sum of all funding amounts granted to that project on or before 2023-01-01.",
+      "final_answer": "The project is **Michael Landon Center HVAC Replacement Project**, with accumulated funding of **$15,509,000 USD** as of 2023-01-01.\n\nIts latest eligible agenda report is dated November 10, 2022, which states that the project “is now completed.” The total sums its 10 grants dated through October 8, 2022.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing in LLM output: project name 'Corral Canyon Culvert Repairs', amount '13460000'",
+        "status": "scored",
+        "validator_sha256": "236e1a16fb849f52e94459701105cd0ca8632cba5148acf336f8402a4c160e8a"
+      },
+      "source": "runs/civic_unstructured/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 3,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "Name canonicalization and a manually selected completed set yield Municipal Fund 8/29 and PPP 9/34; the validator expects no qualifying funding source. Status membership and deduplication denominator are not reconciled.",
+      "proposed_check": "Publish the unique-project denominator and completed membership per source, then inspect disputed aliases and statuses.",
+      "command_ids": [
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13"
+      ],
+      "question": "As of 2022-08-01, list all funding sources where at least 25% of the distinct projects they have funded on or before that date have a status of 'completed' in their most recent report dated on or before 2022-08-01.",
+      "final_answer": "Funding sources meeting the ≥25% completed-project threshold as of 2022-08-01:\n\n- Municipal Fund — 8 of 29 distinct funded projects completed (27.6%)\n- Public-Private Partnership — 9 of 34 distinct funded projects completed (26.5%)\n\nI deduplicated project-name variants and excluded the non-project funding-record noise.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth is empty, but output lists funding source(s): ['Public-Private Partnership', 'Municipal Fund']",
+        "status": "scored",
+        "validator_sha256": "a540e9a014276d31a68f44fadec6dcd104d101dab05f4cc338563f5e2aad7e2a"
+      },
+      "source": "runs/civic_unstructured/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 4,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "Manual report-date handling and token-Jaccard section matching (threshold 0.2) produce 0.31 versus 0.34. A specific causal row has not been isolated.",
+      "proposed_check": "Preserve report dates, tied-date documents and match scores; inspect low-confidence project-to-section links.",
+      "command_ids": [
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13",
+        "item_14",
+        "item_15",
+        "item_16"
+      ],
+      "question": "What is the ratio of total funding amount granted to capital projects versus disaster projects between 2021-06-01 and 2022-06-01 (inclusive)? For each funding record, use the project's type (capital or disaster) as of the date that funding was granted, determined by the project's most recent report dated on or before that grant date. A project whose type changes within the period may contribute amounts to both types. Express the answer as a single decimal number rounded to 2 decimal places (capital_total / disaster_total).",
+      "final_answer": "0.31",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth '0.34' (tol=0.01) not found in LLM output: 0.31",
+        "status": "scored",
+        "validator_sha256": "03badfb8ef33f2426421edb27489c3b3dd34cc202a6360bafa3eac1e0bbdfc69"
+      },
+      "source": "runs/civic_unstructured/query4/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 5,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "Manual project selection and amount adjustments yield 72061000/17 = 4238882.35 versus 4401352.94. The exact omitted or misclassified grants are not proven.",
+      "proposed_check": "Reconcile each project's status transitions and grant amounts in an auditable ledger before averaging.",
+      "command_ids": [
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13",
+        "item_14",
+        "item_15",
+        "item_16"
+      ],
+      "question": "Between 2021-06-01 and 2023-01-01, for all projects that underwent at least one status change (i.e., there exist at least two reports within this period that record different statuses for that project), what is the average total funding received per project during this period? A project's total funding for this period is the sum of all funding amounts granted to it between 2021-06-01 and 2023-01-01 (inclusive). Report the average in USD, rounded to 2 decimal places.",
+      "final_answer": "The average total funding received was **$4,238,882.35** per qualifying project.\n\nThis is based on 17 projects with status changes and $72,061,000 in combined in-period funding.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Ground truth '4401352.94' (tol=0.1) not found in LLM output: The average total funding received was **$4,238,882.35** per qualifying project.\n\nThis is based on 17 projects with status changes and $72,061,000 in combined in-period funding.",
+        "status": "scored",
+        "validator_sha256": "04dcefd2978667fb4039d720e54699c3884babcc6de249ebcbe478d90e3110ba"
+      },
+      "source": "runs/civic_unstructured/query5/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 6,
+      "category": "Temporal state and status",
+      "evidence_status": "Supported",
+      "observation": "A static disaster-project prefix blacklist is applied across years, although eligibility is required as of each grant. The answer gives 123003000 versus 88615000, with the same year 2023.",
+      "proposed_check": "Require an as-of date on status joins; compute eligibility per grant instead of one global project label.",
+      "command_ids": [
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13",
+        "item_14",
+        "item_15",
+        "item_16",
+        "item_17",
+        "item_18"
+      ],
+      "question": "Across all years in the funding records, which year did capital projects receive the highest total funding amount? For each funding record, the project's type (capital or disaster) is determined by its most recent report dated on or before the date that funding was granted. Report the year and the total funding amount in USD.",
+      "final_answer": "**2023** had the highest total funding for capital projects: **$123,003,000 USD**.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing in LLM output: amount '88615000'",
+        "status": "scored",
+        "validator_sha256": "f3c8e7b5c984647cdf0a6c122ffab83d40fcba6bc14ce4bf100eedd6b6a5e709"
+      },
+      "source": "runs/civic_unstructured/query6/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 9,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "Hard-coded aliases/disaster labels and omitted unmatched projects yield PPP 16/31, excluding it from the answer although the validator requires it. Exact membership is not independently reconciled.",
+      "proposed_check": "Expose unmatched projects and source denominators; resolve dated disaster status before thresholding.",
+      "command_ids": [
+        "item_7",
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11"
+      ],
+      "question": "As of 2022-11-01, list all funding sources where more than 55% of the distinct projects they have funded on or before that date have a type of 'disaster' in their most recent report dated on or before 2022-11-01.",
+      "final_answer": "Funding sources exceeding 55% disaster projects:\n\n- Emergency Relief Fund — 16 of 27 projects (59.3%)\n- Federal Grant — 15 of 26 projects (57.7%)\n- Private Donation — 16 of 29 projects (55.2%)\n\nI excluded non-project funding-record noise and consolidated alternate names for the same civic project.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing funding source(s) in LLM output: ['Public-Private Partnership']",
+        "status": "scored",
+        "validator_sha256": "0a62ed854d0531f492d98e2181b97708305dd5801101dbce8cbda420bbaf8d63"
+      },
+      "source": "runs/civic_unstructured/query9/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 12,
+      "category": "Temporal state and status",
+      "evidence_status": "Supported",
+      "observation": "The trace compares April-created and April-signed contracts. The former selects 005Wt000003NJgAIAW (49 days), the latter 005Wt000003NDEBIA4 (304 days), which the validator expects. Final selection uses creation month.",
+      "proposed_check": "Declare the date field used for the April cohort; the wording's temporal interpretation should be adjudicated, not silently changed.",
+      "command_ids": [
+        "item_5",
+        "item_6"
+      ],
+      "question": "Who had the quickest average turnaround from opening to closing opportunities among agents in April 2023? Return only the Id of the agent.\n\n## Sales Cycle Policy\n- Definition: The sales cycle is measured as the number of days between an opportunity's creation date and the company signed date on the corresponding contract.\n\n## Today's date: 2024-09-12",
+      "final_answer": "005Wt000003NJgAIAW",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",
+        "status": "scored",
+        "validator_sha256": "99476c2b08ba7f07bfbe1fb4fd32938a5a78c7942e88fb57c35da748e6c7d2cc"
+      },
+      "source": "runs/crmarenapro/query12/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 13,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "The calculation restricts both contract-signing and order-effective dates, and allocates orders through account-level opportunity owners. It returns NEa3IAG rather than NIXCIA4. Extra filtering and possible owner fan-out are visible; their separate effects are not isolated.",
+      "proposed_check": "Check eligibility dates against the policy and assert order-to-owner join cardinality before revenue aggregation.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7"
+      ],
+      "question": "Identify the agent who achieved the top sales figures for orders made in the past five months. Return only the Id of the agent.\n\n## Sales Amount Policy\n- Definition: The sales amount for an order is calculated as the product of the quantity and the unit price from the Order object (Quantity * UnitPrice). An opportunity is eligible if its associated contract has a company signed date that falls within the time interval of interest.\n\n- Today's date: 2022-11-25",
+      "final_answer": "005Wt000003NEa3IAG",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found agent IDs ['005Wt000003NEa3IAG'], but expected '005Wt000003NIXCIA4'",
+        "status": "scored",
+        "validator_sha256": "cf707902d5ccb87233fbba008ebc70d6e7001d2f77e10ddebeb082575ded4486"
+      },
+      "source": "runs/crmarenapro/query13/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 7,
+      "category": "Semantic classification",
+      "evidence_status": "Unresolved",
+      "observation": "The relevant scalability article ka0Wt000000EoD3IAK is retrieved, but the final answer is None. Retrieval alone succeeded; whether the response breaches the article requires a clause-by-clause case review.",
+      "proposed_check": "Link each policy obligation to case evidence and record unmet obligations before concluding no violation.",
+      "command_ids": [
+        "item_3",
+        "item_4",
+        "item_5",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "Did the agent breach the policy, and if so, which knowledge article was breached? Return only the Id of the knowledge article or None if no violation is found.\n\n- Case Id to be considered is: 500Wt00000DDyznIAD",
+      "final_answer": "None",
+      "official_grading": {
+        "passed": false,
+        "reason": "LLM output indicates no policy violation, but expected knowledge article ID",
+        "status": "scored",
+        "validator_sha256": "6a3a4ce64de4fe3abbb7c38f50f0bd5c54ef09506445b384fa9f2f537bb0704e"
+      },
+      "source": "runs/crmarenapro/query7/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 10,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Raw-ID join returns zero; later literal/fuzzy variants disagree. item_27 prints products 5 (the validator value), while the final answer is 14. Matching an intermediate scalar does not validate that join's semantics.",
+      "proposed_check": "Retain the product membership set for each mapping and compare variants; require final-answer provenance.",
+      "command_ids": [
+        "item_13",
+        "item_20",
+        "item_27",
+        "item_29",
+        "item_30",
+        "item_31"
+      ],
+      "question": "Among the products listed in CISA's Known Exploited Vulnerabilities (KEV) catalog whose canonical vendor is Microsoft (using kev_vendor_aliases to resolve KEV vendor_project surface forms), how many distinct products have at least one associated CVE with a CVSS v3 base score of 9.0 or higher? Use the exact numeric score encoded as the first numeric token in vulns_db.cvss_metadata.score_text. Split any rows whose product field contains comma-separated lists into individual products, and count case-insensitively.",
+      "final_answer": "14 distinct Microsoft KEV products have at least one associated CVE with a CVSS v3 base score of 9.0 or higher.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 5",
+        "status": "scored",
+        "validator_sha256": "e4bd55f7fa4e930198f5c487cc7be28798576e74ba6ae4713d1d8a1857ffd6ab"
+      },
+      "source": "runs/cve/query10/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 2,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "The decisive vendor ranking counts known-ransomware entries without the required critical-severity intersection. Microsoft leads that broader set; the validator expects Fortinet.",
+      "proposed_check": "Check every required predicate is present and report cohort size before and after the critical-severity join.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11"
+      ],
+      "question": "Among CVEs in CISA's Known Exploited Vulnerabilities (KEV) catalog flagged as having known ransomware-campaign use, identify the canonical vendor (lowercase, using kev_vendor_aliases to resolve KEV vendor_project surface forms) whose CVEs include the most CRITICAL-severity entries (consider only vendors with at least 3 KEV-ransomware-flagged CVEs). Return the vendor name as a single lowercase word.",
+      "final_answer": "microsoft",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 'fortinet'",
+        "status": "scored",
+        "validator_sha256": "29ea555f29aba53d062ace211a197b6a1638c462134de8229363da0e63caf7cd"
+      },
+      "source": "runs/cve/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 3,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Approximate identifier normalization/matching is used for an anti-join, producing 1238 versus 1262. Exact false matches and unmatched CVEs are not reconciled.",
+      "proposed_check": "Use canonical identifiers and audit anti-join membership; avoid treating fuzzy similarity as identity without validation.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_7",
+        "item_8"
+      ],
+      "question": "How many entries in CISA's Known Exploited Vulnerabilities (KEV) catalog reference a CVE identifier for which there is NO matching record in the NVD vulnerability database (vulns_db)?",
+      "final_answer": "**1,238** KEV catalog entries reference a CVE with no matching record in `vulns_db`.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 1262",
+        "status": "scored",
+        "validator_sha256": "e4bd55f7fa4e930198f5c487cc7be28798576e74ba6ae4713d1d8a1857ffd6ab"
+      },
+      "source": "runs/cve/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 4,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Noisy identifier exploration and incomplete calculations end with d-link versus ivanti. The trace does not isolate a validated vendor calculation that supports the final selection.",
+      "proposed_check": "Produce one reproducible joined vendor table and inspect unmatched keys before choosing a maximum.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "For each canonical vendor (using kev_vendor_aliases to resolve KEV vendor_project surface forms) that has at least 10 distinct CVEs which are BOTH listed in CISA's Known Exploited Vulnerabilities (KEV) catalog AND have at least one vulnerable CPE configuration, compute the share of those CVEs whose CVSS v3 base score is 9.0 or higher. Return the canonical vendor (lowercase) with the HIGHEST share. Break ties alphabetically.",
+      "final_answer": "d-link",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 'ivanti'",
+        "status": "scored",
+        "validator_sha256": "456d24a6c945e7f67c94892d3c4e3d5c04933253162c1ed13a614a29f151b2a9"
+      },
+      "source": "runs/cve/query4/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 5,
+      "category": "Extraction and representation",
+      "evidence_status": "Supported",
+      "observation": "The agent counts version-range bounds as versions (6), while the stored CPE version field is '*' and the validator expects 1. Version values and range endpoints are different units.",
+      "proposed_check": "Separate literal CPE version from start/end constraints; define the counting unit explicitly.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8",
+        "item_9"
+      ],
+      "question": "Among CVEs in CISA's Known Exploited Vulnerabilities (KEV) catalog that affect Apache Tomcat (canonical vendor 'apache', canonical product 'tomcat' per the CPE match list), how many distinct affected version strings are recorded, excluding wildcard ('*') and null values? Treat versions that differ only in encoding as the SAME version (e.g. '9.0.71', '9,0,71', and 'v9_0_71' are all the same version).",
+      "final_answer": "6 distinct affected versions.\n\nAfter normalizing and deduplicating the matching KEV/CPE records, they are: `9.0.0`, `9.0.98`, `10.1.0`, `10.1.34`, `11.0.0`, and `11.0.2`. Wildcard `*` values were excluded.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 1",
+        "status": "scored",
+        "validator_sha256": "e4bd55f7fa4e930198f5c487cc7be28798576e74ba6ae4713d1d8a1857ffd6ab"
+      },
+      "source": "runs/cve/query5/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 6,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Text-similarity thresholds replace a validated CVE-ID join. Candidate counts vary greatly (105 documents/59 KEV IDs at one threshold; 13 documents/12 IDs at another). Final 60 differs from validator 13.",
+      "proposed_check": "Audit one-to-many similarity matches and calibrate on labeled pairs; do not use a threshold-dependent count as a validated identity join.",
+      "command_ids": [
+        "item_9",
+        "item_11",
+        "item_14",
+        "item_15",
+        "item_18",
+        "item_19"
+      ],
+      "question": "How many distinct CVEs have NO English-language description, DO have at least one non-English description, AND are listed in CISA's Known Exploited Vulnerabilities (KEV) catalog?",
+      "final_answer": "60 distinct CVEs.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 13",
+        "status": "scored",
+        "validator_sha256": "e4bd55f7fa4e930198f5c487cc7be28798576e74ba6ae4713d1d8a1857ffd6ab"
+      },
+      "source": "runs/cve/query6/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 8,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Digit-subsequence ID matching and colon-only CPE parsing give inconsistent intermediates (111 and 116); final 244 differs from validator 58 and lacks a verified matching output in the reviewed trace.",
+      "proposed_check": "Measure parse coverage, keep unmatched ID examples, and bind the final count to a reproducible membership set.",
+      "command_ids": [
+        "item_11",
+        "item_14",
+        "item_15",
+        "item_16"
+      ],
+      "question": "How many distinct CVEs are listed in CISA's KEV catalog AND have at least one vulnerable Microsoft product configuration AND have a CVSS v3 base score of 7.0 or higher? Use the exact numeric score encoded as the first numeric token in vulns_db.cvss_metadata.score_text.",
+      "final_answer": "**244** distinct CVEs meet all three conditions.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 58",
+        "status": "scored",
+        "validator_sha256": "017fd5411ba3fc7687b398ff6dcec86afea0c5100f3ba57fb52abe6dfd8a933e"
+      },
+      "source": "runs/cve/query8/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "cve",
+      "query": 9,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Rows are grouped by published/modified/status rather than a verified canonical CVE key. Similarity thresholds give counts from 8 upward; final 74 differs from expected 8. The matching scalar alone does not prove a correct threshold.",
+      "proposed_check": "Require canonical identity and report join collisions; inspect threshold sensitivity rather than selecting a count that matches the answer key.",
+      "command_ids": [
+        "item_17",
+        "item_18",
+        "item_19",
+        "item_20",
+        "item_21",
+        "item_22"
+      ],
+      "question": "How many distinct CVEs satisfy ALL of the following: they appear in MORE THAN ONE row of the cves table in vulns_db with conflicting cvss3_attack_vector values, AND they are listed in CISA's Known Exploited Vulnerabilities (KEV) catalog?",
+      "final_answer": "**74** distinct CVEs satisfy both conditions.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 8",
+        "status": "scored",
+        "validator_sha256": "e4bd55f7fa4e930198f5c487cc7be28798576e74ba6ae4713d1d8a1857ffd6ab"
+      },
+      "source": "runs/cve/query9/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "imdb",
+      "query": 5,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "The search stops at the first company and returns that row's rating/title. The task requires independent minima across the qualifying set; rating 6.5 misses the required 1.0.",
+      "proposed_check": "Compute each requested minimum over the full qualifying set; warn about break/early return before all aggregates finish.",
+      "command_ids": [
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11",
+        "item_12"
+      ],
+      "question": "Among titles of kind 'movie' (excluding TV movies, video movies, and other title types) that have a release date and a rating on record and are associated with a US production company, what are the alphabetically first company name, the alphabetically first rating value, and the alphabetically first title?",
+      "final_answer": "The first matching record is:\n\n- Company: `\"O\" Films`\n- Rating: `6.5`\n- Title: `Parking Ticket`",
+      "official_grading": {
+        "passed": false,
+        "reason": "Rating '1.0' not found in LLM output.",
+        "status": "scored",
+        "validator_sha256": "eb437c2a2f0e625870d874be4f570979d18793076937edffe25fdace34a3f91f"
+      },
+      "source": "runs/imdb/query5/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "imdb",
+      "query": 6,
+      "category": "Extraction and representation",
+      "evidence_status": "Supported",
+      "observation": "The workflow copies identifiers from column-formatted output into manual lists (e.g. shortened 18180 versus 1818030), then restricts candidate people. Final Bridget/Monster House misses Lola/Hoodwinked. Candidate loss is visible; a corrected full result has not been replayed.",
+      "proposed_check": "Keep joins machine-readable; reject copied/truncated identifiers and compare candidate counts after manual transfer.",
+      "command_ids": [
+        "item_20",
+        "item_24",
+        "item_25",
+        "item_26",
+        "item_27",
+        "item_28",
+        "item_29",
+        "item_30"
+      ],
+      "question": "Among female actresses whose name contains 'An', who have a registered alternate name, played a named character, and have trivia on record, and who are credited with a voice role (general, uncredited, Japanese version, or English version) in a computer-animated film produced between 2000 and 2010 with a Japan or USA release in the 2000s, associated with a US company, and with a complete and verified cast listing — what are the alphabetically first character name, the alphabetically first actress name, and the alphabetically first title?",
+      "final_answer": "- Character: **Bridget**\n- Actress: **Andrews, Julie**\n- Title: **Monster House**",
+      "official_grading": {
+        "passed": false,
+        "reason": "Character name 'Lola' not found in LLM output.",
+        "status": "scored",
+        "validator_sha256": "da0339de482eac9949b3b98407ba2601d6538f6bbee99776c855f9e6362d9ca4"
+      },
+      "source": "runs/imdb/query6/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "imdb",
+      "query": 9,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Unresolved",
+      "observation": "The question explicitly asks for the alphabetically first vote count. The computed string minimum is 101188; the validator requires 1040. Genre, writer and title match. This may be a sort/cohort or task-validator ambiguity, not an established model error.",
+      "proposed_check": "Compare numeric and lexicographic minima on the exact qualifying set and adjudicate the wording; retain the official failed score meanwhile.",
+      "command_ids": [
+        "item_17",
+        "item_28",
+        "item_30"
+      ],
+      "question": "Among male writers credited in a writing role — writer, head writer, written by, story, or story editor — on Horror or Thriller movies that are tagged with at least one of the keywords 'murder', 'violence', 'blood', 'gore', 'death', 'female-nudity', or 'hospital', have a vote count on record, and are associated with a Lionsgate company, where the genre, vote count, keyword, company, and writer credit all refer to the same movie — what are the alphabetically first genre, the alphabetically first vote count, the alphabetically first writer name, and the alphabetically first title?",
+      "final_answer": "The alphabetically first qualifying values are:\n\n- Genre: **Horror**\n- Vote count: **101188**\n- Writer: **Agnew, Jim**\n- Title: **2001 Maniacs**",
+      "official_grading": {
+        "passed": false,
+        "reason": "Vote count '1040' not found in LLM output.",
+        "status": "scored",
+        "validator_sha256": "00014b7a06b4b54f51b87cc4eb3313433734e938f72d2ad9c300ca3529366cc8"
+      },
+      "source": "runs/imdb/query9/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 10,
+      "category": "Temporal state and status",
+      "evidence_status": "Unresolved",
+      "observation": "An initial epoch parse is corrected. The final May 10-13 window uses 14 rows and mean 0.000707776 (reported 0.000708), versus 0.000748. The exact storm-window boundary remains unresolved.",
+      "proposed_check": "Derive start/end instants from the specified storm series and reconcile included TLE epochs before averaging.",
+      "command_ids": [
+        "item_9",
+        "item_13",
+        "item_14",
+        "item_15"
+      ],
+      "question": "During the geomagnetic storm period captured in the space-track orbital observations for satellite NORAD 58214, what is the mean BSTAR drag coefficient of satellite NORAD 43180 as recorded in its TLE data? Round to 6 decimal places.",
+      "final_answer": "The geomagnetic-storm observations span 10–13 May 2024. Averaging the 14 corresponding NORAD 43180 TLE BSTAR entries gives:\n\n**0.000708**",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found numbers ['10', '13', '2024.', '14', '43180'], but expected 0.000748 (±5e-07)",
+        "status": "scored",
+        "validator_sha256": "e16c6a925ac09b46dd70d3ba4c41a2f17c540845542ac50c9540ab27e1e2c4cd"
+      },
+      "source": "runs/krama/query10/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 2,
+      "category": "Execution and unsupported result",
+      "evidence_status": "Supported",
+      "observation": "Spatial dependencies are unavailable, a custom parser fails on an empty sequence, and later temporary-script/envelope attempts do not establish a successful state intersection. Final Wyoming differs from Idaho.",
+      "proposed_check": "Block a confident spatial answer without a successful geometry result; validate geometry parsing and intersections, then rerun the calculation.",
+      "command_ids": [
+        "item_14",
+        "item_15",
+        "item_16",
+        "item_17",
+        "item_18",
+        "item_19"
+      ],
+      "question": "According NIFC, from 2014 to 2024 (inclusive at both ends), which US state has the highest total number of lightning-caused wildfires across all NIFC Geographic Area Coordination Centers whose geographic boundaries intersect with that state? Use the latest report (by reported date) within each year. Give the full name of the state.",
+      "final_answer": "Wyoming.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found states ['Wyoming'], but expected 'Idaho'",
+        "status": "scored",
+        "validator_sha256": "4558b5fdcffc364de56afa8d0d998a0a9c1e5041bfbe7e11e910f224eb241df2"
+      },
+      "source": "runs/krama/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 3,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "A 55-region computation gives 713068/55 = 12964.872727, matching the validator. The final answer includes San Juan, giving 714110/56 = 12751.9643. Inclusion of San Juan is the observed cohort difference; task interpretation still needs justification.",
+      "proposed_check": "Show cohort membership and territorial inclusion rules; trace the final scalar to its selected computation.",
+      "command_ids": [
+        "item_15",
+        "item_16",
+        "item_17",
+        "item_18"
+      ],
+      "question": "What is the average number of reported identity thefts, as reported in 2024, across all US metropolitan statistical areas with a 2023 population exceeding one million? Estimate each MSA's 2023 population by linearly interpolating between its 2020 census count and 2024 estimate. Only include MSAs that appear in both the population source and the identity theft source. Round to 4 decimal places.",
+      "final_answer": "The average is **12,751.9643 reported identity thefts**.\n\nI linearly estimated 2023 population as `2020 census + 0.75 × (2024 estimate − 2020 census)`, retained the 56 shared MSAs above one million residents (including San Juan–Bayamón–Caguas), and averaged their 2024 identity-theft counts: 714,110 ÷ 56.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found numbers ['12', '751.9643', '2023', '2020', '0.75'], but expected 12964.8727 (±5e-05)",
+        "status": "scored",
+        "validator_sha256": "65bd9b052c7eaeb4a495643232d1a751f2e0327300c350f0b6a10cfd2719832d"
+      },
+      "source": "runs/krama/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 6,
+      "category": "Extraction and representation",
+      "evidence_status": "Unresolved",
+      "observation": "After revising an initial violation parser, the answer uses 4/97 = 4.12% versus 3.88%. Text negation, sampling dates and eligible-row denominator need reconciliation; the exact differing rows are not established.",
+      "proposed_check": "Retain per-sample dates and explicit pass/fail labels, including negation; verify denominator and missing records.",
+      "command_ids": [
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11"
+      ],
+      "question": "From 2008 to 2016 (inclusive at both ends), what is the bacterial exceedance rate (as a percentage, rounded to 2 decimal places) of the beach with the lowest average water temperature among all temperature readings collected in that period?",
+      "final_answer": "Ocean @ Squibnocket Beach (Chilmark, Dukes) had the lowest average water temperature: 10.55 °C across its 2008–2016 readings.\n\nIts bacterial exceedance rate was **4.12%**: 4 violations out of 97 samples.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found numbers ['10.55', '2008', '2016', '4.12', '4'], but expected 3.88 (±0.1)",
+        "status": "scored",
+        "validator_sha256": "7cfb29e674217cb8139f9d1e7ca0a5b4be2f12b55462861ae04cda21aec28472"
+      },
+      "source": "runs/krama/query6/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 7,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Supported",
+      "observation": "The last computation uses positional zip(ages, values) and protein > 0 as hyperactivation, producing 62 patients with mean 63.82 versus 60. Both alignment and the domain threshold are unverified assumptions.",
+      "proposed_check": "Join by patient ID, assert one-to-one alignment, and use the documented CDK12 hyperactivation definition.",
+      "command_ids": [
+        "item_22",
+        "item_23",
+        "item_24",
+        "item_25"
+      ],
+      "question": "Among patients recorded in the UCEC_CPTAC3_meta_table_V2.1 sheet, what is the average age of patients whose hyperactivated protein is CDK12? Round to 2 decimal places.",
+      "final_answer": "The average age is **63.82 years** (62 patients with recorded ages and hyperactivated CDK12).",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found numbers ['63.82', '62', '12'], but expected 60.0 (±0.005)",
+        "status": "scored",
+        "validator_sha256": "408397697ea66e9a926da1cb38153ef77e5da250d681c40402fa925fe25deb46"
+      },
+      "source": "runs/krama/query7/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "krama",
+      "query": 9,
+      "category": "Final-answer rounding",
+      "evidence_status": "Supported",
+      "observation": "October is selected correctly. The tool computes 18177/(744*10) = 2.4431451613, which rounds to 2.4431 at four decimals. The final answer says 2.4432 and fails the unchanged tolerance.",
+      "proposed_check": "Format the computed scalar directly at the requested precision; check final-answer equality against the cited tool value.",
+      "command_ids": [
+        "item_15",
+        "item_18"
+      ],
+      "question": "What is the mean Kp index, according to the 2024 OMNI2 low-resolution hourly data, for the calendar month in 2024 during which Swarm-B recorded its highest mean thermospheric density? Round to 4 decimal places.",
+      "final_answer": "Swarm-B’s highest mean thermospheric density occurred in October 2024. The mean hourly OMNI2 Kp index that month was **2.4432**.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Found numbers ['2024.', '2', '2.4432'], but expected 2.4431 (±5e-05)",
+        "status": "scored",
+        "validator_sha256": "febd2ee2ea8e23a511dbb2df2666f1418bdcd4df23cabf75733e8ec3f4d198a8"
+      },
+      "source": "runs/krama/query9/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 4,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Unresolved",
+      "observation": "The agent ranks by up-day count, then net up-minus-down count. Its top five differ from the validator. The question's top-five ranking interpretation has not been independently resolved.",
+      "proposed_check": "Specify the ranking metric and inspect the full candidate order and ties before attributing the mismatch to one algorithm.",
+      "command_ids": [
+        "item_3",
+        "item_4"
+      ],
+      "question": "What are the names (not symbol) of the top 5 non-ETF stocks listed on the New York Stock Exchange (NYSE) that had more up days than down days in 2017? (Up days: closing price > opening price; Down days: closing price < opening price)",
+      "final_answer": "Ranked by number of 2017 up days, the top five NYSE non-ETF stocks were:\n\n1. HDFC Bank Limited — 146 up days, 102 down days  \n2. Albany International Corporation — 143 up days, 101 down days  \n3. Getty Realty Corporation — 143 up days, 104 down days  \n4. Mettler-Toledo International, Inc. — 143 up days, 108 down days  \n5. Pfizer, Inc. — 141 up days, 105 down days",
+      "official_grading": {
+        "passed": false,
+        "reason": "Name not found within 5 edits: 'MFA Financial, Inc', closest: 'rnational, inc' (distance=8)",
+        "status": "scored",
+        "validator_sha256": "09538392d54f1c68d9aac70e5d7d1c692cebe3a743078067b211bbf0909d7f8d"
+      },
+      "source": "runs/stockmarket/query4/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 1,
+      "category": "Extraction and representation",
+      "evidence_status": "Unresolved",
+      "observation": "Primary-row selection and regex/qualitative interpretation of prose dollar amounts give 900 versus 898. Many amounts need interpretation; the exact two discrepant awards are not established.",
+      "proposed_check": "Separate explicit numeric parses from inferred ranges; audit awards near the threshold and superseded amount records.",
+      "command_ids": [
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13",
+        "item_14",
+        "item_15"
+      ],
+      "question": "How many distinct contract awards from the Department of Defense have an award amount greater than $1,000,000?",
+      "final_answer": "There are **900** distinct Department of Defense contract awards with an award amount greater than **$1,000,000**.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 898",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query1/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 2,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Recipient and award joins use inconsistent normalization, while prose filtering excludes numeric forms. The result is 61 versus 75; the exact fourteen missed awards are not isolated.",
+      "proposed_check": "Reconcile normalized UEIs and award IDs, then audit amount representation and threshold eligibility row by row.",
+      "command_ids": [
+        "item_9",
+        "item_10",
+        "item_11",
+        "item_12",
+        "item_13",
+        "item_14"
+      ],
+      "question": "How many contract awards went to recipients located in California with an award amount greater than $1,000,000?",
+      "final_answer": "61 contract awards.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 75",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 5,
+      "category": "Extraction and representation",
+      "evidence_status": "Unresolved",
+      "observation": "Any qualifying amount row and numeric/figure-word heuristics yield 11 normalized sectors versus 12. The missing sector and the effect of superseded amount rows are unresolved.",
+      "proposed_check": "Define the authoritative amount record, keep parse confidence and list sector membership with contributing awards.",
+      "command_ids": [
+        "item_12",
+        "item_13",
+        "item_14",
+        "item_15",
+        "item_16",
+        "item_17"
+      ],
+      "question": "How many distinct 2-digit NAICS sectors are represented among contracts with an award amount of at least $10,000,000?",
+      "final_answer": "11 distinct two-digit NAICS sectors are represented.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 12",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query5/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 6,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Aggressive corporate-suffix/punctuation removal changes company grouping (52 then 57 versus 56); record counts are not a verified count of distinct normalized UEIs. Exact merges/splits remain open.",
+      "proposed_check": "Audit name collisions and count distinct legal identifiers within each alias group rather than raw records.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_6"
+      ],
+      "question": "How many distinct recipients in the recipients database are each associated with more than one UEI?",
+      "final_answer": "57 distinct recipient entities are associated with more than one UEI.\n\nI normalized recipient names for case, punctuation/whitespace, and terminal corporate suffix variants (e.g., Inc./Incorporated, Co./Company, LLC/L.L.C.).",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 56",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query6/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 8,
+      "category": "Identifier joins and identity",
+      "evidence_status": "Unresolved",
+      "observation": "Broad Lockheed name matching, OCR-style UEI normalization, raw award-ID joining and ambiguous prose amounts produce 23 versus 25. No exact two-award reconciliation is available.",
+      "proposed_check": "Review subsidiary scope, canonical join keys and ambiguous threshold amounts in the difference set.",
+      "command_ids": [
+        "item_5",
+        "item_6",
+        "item_7",
+        "item_8"
+      ],
+      "question": "How many contract awards were made to Lockheed Martin by the Department of Defense with an award amount greater than $1,000,000?",
+      "final_answer": "**23** contract awards met the criteria: awarded by the Department of Defense, to Lockheed Martin, and exceeding $1,000,000.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 25",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query8/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "usaspending",
+      "query": 9,
+      "category": "Extraction and representation",
+      "evidence_status": "Unresolved",
+      "observation": "First-ctid amount selection, exact English-language filtering and manually interpreted amounts produce 142 versus 147. The five discrepant awards are not identified.",
+      "proposed_check": "Select authoritative amount versions, normalize language labels and expose per-award eligibility decisions.",
+      "command_ids": [
+        "item_7",
+        "item_8",
+        "item_9",
+        "item_10",
+        "item_11"
+      ],
+      "question": "How many contracts have no English-language description and an award amount greater than $1,000,000?",
+      "final_answer": "142 contracts.",
+      "official_grading": {
+        "passed": false,
+        "reason": "expected 147",
+        "status": "scored",
+        "validator_sha256": "274c8c28b74c1f485efd7e0d0649948eec0909f36593d96888b52fa7d4c6e52e"
+      },
+      "source": "runs/usaspending/query9/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "yelp",
+      "query": 2,
+      "category": "Cohort and aggregation",
+      "evidence_status": "Supported",
+      "observation": "Actual review rows identify PA: 662 reviews, mean 3.699396. Business metadata review_count instead favors MO (2243 versus PA 2022). The final answer chooses MO 3.9061; the validator expects PA 3.7.",
+      "proposed_check": "Check that the ranking count and average are computed from the same requested review population, not mixed metadata and sample rows.",
+      "command_ids": [
+        "item_7",
+        "item_8"
+      ],
+      "question": "Which U.S. state has the highest number of reviews, and what is the average rating of businesses in that state?",
+      "final_answer": "Missouri has the most business reviews: 2,243 total. Its businesses’ average review rating is approximately 3.91 out of 5.",
+      "official_grading": {
+        "passed": false,
+        "reason": "No occurrence of 3.7 near PA/Pennsylvania.",
+        "status": "scored",
+        "validator_sha256": "aa1e9fe46484d1319fe7da725441e34d6c2008672a990ccc8424b75fa19a582b"
+      },
+      "source": "runs/yelp/query2/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "yelp",
+      "query": 3,
+      "category": "Extraction and representation",
+      "evidence_status": "Unresolved",
+      "observation": "A raw-string 2018 date filter yields 36 businesses; decoded parking conditions reduce this to 21 versus 35. This run does not show the screenshot's five-row output-cap failure. Date-format and parking interpretation remain hypotheses.",
+      "proposed_check": "Parse review dates and parking flags explicitly; report qualifying counts after each filter and reconcile omitted businesses.",
+      "command_ids": [
+        "item_4",
+        "item_5",
+        "item_6"
+      ],
+      "question": "During 2018, how many businesses that received reviews offered either business parking or bike parking?",
+      "final_answer": "21 businesses.\n\nThere were 36 distinct businesses with at least one review in 2018; 18 offered business parking, 15 offered bike parking, with 12 offering both.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Number 35 not found in LLM output.",
+        "status": "scored",
+        "validator_sha256": "c79185af0b0bc5d163d2c617fc853f724ecf30142e903978363e7ad82a4fb4ee"
+      },
+      "source": "runs/yelp/query3/commands.json",
+      "repair_tested": false
+    },
+    {
+      "dataset": "yelp",
+      "query": 7,
+      "category": "Semantic classification",
+      "evidence_status": "Unresolved",
+      "observation": "User/review date filters and manually extracted business categories produce a top set missing Breakfast & Brunch. Exact label and date membership differences remain unresolved.",
+      "proposed_check": "Audit category extraction coverage and normalized dates, then compare category-level membership near the top-five cutoff.",
+      "command_ids": [
+        "item_3",
+        "item_4",
+        "item_5"
+      ],
+      "question": "Among users who registered on Yelp in 2016, which 5 business categories have received the most total reviews from those users since 2016?",
+      "final_answer": "The top five categories (counting reviews dated 2016 onward) are:\n\n1. Restaurants — 15 reviews  \n2. Food — 13  \n3. Shopping — 9  \n4. American (New) — 6  \n5. Grocery — 6  \n\nThis is based on 36 qualifying reviews written by users whose `yelping_since` date fell in 2016.",
+      "official_grading": {
+        "passed": false,
+        "reason": "Missing category: Breakfast & Brunch",
+        "status": "scored",
+        "validator_sha256": "b35b9f67c8c915c9e06d02b1abacfe853655b45cb34aef30e5ee972d84a21caf"
+      },
+      "source": "runs/yelp/query7/commands.json",
+      "repair_tested": false
+    }
+  ]
+}
