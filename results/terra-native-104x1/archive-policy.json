@@ -1,0 +1,6 @@
+{
+  "preserve": "All CLI events, sessions, commands, answers, graders, final work files, source and provenance",
+  "omitted": "Repeated client/.tmp/plugins download caches except one representative",
+  "representative_cache": "runs/DEPS_DEV_V1/query1/client/.tmp/plugins",
+  "note": "Per-client plugins.sha markers are retained. Agent-deleted intermediate scripts remain in session tool-call/patch events; only surviving work files exist as standalone files."
+}
