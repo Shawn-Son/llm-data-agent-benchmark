@@ -7,7 +7,7 @@ through Claude Code (Claude Code's own bubblewrap sandbox for Bash, plus
 permission deny rules for its built-in file tools).
 """
 from pathlib import Path
-import argparse, concurrent.futures, datetime, errno, json, os, shutil, signal, subprocess, sys, time, urllib.parse, yaml
+import argparse, concurrent.futures, datetime, errno, hashlib, json, os, shutil, signal, subprocess, sys, time, urllib.parse, yaml
 PROJECT=Path(__file__).resolve().parent
 sys.path.insert(0,str(PROJECT/'codex104'))
 from run import all_tasks, prompt, official_grade, stats, services, write, digest, PIN
@@ -91,18 +91,22 @@ def claude_setup(work,home,tmp,sockets):
     all Unix sockets allowed so the DB sockets work, writes only in the task directory),
     deny rules for answer-bearing paths on both the sandbox and the built-in file tools,
     and the API key supplied by a helper outside the sandbox (never in the agent's env)."""
+    # Claude Code creates its sandbox bridge Unix sockets under TMPDIR; they cannot live on the NFS
+    # task directory (and Unix socket paths are limited to 108 bytes), so use a short node-local directory.
+    tmp=Path(os.environ.get('SLURM_TMPDIR') or '/tmp')/('cc-'+hashlib.sha1(str(work).encode()).hexdigest()[:10])
+    tmp.mkdir(mode=0o700,parents=True,exist_ok=True)
     deny=[str(p) for p in protected_paths()]
     settings={'apiKeyHelper':'cat '+str(KEYS['claude']),
               'permissions':{'allow':['Bash','Read','Glob','Grep'],
                              'deny':[f'{t}(/{p}/**)' for p in deny for t in ('Read','Edit')]+['WebFetch','WebSearch','Agent']},
               'sandbox':{'enabled':True,'failIfUnavailable':True,'autoAllowBashIfSandboxed':True,'allowUnsandboxedCommands':False,
                          'network':{'allowedDomains':[],'allowAllUnixSockets':True},
-                         'filesystem':{'denyRead':deny,'allowWrite':[str(work)]}},
+                         'filesystem':{'denyRead':deny,'allowWrite':[str(work),str(tmp)]}},
               'env':{'DISABLE_AUTOUPDATER':'1'}}
     write(home/'settings.json',settings)
     env=os.environ.copy()
     for k in ['ANTHROPIC_API_KEY','ANTHROPIC_AUTH_TOKEN','OPENAI_API_KEY']:env.pop(k,None)
-    env.update(CLAUDE_CONFIG_DIR=str(home),TMPDIR=str(tmp),PYTHONPATH=str(PROJECT/'strict/.venv/lib/python3.12/site-packages'),
+    env.update(CLAUDE_CONFIG_DIR=str(home),TMPDIR=str(tmp),CLAUDE_CODE_TMPDIR=str(tmp),PYTHONPATH=str(PROJECT/'strict/.venv/lib/python3.12/site-packages'),
                PATH=str(Path(sys.executable).parent)+':'+str(TOOLS)+':'+env.get('PATH',''),
                DISABLE_UPDATES='1',DISABLE_AUTOUPDATER='1',DISABLE_TELEMETRY='1',CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC='1',
                CLAUDE_CODE_DISABLE_WEB_FETCH='1',CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS='1',CLAUDE_CODE_DISABLE_BACKGROUND_TASKS='1',
