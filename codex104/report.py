@@ -15,13 +15,16 @@ def summarize(rows):
              'accuracy':sum(r['passed'] for r in scored)/len(scored) if scored else None,
              'unscored':len(rs)-len(scored)})
  scores=[d['accuracy'] for d in ds if d['accuracy'] is not None]
- total={'model':'gpt-5.6-terra','attempted':len(rows),'expected':104,'datasets':len(ds),'expected_datasets':17,
+ models=sorted({r.get('model') for r in rows if r.get('model')})
+ total={'model':models[0] if len(models)==1 else ','.join(models) or None,'attempted':len(rows),'expected':104,'datasets':len(ds),'expected_datasets':17,
         'complete':len(seen)==104 and len(ds)==17 and all(d['unscored']==0 for d in ds),
         'dataset_macro_pass1':statistics.mean(scores) if scores else None,'pass5':None,
         'scored':sum(d['scored'] for d in ds),'correct':sum(d['correct'] for d in ds),
         'unscored':sum(d['unscored'] for d in ds),'coverage_note':'Macro score is partial unless complete is true.',
         'estimated_cost_usd':sum(r['estimated_cost_usd'] for r in rows) if rows and all(r.get('estimated_cost_usd') is not None for r in rows) else None,
         'cost_note':'Pricing was not verified; estimated cost is unavailable. Token usage is retained; consult actual U-M Toolkit billing.'}
+ if total['estimated_cost_usd'] is not None and str(total['model']).startswith('claude'):
+  total['cost_note']='Claude Code total_cost_usd: client-side estimate, not billing. Anthropic Console usage is authoritative.'
  return total,ds
 
 def generate(out):
@@ -58,7 +61,7 @@ def generate(out):
 
  if failures:csvwrite('failure_analysis.csv',failures)
  (dest/'summary.json').write_text(json.dumps({'summary':total,'datasets':ds,'failures':failures},indent=2))
- title='Terra DataAgentBench — '+('complete 104-task evaluation' if total['complete'] else 'partial evaluation')
+ title=str(total['model'])+' DataAgentBench — '+('complete 104-task evaluation' if total['complete'] else 'partial evaluation')
  svg=[f'<svg xmlns="http://www.w3.org/2000/svg" width="950" height="{70+32*len(ds)}"><rect width="100%" height="100%" fill="white"/><text x="20" y="28" font-size="18">{html.escape(title)}</text>']
  for i,d in enumerate(ds):
   y=50+32*i;v=d['accuracy'];label='N/A' if v is None else f'{v:.1%}'
@@ -66,7 +69,9 @@ def generate(out):
  svg.append('</svg>');chart=''.join(svg);(dest/'accuracy.svg').write_text(chart)
  def table(rs,columns):
   return '<table><thead><tr>'+''.join('<th>'+html.escape(k)+'</th>' for k in columns)+'</tr></thead><tbody>'+''.join('<tr>'+''.join('<td>'+html.escape(str(r.get(k,'')))+'</td>' for k in columns)+'</tr>' for r in rs)+'</tbody></table>'
- intro='One independent trial per original question, descriptions+hints. Original query-specific validators. Pass@5 is not available. Authors native Codex driver was unavailable; this is a documented Codex CLI reconstruction. Offline/connection tests are excluded. Infrastructure failures are separate from wrong answers.'
+ harness=('Claude Code CLI harness (the paper evaluated Claude models with Claude Code); not the authors exact driver.' if str(total['model']).startswith('claude')
+          else 'Authors native Codex driver was unavailable; this is a documented Codex CLI reconstruction.')
+ intro='One independent trial per original question, descriptions+hints. Original query-specific validators. Pass@5 is not available. '+harness+' Offline/connection tests are excluded. Infrastructure failures are separate from wrong answers.'
  (dest/'report.html').write_text('<!doctype html><meta charset="utf-8"><title>'+html.escape(title)+'</title><style>body{font:15px system-ui;margin:32px;color:#162236}table{border-collapse:collapse;margin:24px 0}th,td{border:1px solid #ddd;padding:8px}th{background:#edf2ff}svg{max-width:100%;height:auto}</style><h1>'+html.escape(title)+'</h1><p>'+intro+'</p>'+chart+table(ds,list(ds[0]))+table(rows,['dataset','query','status','passed','duration_s','estimated_cost_usd'])+table(failures,['dataset','query','category','official_reason','semantic_root_cause']))
  def pct(v):return 'N/A' if v is None else f'{v:.2%}'
  md=['# '+title,'',intro,'',f'**Correct: {total["correct"]}/{total["scored"]} scored; unscored: {total["unscored"]}; coverage: {total["attempted"]}/104.**','',f'Dataset-macro Pass@1: {pct(total["dataset_macro_pass1"])}. Question-weighted accuracy: {pct(total["question_micro_accuracy"])}. Pass@5: unavailable.','',f'Recorded input tokens: {total["input_tokens"]:,}; cached input: {total["cached_input_tokens"]:,}; output: {total["output_tokens"]:,}; tool calls: {total["tool_calls"]:,}. Dollar cost: unavailable. Excluded attempts are accounted for separately in attempt-accounting.json.','','| Dataset | Scored | Correct | Accuracy | Unscored |','|---|---:|---:|---:|---:|']
@@ -76,6 +81,60 @@ def generate(out):
   md += ['',f'**{n["dataset"]}/query{n["query"]} — {n["category"]}:** '+n['evidence']]
  (dest/'report.md').write_text('\n'.join(md)+'\n');return total
 
+def pass_at_k(n,c,k):
+ """Unbiased pass@k estimator (as in the DAB paper) for n trials with c correct."""
+ if n-c<k:return 1.0
+ p=1.0
+ for i in range(n-c+1,n+1):p*=1-k/i
+ return 1-p
+
+def aggregate(trials,dest):
+ """Combine independent repeated sweeps (each a finalized trial directory with reports/runs.csv).
+ Every question must be scored once in every trial; nothing is re-graded or re-selected here."""
+ trials=[Path(t) for t in trials];dest=Path(dest);dest.mkdir(parents=True,exist_ok=True)
+ per={}
+ for t in trials:
+  src=t/'reports/runs.csv' if (t/'reports/runs.csv').exists() else t/'runs.csv'
+  with src.open() as f:rows=list(csv.DictReader(f))
+  assert len(rows)==104 and all(r['grading_status']=='scored' and r['passed'] in ('True','False') for r in rows),'Unscored or incomplete trial: '+str(t)
+  per[t.name]={(r['dataset'],int(r['query'])):r for r in rows}
+ keys=sorted(next(iter(per.values())));assert all(set(v)==set(keys) for v in per.values()),'Trials cover different questions'
+ n=len(trials);model=next(iter(per.values()))[keys[0]]['model']
+ datasets=sorted({d for d,q in keys})
+ def macro(f):return statistics.mean(statistics.mean(f(k) for k in keys if k[0]==d) for d in datasets)
+ trial_rows=[]
+ for name,rs in per.items():
+  ok=lambda k,rs=rs:rs[k]['passed']=='True'
+  trial_rows.append({'trial':name,'correct':sum(ok(k) for k in keys),'micro_accuracy':sum(ok(k) for k in keys)/len(keys),'macro_pass1':macro(ok),
+                     'input_tokens':sum(int(rs[k]['input_tokens'] or 0) for k in keys),'cached_input_tokens':sum(int(rs[k]['cached_input_tokens'] or 0) for k in keys),
+                     'output_tokens':sum(int(rs[k]['output_tokens'] or 0) for k in keys),'tool_calls':sum(int(rs[k]['tool_calls'] or 0) for k in keys),
+                     'estimated_cost_usd':sum(float(rs[k]['estimated_cost_usd']) for k in keys) if all(rs[k].get('estimated_cost_usd') for k in keys) else None})
+ c={k:sum(rs[k]['passed']=='True' for rs in per.values()) for k in keys}
+ questions=[{'dataset':d,'query':q,'correct_trials':c[(d,q)],'trials':n,**{f'{t}_passed':per[t][(d,q)]['passed'] for t in per}} for d,q in keys]
+ def sd(xs):return statistics.stdev(xs) if len(xs)>1 else 0.0
+ ds=[]
+ for d in datasets:
+  ks=[k for k in keys if k[0]==d];accs=[statistics.mean(per[t][k]['passed']=='True' for k in ks) for t in per]
+  ds.append({'dataset':d,'questions':len(ks),'mean_accuracy':statistics.mean(accs),'sd_accuracy':sd(accs),
+             **{f'{t}_correct':sum(per[t][k]['passed']=='True' for k in ks) for t in per},
+             'pass_at_n':statistics.mean(c[k]>0 for k in ks),'all_n_correct':sum(c[k]==n for k in ks),'none_correct':sum(c[k]==0 for k in ks)})
+ micro=[r['micro_accuracy'] for r in trial_rows];mac=[r['macro_pass1'] for r in trial_rows]
+ summary={'model':model,'trials':n,'questions':len(keys),'datasets':len(datasets),
+          'micro_accuracy_mean':statistics.mean(micro),'micro_accuracy_sd':sd(micro),
+          'macro_pass1_mean':statistics.mean(mac),'macro_pass1_sd':sd(mac),
+          'macro_pass1_estimator':macro(lambda k:pass_at_k(n,c[k],1)),f'macro_pass{n}':macro(lambda k:pass_at_k(n,c[k],n)),
+          f'micro_pass{n}':statistics.mean(c[k]>0 for k in keys),'all_trials_correct':sum(c[k]==n for k in keys),
+          'no_trial_correct':sum(c[k]==0 for k in keys),'inconsistent':sum(0<c[k]<n for k in keys),'per_trial':trial_rows,
+          'note':'Macro metrics average question-level estimates within each dataset, then across datasets (paper stratification). SD is across trials.'}
+ def csvwrite(name,rs):
+  with (dest/name).open('w',newline='') as f:
+   w=csv.DictWriter(f,fieldnames=list(rs[0]));w.writeheader();w.writerows(rs)
+ csvwrite('trials.csv',trial_rows);csvwrite('questions.csv',questions);csvwrite('datasets.csv',ds)
+ (dest/'summary.json').write_text(json.dumps({'summary':summary,'datasets':ds},indent=2)+'\n')
+ return summary
+
 if __name__=='__main__':
  import argparse
- p=argparse.ArgumentParser();p.add_argument('out',type=Path);a=p.parse_args();print(json.dumps(generate(a.out),indent=2))
+ p=argparse.ArgumentParser();p.add_argument('out',type=Path,nargs='?');p.add_argument('--trials',nargs='+',type=Path);p.add_argument('--dest',type=Path)
+ a=p.parse_args()
+ print(json.dumps(aggregate(a.trials,a.dest) if a.trials else generate(a.out),indent=2))

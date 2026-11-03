@@ -38,22 +38,49 @@ print(json.dumps({"passed":bool(r[0]),"reason":str(r[1])}))
   d=json.loads(r.stdout.splitlines()[-1]);d.update(status='scored',validator_sha256=digest(path));return d
  except Exception as e:return {'passed':None,'status':'grader_error','reason':str(e),'validator_sha256':digest(path)}
 
+def _text(c):
+ return c if isinstance(c,str) else '\n'.join(x.get('text','') for x in c or [] if isinstance(x,dict))
+
 def stats(path):
- out=dict(input_tokens=0,cached_input_tokens=0,output_tokens=0,tool_calls=0,command_calls=0,command_errors=0,api_errors=0)
- cmds=[];usage=False
+ """Token/tool metrics from Codex `exec --json` events or Claude Code `stream-json` events.
+ input_tokens always includes cached input; cached_input_tokens is the cached subset (cache reads)."""
+ out=dict(input_tokens=0,cached_input_tokens=0,cache_write_input_tokens=0,output_tokens=0,reasoning_output_tokens=0,
+          tool_calls=0,command_calls=0,command_errors=0,api_errors=0)
+ cmds=[];usage=False;seen=set();pending={};cost=None
  for line in Path(path).read_text(errors='replace').splitlines():
   try:e=json.loads(line)
   except ValueError:continue
   if e.get('type')=='turn.completed' and e.get('usage'):
    usage=True
-   for k in ['input_tokens','cached_input_tokens','output_tokens']:out[k]+=e['usage'].get(k,0) or 0
+   for k in ['input_tokens','cached_input_tokens','cache_write_input_tokens','output_tokens','reasoning_output_tokens']:out[k]+=e['usage'].get(k,0) or 0
   if e.get('type') in ['turn.failed','error']:out['api_errors']+=1
+  # Claude Code stream-json: tool_use blocks in assistant messages, tool_result blocks in user messages,
+  # one terminal result event with main-loop usage and a client-side cost estimate.
+  if e.get('type') in ('assistant','user'):
+   for b in (e.get('message') or {}).get('content') or []:
+    if not isinstance(b,dict):continue
+    if b.get('type')=='tool_use' and b.get('id') not in seen:
+     seen.add(b.get('id'));out['tool_calls']+=1
+     if b.get('name')=='Bash':pending[b.get('id')]={'id':b.get('id'),'command':(b.get('input') or {}).get('command'),'exit_code':None,'aggregated_output':''}
+    if b.get('type')=='tool_result' and b.get('tool_use_id') in pending:
+     c=pending.pop(b['tool_use_id']);c['exit_code']=1 if b.get('is_error') else 0;c['aggregated_output']=_text(b.get('content'))
+     cmds.append(c);out['command_calls']+=1;out['command_errors']+=c['exit_code']==1
+  if e.get('type')=='result':
+   usage=True;u=e.get('usage') or {}
+   read,write_=u.get('cache_read_input_tokens',0) or 0,u.get('cache_creation_input_tokens',0) or 0
+   out['input_tokens']+=(u.get('input_tokens',0) or 0)+read+write_;out['cached_input_tokens']+=read
+   out['cache_write_input_tokens']+=write_;out['output_tokens']+=u.get('output_tokens',0) or 0
+   cost=e.get('total_cost_usd');out['num_turns']=e.get('num_turns');out['terminal_subtype']=e.get('subtype')
+   out['model_usage']=e.get('modelUsage') or e.get('model_usage')
+   if e.get('is_error') and e.get('subtype')=='success':out['api_errors']+=1
   if e.get('type')=='item.completed':
    i=e.get('item',{});kind=i.get('type')
    if kind in ['command_execution','mcp_tool_call','file_change','web_search']:out['tool_calls']+=1
    if kind=='command_execution':
     cmds.append(i);out['command_calls']+=1;out['command_errors']+=i.get('exit_code') not in (0,None)
+ for c in pending.values():cmds.append(c);out['command_calls']+=1  # interrupted, no tool_result
  out['usage_available']=usage
+ if cost is not None:out['estimated_cost_usd']=cost;return out,cmds  # Claude Code client-side estimate, not billing
  # Token estimate only; U-M invoices may apply different cache/context rates.
  out['estimated_cost_usd']=((out['input_tokens']-out['cached_input_tokens'])*2+out['cached_input_tokens']*.2+out['output_tokens']*12)/1e6 if usage else None
  return out,cmds
