@@ -86,6 +86,27 @@ def setup(folder,dataset,sockets):
         write(work/'connections.json',{'postgres':{'host':str(sockets),'user':'dab_readonly','port':5432},'mongodb':{'uri':uri}})
     return work,home,env
 
+TRIAL_ENTRIES=['preflight','database-preflight','reports','runs','excluded-attempts','verification','source-snapshot',
+               'original-task-snapshot','protocol.json','preflight-latest.json','database-preflight.json','original-data-manifest.json']
+TASK_ENTRIES=['client','events.jsonl','stderr.log','manifest.json','prompt.txt','grading.json','result.json','commands.json',
+              'forbidden.txt','checks.json']
+
+def outside_own(work):
+    """Claude Code's sandbox is deny-by-path, unlike the Codex allowlist. Reproduce the Codex
+    boundary inside this trial: deny every entry on the way down from OUT except the one leading
+    to this task's work directory (existing entries plus every name the run will create later)."""
+    folder=work.parent;deny=[]
+    try:chain=folder.relative_to(OUT).parts
+    except ValueError:return deny
+    known={(): TRIAL_ENTRIES,('runs',):sorted({d for d,q in all_tasks(ROOT)})}
+    for ds in known[('runs',)]:known[('runs',ds)]=[f'query{q}' for d,q in all_tasks(ROOT) if d==ds]
+    for i in range(len(chain)+1):
+        base=OUT.joinpath(*chain[:i]);keep=chain[i] if i<len(chain) else 'work'
+        names=set(known.get(tuple(chain[:i]),[]))|({p.name for p in base.iterdir()} if base.is_dir() else set())
+        if i==len(chain):names|=set(TASK_ENTRIES)
+        deny+=[base/n for n in sorted(names) if n!=keep]
+    return deny
+
 def claude_setup(work,home,tmp,sockets):
     """Claude Code equivalent of the Codex profile: sandboxed Bash (no external network,
     all Unix sockets allowed so the DB sockets work, writes only in the task directory),
@@ -95,7 +116,7 @@ def claude_setup(work,home,tmp,sockets):
     # task directory (and Unix socket paths are limited to 108 bytes), so use a short node-local directory.
     tmp=Path(os.environ.get('SLURM_TMPDIR') or '/tmp')/('cc-'+hashlib.sha1(str(work).encode()).hexdigest()[:10])
     tmp.mkdir(mode=0o700,parents=True,exist_ok=True)
-    deny=[str(p) for p in protected_paths()]
+    deny=[str(p) for p in protected_paths()+outside_own(work)]
     settings={'apiKeyHelper':'cat '+str(KEYS['claude']),
               'permissions':{'allow':['Bash','Read','Glob','Grep'],
                              'deny':[f'{t}(/{p}/**)' for p in deny for t in ('Read','Edit')]+['WebFetch','WebSearch','Agent']},
