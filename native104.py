@@ -164,7 +164,7 @@ def claude_final(events):
     for line in Path(events).read_text(errors='replace').splitlines():
         try:e=json.loads(line)
         except ValueError:continue
-        if e.get('type')=='result':last=e
+        if isinstance(e,dict) and e.get('type')=='result':last=e
     return last
 
 def tool_outputs(events,name=None):
@@ -173,7 +173,8 @@ def tool_outputs(events,name=None):
     for line in Path(events).read_text(errors='replace').splitlines():
         try:e=json.loads(line)
         except ValueError:continue
-        for b in (e.get('message') or {}).get('content') or []:
+        m=e.get('message') if isinstance(e,dict) else None
+        for b in (m.get('content') if isinstance(m,dict) else None) or []:
             if not isinstance(b,dict):continue
             if b.get('type')=='tool_use':names[b.get('id')]=(b.get('name'),b.get('input'))
             if b.get('type')=='tool_result':
@@ -195,8 +196,19 @@ def claude_preflight(folder,work,home,env,code,marker,blocked):
     with events.open('w') as out,(folder/'stderr.log').open('w') as err:
         r=subprocess.run([str(BIN),'-p',ask]+agent_command(work,home,None)[2:],cwd=work,env=env,stdout=out,stderr=err,text=True,timeout=600)
     bash=tool_outputs(events,'Bash');reads=tool_outputs(events,'Read');final=claude_final(events) or {}
-    tried={str((x['input'] or {}).get('file_path')) for x in reads}
-    read_denied=bool(reads) and all(x['is_error'] for x in reads) and {str(blocked),str(outside)}<=tried
+    # A Read is denied when its tool_result is an error, or Claude Code reports a permission denial for it
+    # (deny rules arrive as a tool_use_error; --restricted also emits a system permission_denied event).
+    notices=[]
+    for line in events.read_text(errors='replace').splitlines():
+        try:e=json.loads(line)
+        except ValueError:continue
+        if isinstance(e,dict) and e.get('type')=='system' and e.get('subtype')=='permission_denied':notices.append(json.dumps(e))
+    denials=[str((d.get('tool_input') or {}).get('file_path')) for d in final.get('permission_denials') or [] if isinstance(d,dict)]
+    def denied(x):
+        path=str((x['input'] or {}).get('file_path') if isinstance(x['input'],dict) else '')
+        return x['is_error'] or path in denials or any(path in n for n in notices) or 'outside' in x['text'] and '--restricted' in x['text']
+    tried={str((x['input'] or {}).get('file_path')) for x in reads if isinstance(x['input'],dict)}
+    read_denied=bool(reads) and all(denied(x) for x in reads) and {str(blocked),str(outside)}<=tried
     bash_ok=any(marker in x['text'] and not x['is_error'] for x in bash)
     return {'passed':r.returncode==0 and bash_ok and read_denied,'returncode':r.returncode,'bash_outputs':[x['text'][-3000:] for x in bash],
             'read_tool_denied':read_denied,'read_attempts':len(reads),'permission_denials':final.get('permission_denials'),

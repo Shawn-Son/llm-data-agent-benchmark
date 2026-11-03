@@ -50,6 +50,7 @@ def stats(path):
  for line in Path(path).read_text(errors='replace').splitlines():
   try:e=json.loads(line)
   except ValueError:continue
+  if not isinstance(e,dict):continue
   if e.get('type')=='turn.completed' and e.get('usage'):
    usage=True
    for k in ['input_tokens','cached_input_tokens','cache_write_input_tokens','output_tokens','reasoning_output_tokens']:out[k]+=e['usage'].get(k,0) or 0
@@ -57,7 +58,8 @@ def stats(path):
   # Claude Code stream-json: tool_use blocks in assistant messages, tool_result blocks in user messages,
   # one terminal result event with main-loop usage and a client-side cost estimate.
   if e.get('type') in ('assistant','user'):
-   for b in (e.get('message') or {}).get('content') or []:
+   m=e.get('message')
+   for b in (m.get('content') if isinstance(m,dict) else None) or []:
     if not isinstance(b,dict):continue
     if b.get('type')=='tool_use' and b.get('id') not in seen:
      seen.add(b.get('id'));out['tool_calls']+=1
