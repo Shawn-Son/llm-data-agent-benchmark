@@ -86,6 +86,7 @@ def setup(folder,dataset,sockets):
         write(work/'connections.json',{'postgres':{'host':str(sockets),'user':'dab_readonly','port':5432},'mongodb':{'uri':uri}})
     return work,home,env
 
+SYSTEM_READ={'bin','sbin','lib','lib64','usr','etc','sw','dev','proc','sys'}  # same system trees as the Codex profile
 TRIAL_ENTRIES=['preflight','database-preflight','reports','runs','excluded-attempts','verification','source-snapshot',
                'original-task-snapshot','protocol.json','preflight-latest.json','database-preflight.json','original-data-manifest.json']
 TASK_ENTRIES=['client','events.jsonl','stderr.log','manifest.json','prompt.txt','grading.json','result.json','commands.json',
@@ -117,12 +118,18 @@ def claude_setup(work,home,tmp,sockets):
     tmp=Path(os.environ.get('SLURM_TMPDIR') or '/tmp')/('cc-'+hashlib.sha1(str(work).encode()).hexdigest()[:10])
     tmp.mkdir(mode=0o700,parents=True,exist_ok=True)
     deny=[str(p) for p in protected_paths()+outside_own(work)]
+    # Reproduce the Codex read allowlist for sandboxed Bash: hide every top-level tree except the
+    # system ones Codex also exposed, then re-allow only what the task needs (as Codex does).
+    hidden=[str(p) for p in sorted(Path('/').iterdir()) if p.name not in SYSTEM_READ]
+    data=(work/'query_dataset').resolve() if (work/'query_dataset').exists() else None
+    allow=[str(work),str(tmp),str(PROJECT/'strict/.venv'),str(Path(sys.executable).resolve().parent.parent)]
+    allow+=[str(p) for p in (data,sockets) if p]
     settings={'apiKeyHelper':'cat '+str(KEYS['claude']),
               'permissions':{'allow':['Bash','Read','Glob','Grep'],
                              'deny':[f'{t}(/{p}/**)' for p in deny for t in ('Read','Edit')]+['WebFetch','WebSearch','Agent']},
               'sandbox':{'enabled':True,'failIfUnavailable':True,'autoAllowBashIfSandboxed':True,'allowUnsandboxedCommands':False,
                          'network':{'allowedDomains':[],'allowAllUnixSockets':True},
-                         'filesystem':{'denyRead':deny,'allowWrite':[str(work),str(tmp)]}},
+                         'filesystem':{'denyRead':hidden+deny,'allowRead':allow,'allowWrite':[str(work),str(tmp)]}},
               'env':{'DISABLE_AUTOUPDATER':'1'}}
     write(home/'settings.json',settings)
     env=os.environ.copy()
@@ -142,9 +149,12 @@ def agent_command(work,home,answer):
     if HARNESS=='codex':
         return [str(BIN),'-C',str(work),'--ask-for-approval','never','exec','--json','--skip-git-repo-check',
                 '--model',MODEL,'--output-last-message',str(answer),'-']
-    cmd=[str(BIN),'-p','--bare','--model',MODEL,'--output-format','stream-json','--verbose',
+    # --restricted (Claude Code's evaluation mode) confines the built-in file tools to the working
+    # directory plus --add-dir, matching the Codex allowlist for tools that run outside the sandbox.
+    cmd=[str(BIN),'-p','--bare','--restricted','--model',MODEL,'--output-format','stream-json','--verbose',
          '--settings',str(home/'settings.json'),'--permission-mode','acceptEdits',
          '--tools','Bash,Read,Edit,Write,Glob,Grep','--disallowedTools','WebFetch,WebSearch,Agent','--no-session-persistence']
+    if (work/'query_dataset').exists():cmd+=['--add-dir',str((work/'query_dataset').resolve())]
     if BUDGET:cmd+=['--max-budget-usd',str(BUDGET)]
     return cmd
 
@@ -177,13 +187,16 @@ def claude_preflight(folder,work,home,env,code,marker,blocked):
     through one real session's Bash tool; pass/fail is read from the tool_result itself,
     never from model prose. The built-in Read tool must also be denied on a protected path."""
     (work/'preflight_check.py').write_text(code)
+    outside=PROJECT/'codex104/run.py'  # ordinary file outside the task allowlist (not answer-bearing)
     ask=('This is an environment test. Run exactly `python preflight_check.py` with the Bash tool and nothing else. '
-         f'Then try to read the file {blocked} with the Read tool. Finally reply with the Bash output only.')
+         f'Then try to read the file {blocked} with the Read tool, and then the file {outside} with the Read tool. '
+         'Finally reply with the Bash output only.')
     events=folder/'events.jsonl'
     with events.open('w') as out,(folder/'stderr.log').open('w') as err:
         r=subprocess.run([str(BIN),'-p',ask]+agent_command(work,home,None)[2:],cwd=work,env=env,stdout=out,stderr=err,text=True,timeout=600)
     bash=tool_outputs(events,'Bash');reads=tool_outputs(events,'Read');final=claude_final(events) or {}
-    read_denied=bool(reads) and all(x['is_error'] for x in reads) or any(d.get('tool_name')=='Read' for d in final.get('permission_denials') or [])
+    tried={str((x['input'] or {}).get('file_path')) for x in reads}
+    read_denied=bool(reads) and all(x['is_error'] for x in reads) and {str(blocked),str(outside)}<=tried
     bash_ok=any(marker in x['text'] and not x['is_error'] for x in bash)
     return {'passed':r.returncode==0 and bash_ok and read_denied,'returncode':r.returncode,'bash_outputs':[x['text'][-3000:] for x in bash],
             'read_tool_denied':read_denied,'read_attempts':len(reads),'permission_denials':final.get('permission_denials'),
@@ -197,7 +210,7 @@ def preflight():
     code="""import pathlib,socket,errno
 import duckdb,pandas,pyarrow,psycopg2,pymongo
 p=pathlib.Path('allowed.txt');p.write_text('ok');assert p.read_text()=='ok'
-assert pathlib.Path('query_dataset').exists()
+assert pathlib.Path('query_dataset').exists() and any(pathlib.Path('query_dataset').iterdir())
 for p in BLOCKED:
     try: pathlib.Path(p).read_bytes()
     except (PermissionError,FileNotFoundError): pass
@@ -210,7 +223,7 @@ except OSError as e: assert e.errno in (errno.EPERM,errno.EACCES,errno.ENETUNREA
 else: raise AssertionError('Network not blocked')
 print('NATIVE_ISOLATION_AND_NETWORK_OK')
 """.replace('BLOCKED',repr([str(blocked),str(outside)]+[str(k) for k in KEYS.values() if k.exists()]+
-                             [str(ARTIFACTS/'terra-native-104x1/preflight-latest.json')])).replace('OUTSIDE',repr(str(outside)))
+                             [str(ARTIFACTS/'terra-native-104x1/preflight-latest.json'),str(PROJECT/'codex104/run.py')])).replace('OUTSIDE',repr(str(outside)))
     if HARNESS=='claude':
         result=claude_preflight(folder,work,home,env,code,'NATIVE_ISOLATION_AND_NETWORK_OK',blocked)
         result['passed']=result['passed'] and outside.read_text()=='private-sentinel'
