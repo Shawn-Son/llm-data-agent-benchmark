@@ -1,0 +1,469 @@
+{
+  "model": "claude-haiku-5-5",
+  "cheap_model": "claude-haiku-5-5",
+  "verify": {
+    "rows": [
+      {
+        "case": "crmarenapro_q12_date_field",
+        "kind": "right",
+        "note": "month anchored on signing date vs creation date",
+        "per_method": {
+          "rt": false,
+          "se": false,
+          "sc": false,
+          "cohort": false
+        },
+        "and": false,
+        "or": false,
+        "reasons": [
+          "rt: reject (round-trip score 3/5: Population: the original asks about 'agents', implying owners restricted to sales agents, while the reconstruction considers any opportunity OwnerId with no agent or role filter.; Time window / date field: the original says 'in April 2023' without naming a date field. The reconstruction explicitly filters on the contract's CompanySignedDate falling in April 2023, which is an interpretation not stated in the original.; Stage filter: the original refers to 'opening to closing opportunities', which may imply only closed opportunities. The reconstruction applies no opportunity stage or closed-status filter.)",
+          "se: reject (1 of 2 synthetic cases disagree)",
+          "sc: reject (The logic is mostly sound: it joins opportunities to their contracts, computes days from CreatedDate to CompanySignedDate, groups by OwnerId, and returns the lowest average. However, the sample data shows dirty identifiers (for example, Contract Id '#800Wt...' and ContactId '#003Wt...', and Status values with trailing spaces). The join on c.Id = o.ContractID__c does no trimming or normalization, so matching contracts could be silently dropped and change the result. The SQL also assumes all date fields are plain 'YYYY-MM-DD' strings, which is not verified. Finally, 'agents in April 2023' is ambiguous: the query filters by contract signing date, while the agent's opportunities might instead be filtered by creation date. The query does not justify that choice, and ties at the minimum are not handled deterministically.)",
+          "cohort: reject (filters: SQL is wider than the question (S constrains only Contract.CompanySignedDate to April 2023, while Q also requires Opportunity dates to fall within April 2023, a condition S does not apply, so S admits more rows; Q's non-null ContractID and CompanySignedDate conditions are already covered by the inner join and the date bounds.))"
+        ],
+        "seconds": 12.5,
+        "rt_back_translation": "Which opportunity owner (OwnerId) has the lowest average number of days between an opportunity's CreatedDate and the CompanySignedDate of its linked contract, considering only opportunities joined to contracts via Opportunity.ContractID__c = Contract.Id where the contract's CompanySignedDate falls in April 2023 (on or after 2023-04-01 and before 2023-05-01)? Return only that one OwnerId as column agent.",
+        "se_cases": [
+          {
+            "note": "Owner A averages 26.5 days, owner B averages 10.5 days (the 1-day March-closed opp must be excluded, and close-in-April filter applies). Owner C has a 2-day turnaround only for an opp closed in May, and a null-contract opp; both must be excluded, so B wins. Tests close-date filter, null join exclusion, and the contract-signed-date metric.",
+            "match": false,
+            "error": null
+          },
+          {
+            "note": "Owner E averages 7 days (two opps closed in April). Owner F averages 14.5 days, with one opp closed in May excluded. Owner G has the shortest raw gap but its only April-closed opp has no contract (null ContractID) and its other opp closed in March, so G must be excluded entirely. Expected winner is E, which tests null-contract exclusion, the April close-date filter, and correct date arithmetic.",
+            "match": true,
+            "error": null
+          }
+        ],
+        "cohort_warnings": [
+          "filters: SQL is wider than the question (S constrains only Contract.CompanySignedDate to April 2023, while Q also requires Opportunity dates to fall within April 2023, a condition S does not apply, so S admits more rows; Q's non-null ContractID and CompanySignedDate conditions are already covered by the inner join and the date bounds.)"
+        ]
+      },
+      {
+        "case": "crmarenapro_q12_date_field",
+        "kind": "wrong",
+        "note": "month anchored on signing date vs creation date",
+        "per_method": {
+          "rt": true,
+          "se": false,
+          "sc": true,
+          "cohort": false
+        },
+        "and": false,
+        "or": true,
+        "reasons": [
+          "rt: accept (round-trip score 4/5)",
+          "se: reject (1 of 2 synthetic cases disagree)",
+          "sc: accept (The query returns the OwnerId (the agent's Id) with the smallest average days from opportunity CreatedDate to contract CompanySignedDate, matching the stated sales-cycle policy. The inner join on Opportunity.ContractID__c = Contract.Id is the intended link and drops opportunities with no contract, which is appropriate for measuring a cycle that ends at contract signing. The April 2023 filter on CreatedDate uses a valid half-open range that works for ISO-formatted strings. Aggregation by OwnerId, ascending ordering on the average, and LIMIT 1 are correct. Minor caveats: ties are not handled, and the query assumes date strings are consistently ISO-formatted, which the samples support but I could not fully verify.)",
+          "cohort: reject (population: SQL is narrower than the question (Both use the same Opportunity-to-Contract join on ContractID__c = Contract.Id, but S additionally restricts the population to opportunities created in April 2023, while Q's population has no creation-date restriction.); filters: SQL is different than the question (Q requires both opportunity and contract dates to fall in April 2023 and an explicit CompanySignedDate not null check, whereas S filters only on Opportunity.CreatedDate in [2023-04-01, 2023-05-01) and has no contract-date window or explicit CompanySignedDate check (S's ContractID inner join matches Q's ContractID not-null condition).))"
+        ],
+        "seconds": 26.3,
+        "rt_back_translation": "Which opportunity owner (OwnerId) has the shortest average number of days between the opportunity's CreatedDate and the linked contract's CompanySignedDate, considering only opportunities created between 2023-04-01 (inclusive) and 2023-05-01 (exclusive) that are linked to a contract via Opportunity.ContractID__c = Contract.Id? For each owner, the average is taken over all of that owner's qualifying opportunity-contract pairs, computed as the difference in Julian days (julianday(CompanySignedDate) - julianday(CreatedDate)). Return only that owner's ID as a single column named agent.",
+        "se_cases": [
+          {
+            "note": "Owner A averages 26.5 days, owner B averages 10.5 days (the 1-day March-closed opp must be excluded, and close-in-April filter applies). Owner C has a 2-day turnaround only for an opp closed in May, and a null-contract opp; both must be excluded, so B wins. Tests close-date filter, null join exclusion, and the contract-signed-date metric.",
+            "match": true,
+            "error": null
+          },
+          {
+            "note": "Owner E averages 7 days (two opps closed in April). Owner F averages 14.5 days, with one opp closed in May excluded. Owner G has the shortest raw gap but its only April-closed opp has no contract (null ContractID) and its other opp closed in March, so G must be excluded entirely. Expected winner is E, which tests null-contract exclusion, the April close-date filter, and correct date arithmetic.",
+            "match": false,
+            "error": null
+          }
+        ],
+        "cohort_warnings": [
+          "population: SQL is narrower than the question (Both use the same Opportunity-to-Contract join on ContractID__c = Contract.Id, but S additionally restricts the population to opportunities created in April 2023, while Q's population has no creation-date restriction.)",
+          "filters: SQL is different than the question (Q requires both opportunity and contract dates to fall in April 2023 and an explicit CompanySignedDate not null check, whereas S filters only on Opportunity.CreatedDate in [2023-04-01, 2023-05-01) and has no contract-date window or explicit CompanySignedDate check (S's ContractID inner join matches Q's ContractID not-null condition).)"
+        ]
+      },
+      {
+        "case": "civic_q4_inclusive_end",
+        "kind": "right",
+        "note": "inclusive end date dropped",
+        "per_method": {
+          "rt": true,
+          "se": true,
+          "sc": true,
+          "cohort": true
+        },
+        "and": true,
+        "or": true,
+        "reasons": [
+          "rt: accept (round-trip score 4/5)",
+          "se: accept (all synthetic cases agree)",
+          "sc: accept (The query sums `amount` from the only table, `Funding`, which is what the question asks for. The date filter `grant_time >= '2021-06-01' AND grant_time <= '2022-06-01'` matches the inclusive window. The samples show `grant_time` as ISO `YYYY-MM-DD` text, so string comparison orders dates correctly. No joins, grouping, or ranking are needed. The only caveats are that a timestamp with a time component on 2022-06-01 would be excluded, and that the result is NULL rather than 0 if no rows match, but neither is a clear error given the schema.)",
+          "cohort: accept (intent cards agree)"
+        ],
+        "seconds": 0.0,
+        "rt_back_translation": "What is the total amount of all funding records in the Funding table whose grant_time is between 2021-06-01 and 2022-06-01, inclusive?",
+        "se_cases": [
+          {
+            "note": "Inclusive boundaries at 2021-06-01 and 2022-06-01 are kept; rows one day outside are excluded; a NULL amount is ignored by SUM. Correct total is 100000+250000+120000+30000.",
+            "match": true,
+            "error": null
+          },
+          {
+            "note": "Distinct total with rows before the window, after the window, and a NULL grant_time (which a BETWEEN filter excludes) all present. Correct total is 400000+600000+500000.",
+            "match": true,
+            "error": null
+          }
+        ],
+        "cohort_warnings": []
+      },
+      {
+        "case": "civic_q4_inclusive_end",
+        "kind": "wrong",
+        "note": "inclusive end date dropped",
+        "per_method": {
+          "rt": false,
+          "se": false,
+          "sc": false,
+          "cohort": false
+        },
+        "and": false,
+        "or": false,
+        "reasons": [
+          "rt: reject (round-trip score 3/5: End boundary of the time window: the original includes 2022-06-01 (inclusive), while the reconstruction excludes it (strictly before 2022-06-01), so records granted on 2022-06-01 are counted in the original but not the reconstruction.; The original specifies the amount is in USD; the reconstruction only says 'amount' and does not mention currency. This is a minor presentation detail.; The original does not name the date field; the reconstruction specifies grant_time. This is a clarification rather than a substantive change, since 'granted' implies the grant date.)",
+          "se: reject (2 of 2 synthetic cases disagree)",
+          "sc: reject (The question asks for grants between 2021-06-01 and 2022-06-01 inclusive, but the SQL uses `grant_time < '2022-06-01'`, which excludes any funding granted on 2022-06-01. It should use `<=` for the upper bound. The lower bound `>= '2021-06-01'` is correct, and the single-table SUM with no grouping is appropriate. The result would also be wrong if grant_time ever contains timestamps rather than plain dates, since a value like '2022-06-01 09:00' would then be excluded by the strict comparison.)",
+          "cohort: reject (time window end differs: question through 2022-06-01 vs SQL through 2022-05-31; filters: SQL is narrower than the question (Q keeps grant_time between 2021-06-01 and 2022-06-01 inclusive, while S uses on-or-after 2021-06-01 and before 2022-06-01, so S drops rows with grant_time exactly on 2022-06-01.))"
+        ],
+        "seconds": 0.0,
+        "rt_back_translation": "What is the total sum of the amount across all Funding records whose grant_time is on or after 2021-06-01 and before 2022-06-01 (i.e., grant dates from June 1, 2021 through May 31, 2022 inclusive)? Return a single value with no grouping, filtering on any other columns, or ordering.",
+        "se_cases": [
+          {
+            "note": "Inclusive boundaries at 2021-06-01 and 2022-06-01 are kept; rows one day outside are excluded; a NULL amount is ignored by SUM. Correct total is 100000+250000+120000+30000.",
+            "match": false,
+            "error": null
+          },
+          {
+            "note": "Distinct total with rows before the window, after the window, and a NULL grant_time (which a BETWEEN filter excludes) all present. Correct total is 400000+600000+500000.",
+            "match": false,
+            "error": null
+          }
+        ],
+        "cohort_warnings": [
+          "time window end differs: question through 2022-06-01 vs SQL through 2022-05-31",
+          "filters: SQL is narrower than the question (Q keeps grant_time between 2021-06-01 and 2022-06-01 inclusive, while S uses on-or-after 2021-06-01 and before 2022-06-01, so S drops rows with grant_time exactly on 2022-06-01.)"
+        ]
+      },
+      {
+        "case": "imdb_keyword_join_leading_zeros",
+        "kind": "right",
+        "note": "digit strings compared without dropping leading zeros",
+        "per_method": {
+          "rt": true,
+          "se": true,
+          "sc": true,
+          "cohort": true
+        },
+        "and": true,
+        "or": true,
+        "reasons": [
+          "rt: accept (round-trip score 4/5)",
+          "se: accept (all synthetic cases agree)",
+          "sc: accept (The query counts distinct movie_ids from movie_keyword joined to keyword where keyword = 'superhero', which matches the question. The join normalizes both identifiers (lowercase, strip 'kwd'/'kw'/'.'/'~', cast to integer), so the zero-padding and mixed-case encodings in the notes ('kwd..2905', 'Kw0002', 'kw00001') should resolve to matching integers. CAST handles leading zeros, and COUNT(DISTINCT mk.movie_id) handles multiple keyword rows per movie. The remaining risks are unverified: the mk side does not strip '~' while the keyword side does, and the exact-match filter is case-sensitive. The data samples suggest lowercase hyphenated keywords, so these are unlikely to matter.)",
+          "cohort: accept (intent cards agree)"
+        ],
+        "seconds": 3.1,
+        "rt_back_translation": "How many distinct movies have at least one keyword whose keyword text is 'superhero'? Match keyword rows to movie_keyword rows by comparing their numeric IDs, where each ID's numeric part is extracted by lowercasing and removing the substrings 'kwd', 'kw', '.', and '~' (the keyword table's ID also has '~' removed), then cast to an integer. Return a single count of the distinct movie_id values from movie_keyword. No time window applies, and there is no grouping, ordering, or limit.",
+        "se_cases": [
+          {
+            "note": "Movie 1 is tagged 'superhero' twice (via differently padded keyword_ids), so DISTINCT must collapse it. Movie 7 adds a second distinct movie. Movies tagged 'superhero-movie' (2906), 'handcuffed-to-a-bed' (2068) and 'jane-austen' (157) must be excluded, so a LIKE '%superhero%' query would wrongly return 3.",
+            "match": true,
+            "error": null
+          },
+          {
+            "note": "Only keyword 12 is 'superhero'. Movie 5 is tagged twice, so it counts once. The row with keyword 'kw0013' (superhero-team) must be excluded, as must the NULL movie_id row, since COUNT(DISTINCT) ignores NULLs. A naive join on the raw text ids would find no matches, and a join that fails to strip leading zeros would miss 'Kw12' or 'Kw00000012'.",
+            "match": true,
+            "error": null
+          }
+        ],
+        "cohort_warnings": []
+      },
+      {
+        "case": "imdb_keyword_join_leading_zeros",
+        "kind": "wrong",
+        "note": "digit strings compared without dropping leading zeros",
+        "per_method": {
+          "rt": false,
+          "se": false,
+          "sc": false,
+          "cohort": true
+        },
+        "and": false,
+        "or": true,
+        "reasons": [
+          "rt: reject (round-trip score 3/5: The SQL specifies an ID-normalization join: keyword.id is lowercased with 'kwd', '.', and '~' removed, and movie_keyword.keyword_id is lowercased with 'kwd', 'kw', and '.' removed, before matching. The original question implies a straightforward join and does not mention this normalization, which could change which rows match.; The SQL requires a case-sensitive exact match on keyword text ('superhero'). The original question does not state case sensitivity.; The SQL explicitly states no time filter. The original question has no time filter either, so this is consistent rather than a difference.)",
+          "se: reject (1 of 2 synthetic cases disagree)",
+          "sc: reject (The join normalization does not strip leading zeros, which the schema notes explicitly require. On the movie_keyword side, 'kw00001' or 'Kw0002' becomes '00001' or '0002' after the replaces, while keyword.id values like 'kwd..157' become '157'. These do not match, so keywords with zero-padded IDs will be silently dropped and the count will be too low. The rest of the logic (filter on k.keyword = 'superhero', COUNT(DISTINCT movie_id)) is fine, but the join key must also strip leading zeros (e.g., via LTRIM(..., '0')) on both sides.)",
+          "cohort: accept (intent cards agree)"
+        ],
+        "seconds": 2.8,
+        "rt_back_translation": "How many distinct movies are tagged with the keyword 'superhero'? Match each movie_keyword row to a keyword row by normalizing both identifiers: in keyword.id, lowercase the value and remove the substrings 'kwd', '.', and '~'; in movie_keyword.keyword_id, lowercase the value and remove the substrings 'kwd', 'kw', and '.'; join where the normalized values are equal. Keep only keyword rows whose keyword text is exactly 'superhero' (case-sensitive match, no time filter). Return a single count of distinct movie_id values from movie_keyword.",
+        "se_cases": [
+          {
+            "note": "Movie 1 is tagged 'superhero' twice (via differently padded keyword_ids), so DISTINCT must collapse it. Movie 7 adds a second distinct movie. Movies tagged 'superhero-movie' (2906), 'handcuffed-to-a-bed' (2068) and 'jane-austen' (157) must be excluded, so a LIKE '%superhero%' query would wrongly return 3.",
+            "match": true,
+            "error": null
+          },
+          {
+            "note": "Only keyword 12 is 'superhero'. Movie 5 is tagged twice, so it counts once. The row with keyword 'kw0013' (superhero-team) must be excluded, as must the NULL movie_id row, since COUNT(DISTINCT) ignores NULLs. A naive join on the raw text ids would find no matches, and a join that fails to strip leading zeros would miss 'Kw12' or 'Kw00000012'.",
+            "match": false,
+            "error": null
+          }
+        ],
+        "cohort_warnings": []
+      }
+    ],
+    "summary": {
+      "rt": {
+        "false_accepts": "1/3",
+        "false_rejects": "1/3"
+      },
+      "se": {
+        "false_accepts": "0/3",
+        "false_rejects": "1/3"
+      },
+      "sc": {
+        "false_accepts": "1/3",
+        "false_rejects": "1/3"
+      },
+      "cohort": {
+        "false_accepts": "1/3",
+        "false_rejects": "1/3"
+      },
+      "and": {
+        "false_accepts": "0/3",
+        "false_rejects": "1/3"
+      },
+      "or": {
+        "false_accepts": "2/3",
+        "false_rejects": "1/3"
+      }
+    },
+    "usage_after": {
+      "calls": 9,
+      "input_tokens": 8024,
+      "output_tokens": 7341,
+      "cache_read_tokens": 0,
+      "cached_calls": 41,
+      "cost_usd": 0.004472900000000001
+    }
+  },
+  "extract_usaspending": {
+    "rows": 400,
+    "llm_attempted": 60,
+    "llm_assigned_values": 0,
+    "examples_assigned": [],
+    "summary": {
+      "rows": 400,
+      "by_source": {
+        "null": 377,
+        "code": 23
+      },
+      "code_coverage": 0.0575,
+      "final_coverage": 0.0575,
+      "warnings": [
+        "award_amount: parse coverage 5.8% < 95% (377 of 400 rows unparsed)",
+        "award_amount: final coverage 5.8% after code+LLM; the answer may rest on a subset of rows"
+      ]
+    },
+    "note": "prose amounts are vague: a correct LLM returns null (assigned values are false extractions)"
+  },
+  "extract_deps": {
+    "llm_rows": 60,
+    "llm_correct_vs_code_truth": 60,
+    "mismatches": [],
+    "summary": {
+      "rows": 770,
+      "by_source": {
+        "code": 516,
+        "llm": 60,
+        "null": 194
+      },
+      "code_coverage": 0.6701298701298701,
+      "final_coverage": 0.7480519480519481,
+      "warnings": [
+        "forks: parse coverage 67.0% < 95% (254 of 770 rows unparsed)",
+        "18 captures are preceded by digits or commas: the pattern probably truncates numbers with thousands separators",
+        "forks: final coverage 74.8% after code+LLM; the answer may rest on a subset of rows",
+        "forks: most parsed values are < 1000 and truncation signals fired; check thousands separators"
+      ]
+    },
+    "usage_after": {
+      "calls": 9,
+      "input_tokens": 8024,
+      "output_tokens": 7341,
+      "cache_read_tokens": 0,
+      "cached_calls": 281,
+      "cost_usd": 0.004472900000000001
+    }
+  },
+  "optimizer_deps": {
+    "plan": "original",
+    "criteria": [
+      "The 'project' value must exactly match the GitHub repository identifier (owner/name format) stated in the input text, with no added, dropped, or altered characters, and must not be replaced by a bare repository name or a different project mentioned in the text.",
+      "The 'stars' and 'forks' values must be integers that correspond to the star and fork counts explicitly attached to the project in the input text, and must not be confused with other numbers such as open issues, watchers, contributors, or dates (e.g., 0 open issues must not be reported as stars).",
+      "If the input text contains no GitHub project, or omits a star or fork count, the output must not fabricate a project name or numeric value; the output should flag the field as missing or null rather than inventing or inferring a number, and no extra projects or counts present in the text may be omitted when multiple repositories are described."
+    ],
+    "assessment": {
+      "needs_improvement": false,
+      "reasons": []
+    },
+    "ratings": null,
+    "wins": null,
+    "outputs": {
+      "original": [
+        {
+          "project": "royriojas/flat-cache",
+          "stars": 162,
+          "forks": 30
+        },
+        {
+          "project": "sboudrias/readline2",
+          "stars": 27,
+          "forks": 4
+        },
+        {
+          "project": "ljharb/qs",
+          "stars": 8073,
+          "forks": 746
+        },
+        {
+          "project": "mooory/ckeditor5-custom",
+          "stars": 0,
+          "forks": 0
+        },
+        {
+          "project": "sindresorhus/indent-string",
+          "stars": 111,
+          "forks": 17
+        }
+      ]
+    },
+    "usage_after": {
+      "calls": 9,
+      "input_tokens": 8024,
+      "output_tokens": 7341,
+      "cache_read_tokens": 0,
+      "cached_calls": 288,
+      "cost_usd": 0.004472900000000001
+    }
+  },
+  "fdj_cve": {
+    "L": 400,
+    "R": 1000,
+    "true_pairs": 94,
+    "features": [
+      {
+        "name": "raw_similarity",
+        "distance": "token_jaccard",
+        "left": "code",
+        "right": "code",
+        "description": "token overlap of the raw records"
+      },
+      {
+        "name": "cve_year_sequence_pair",
+        "distance": "digit_edit",
+        "left": "code",
+        "right": "code",
+        "description": "Extracts the year and sequence number of a CVE-style identifier, with or without the 'CVE' prefix and with any separator (-, :, ., _), so records that encode the same CVE in different formats still align. This separates true matches, where the year-number pair agrees despite noisy surrounding tokens, from non-matches that merely share digits or tokens."
+      },
+      {
+        "name": "confusable_digit_sequence",
+        "distance": "digit_edit",
+        "left": "code",
+        "right": "code",
+        "description": "Recovers a CVE-like sequence number from noisy tokens where digits are replaced by look-alike letters (O\u21920, Z\u21922, l/I\u21921, S\u21925, B\u21928) and separators are interleaved, so a true match still aligns when the year-number pair is not cleanly parseable by the existing rule."
+      },
+      {
+        "name": "normalized_cve_year",
+        "distance": "numeric_abs",
+        "left": "llm",
+        "right": "code",
+        "description": "Extracts the publication year that accompanies a CVE-like token, after mapping look-alike characters back to digits and expanding two-digit years to four digits (e.g. 24 becomes 2024). Comparing years on their own separates hard cases that share a sequence-number-like digit run but come from different years, and it still works when the sequence number is too noisy to parse."
+      },
+      {
+        "name": "bare_sequence_candidate",
+        "distance": "digit_edit",
+        "left": "code",
+        "right": "code",
+        "description": "Captures the longest digit run of 4 to 7 characters after look-alike mapping, with separators removed and leading zeros stripped, so a shared sequence number still aligns when the CVE prefix or year is missing, split by punctuation, or buried in other tokens."
+      }
+    ],
+    "decomposition": "(raw_similarity <= 1)",
+    "adjusted_target": 1.0,
+    "sample_recall": 1.0,
+    "target_feasible": true,
+    "labeled_pairs": 1594,
+    "haiku_label_agreement_with_oracle": {
+      "n": 1594,
+      "agree": 1516
+    },
+    "candidates": 400000,
+    "candidate_recall_vs_oracle": 1.0,
+    "candidate_precision_vs_oracle": 0.000235,
+    "refined": {
+      "skipped": "400000 candidates exceed the cap of 20000 or the budget"
+    },
+    "log": [
+      {
+        "step": "sample",
+        "note": "94 positives supplied by candidates_fn (uniform sample too sparse)"
+      },
+      {
+        "iteration": 0,
+        "n_features": 2,
+        "features": [
+          "raw_similarity",
+          "cve_year_sequence_pair"
+        ],
+        "max_cost_to_cover": 80
+      },
+      {
+        "iteration": 1,
+        "n_features": 3,
+        "features": [
+          "raw_similarity",
+          "cve_year_sequence_pair",
+          "confusable_digit_sequence"
+        ],
+        "max_cost_to_cover": 80
+      },
+      {
+        "iteration": 2,
+        "n_features": 4,
+        "features": [
+          "raw_similarity",
+          "cve_year_sequence_pair",
+          "confusable_digit_sequence",
+          "normalized_cve_year"
+        ],
+        "max_cost_to_cover": 80
+      },
+      {
+        "step": "conjunct",
+        "feature": 0,
+        "cost": 0.8
+      }
+    ],
+    "seconds": 3304.4,
+    "usage_after": {
+      "calls": 6821,
+      "input_tokens": 1638908,
+      "output_tokens": 3837613,
+      "cache_read_tokens": 0,
+      "cached_calls": 288,
+      "cost_usd": 2.0826972999999946
+    }
+  },
+  "usage": {
+    "calls": 6821,
+    "input_tokens": 1638908,
+    "output_tokens": 3837613,
+    "cache_read_tokens": 0,
+    "cached_calls": 288,
+    "cost_usd": 2.0826972999999946
+  }
+}

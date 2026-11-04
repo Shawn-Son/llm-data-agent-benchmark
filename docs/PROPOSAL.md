@@ -66,6 +66,12 @@ right/wrong SQL pair of crmarenapro q12 through synthetic execution. The offline
 | cve KEV-vulns join (oracle from DAB's own corruption code) | the oracle reproduces q3 exactly (1262); FDJ with hand-written features builds `(digit_stream_edit <= 12 OR family_decoders <= 0)` and reaches recall 0.991 >= 0.9 at precision 1, but refinement still touches 97% of pairs: the LLM feature-generation loop is what buys the cost reduction |
 | crmarenapro q12 SQL verification | the signed-date and created-date queries name different agents on the real data; synthetic execution accepts the signed-date query and rejects the created-date one; intent cards flag the date-field mismatch |
 
+A first live pass with `claude-haiku-5-5` (SQL verifiers on three right/wrong query pairs, extraction
+fallback, optimizer gate, FDJ on a 400 x 1,000 cve slice; about $2.1 in total) is written up in
+[LIVE_HAIKU_RESULTS.md](LIVE_HAIKU_RESULTS.md): the mechanical errors (window boundary, zero-padded
+ids, truncated numbers) are caught or fixed; the ambiguous question (crmarenapro q12) is not resolved
+by Haiku critics; Haiku-generated FDJ features did not decode the cve key families.
+
 ## 4. Evaluation plan (needs an API key; estimated < $40 with Haiku for agents and Sonnet for verifiers)
 
 Conditions, same 104 questions, unchanged validators, separate trial directories:

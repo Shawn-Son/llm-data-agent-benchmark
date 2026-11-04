@@ -6,7 +6,8 @@
 (featurized-decomposition joins) for identifier joins, DocETL-style extraction pipelines with
 parse-coverage reports, and Text-to-SQL verification (round trip, synthetic execution, cohort intent
 cards) for cohort and temporal errors. Offline tests and experiments run without an API key.
-See [docs/PROPOSAL.md](docs/PROPOSAL.md) and [docs/dabcheck.md](docs/dabcheck.md);
+See [docs/PROPOSAL.md](docs/PROPOSAL.md), [docs/dabcheck.md](docs/dabcheck.md) and the first live
+results with Haiku in [docs/LIVE_HAIKU_RESULTS.md](docs/LIVE_HAIKU_RESULTS.md);
 `native104.py --checks` runs the new experimental condition.
 
 

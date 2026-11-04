@@ -6,7 +6,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from .featurize import Featurization, FunctionExtractor, Pair, distance_matrix, get_candidate_featurizations
+from .featurize import Featurization, FunctionExtractor, Pair, distance_matrix, get_candidate_featurizations, warm_extractors, WORKERS
 from .cnf import Scaffold, build_scaffold, set_thresholds, recall_and_cost
 from .canonical import canonical_key
 from ..llm import BaseLLM
@@ -54,9 +54,17 @@ class FDJResult:
                 'target_feasible': self.target_feasible, 'uniform_sample': {'pairs': self.n_sampled_uniform, 'positives': self.n_pos_uniform}}
 
 
+def _label_many(labeler: Labeler, L, R, pairs: Sequence[Pair], workers: int) -> List[int]:
+    """Label a batch of pairs, concurrently when the labeller is an LLM (reference: batches of 50 requests)."""
+    if workers <= 1 or len(pairs) <= 1: return [labeler(L[i], R[j]) for i, j in pairs]
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(lambda p: labeler(L[p[0]], R[p[1]]), pairs))
+
+
 def sample_training_pairs(L, R, labeler: Labeler, *, min_train_pos: int, n_train_neg: int, batch: int, rng: random.Random,
                           max_uniform: Optional[int] = None, candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None,
-                          label_random_negatives: bool = True) -> Dict[str, Any]:
+                          label_random_negatives: bool = True, workers: int = 1) -> Dict[str, Any]:
     """Reference prep_data.get_suffiecient_positives + get_train_with_negatives.
 
     Pairs are drawn uniformly without replacement in batches of `batch` and labelled until
@@ -71,28 +79,35 @@ def sample_training_pairs(L, R, labeler: Labeler, *, min_train_pos: int, n_train
     cap = total if max_uniform is None else min(total, max_uniform)
     while n_pos_uniform < min_train_pos and len(seen) < cap:
         want = min(batch, cap - len(seen))
-        drawn = 0
-        while drawn < want and len(seen) < total:
+        drawn = []
+        while len(drawn) < want and len(seen) < total:
             p = (rng.randrange(nL), rng.randrange(nR))
             if p in seen: continue
-            seen.add(p); y = labeler(L[p[0]], R[p[1]]); labels[p] = y; drawn += 1; n_uniform += 1; n_pos_uniform += y
+            seen.add(p); drawn.append(p)
+        for p, y in zip(drawn, _label_many(labeler, L, R, drawn, workers)):
+            labels[p] = y; n_uniform += 1; n_pos_uniform += y
     if n_pos_uniform < min_train_pos and candidates_fn is not None:
         extra = [p for p in candidates_fn() if p not in labels]; rng.shuffle(extra)
-        for p in extra:
-            if sum(labels.values()) >= min_train_pos: break
-            labels[p] = labeler(L[p[0]], R[p[1]]); topped_up += 1
+        need = min_train_pos - sum(labels.values())
+        while need > 0 and extra:
+            chunk, extra = extra[:max(need, batch)], extra[max(need, batch):]
+            for p, y in zip(chunk, _label_many(labeler, L, R, chunk, workers)): labels[p] = y; topped_up += 1
+            need = min_train_pos - sum(labels.values())
     positives = [p for p, y in labels.items() if y]
     negatives = [p for p, y in labels.items() if not y]
     attempts = 0
     while len(negatives) < n_train_neg and attempts < 10 * n_train_neg and len(labels) < total:
-        p = (rng.randrange(nL), rng.randrange(nR)); attempts += 1
-        if p in labels: continue
-        if label_random_negatives:
-            y = labeler(L[p[0]], R[p[1]]); labels[p] = y
+        chunk = []
+        while len(chunk) < min(batch, n_train_neg - len(negatives)) and attempts < 10 * n_train_neg:
+            p = (rng.randrange(nL), rng.randrange(nR)); attempts += 1
+            if p in labels or p in chunk: continue
+            chunk.append(p)
+        if not chunk: break
+        ys = _label_many(labeler, L, R, chunk, workers) if label_random_negatives else [0] * len(chunk)
+        for p, y in zip(chunk, ys):
+            labels[p] = y
             if y: positives.append(p)
             else: negatives.append(p)
-        else:
-            labels[p] = 0; negatives.append(p)
     rng.shuffle(positives); rng.shuffle(negatives)
     return {'positives': positives, 'negatives': negatives[:n_train_neg], 'labels': labels, 'n_uniform': n_uniform,
             'n_pos_uniform': n_pos_uniform, 'topped_up': topped_up, 'n_labeled': len(labels) if label_random_negatives else n_uniform + topped_up}
@@ -138,7 +153,8 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
              featurizations: Optional[Sequence[Featurization]] = None, generate: bool = True,
              max_iter: int = 4, alpha: int = 10, beta: int = 10, gamma: float = 0.1, cost_mode: str = 'fpr',
              seed: int = 0, candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None, refine: bool = True,
-             label_random_negatives: bool = True, mc_trials: int = 1000, model: Optional[str] = None) -> FDJResult:
+             label_random_negatives: bool = True, mc_trials: int = 1000, model: Optional[str] = None,
+             workers: Optional[int] = None) -> FDJResult:
     """Approximate semantic join with recall target T and failure probability delta (Alg. 5).
 
     Sampling and splits follow the reference implementation: uniform pairs are labelled until
@@ -149,13 +165,15 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
     set; generate=False uses only the seeds (no LLM needed).
     """
     rng = random.Random(seed)
+    if workers is None: workers = WORKERS if llm is not None else 1   # oracles are cheap and not thread-safe by contract
     if labeler is None:
         if llm is None: raise ValueError('need an llm or a labeler')
         labeler = llm_labeler(llm, predicate, model)
     log: list = []
     nL, nR = len(L), len(R)
     s = sample_training_pairs(L, R, labeler, min_train_pos=min_train_pos, n_train_neg=n_train_neg, batch=batch, rng=rng,
-                              max_uniform=max_uniform, candidates_fn=candidates_fn, label_random_negatives=label_random_negatives)
+                              max_uniform=max_uniform, candidates_fn=candidates_fn, label_random_negatives=label_random_negatives,
+                              workers=workers)
     if s['topped_up']: log.append({'step': 'sample', 'note': f"{s['topped_up']} positives supplied by candidates_fn (uniform sample too sparse)"})
     pos, neg = s['positives'], s['negatives']
     disc_pairs = pos[:discovery_pos] + neg[:discovery_neg]; disc_labels = [1] * len(pos[:discovery_pos]) + [0] * len(neg[:discovery_neg])
@@ -179,13 +197,15 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
                                             n_sampled=s['n_uniform'] or None, n_total=nL * nR, trials=mc_trials)
     sample_recall = recall_and_cost(scaffold.evaluate(D2), thr_labels)[0]
     # candidate result and refinement with L_p (precision 1)
+    warm_extractors(feats, L, R, workers=max(1, workers))
     candidates = evaluate_pairs(feats, scaffold, L, R)
     known = s['labels']
     matches, n_refined = [], 0
+    todo = [p for p in candidates if p not in known]
+    new_labels = dict(zip(todo, _label_many(labeler, L, R, todo, workers))) if (refine and todo) else {}
+    n_refined = len(new_labels)
     for p in candidates:
-        if p in known: y = known[p]
-        elif refine: y = labeler(L[p[0]], R[p[1]]); n_refined += 1
-        else: y = 1
+        y = known[p] if p in known else (new_labels[p] if refine else 1)
         if y: matches.append(p)
     return FDJResult(matches, candidates, feats, scaffold, Tp, s['n_labeled'], n_refined, sample_recall, feasible,
                      s['n_uniform'], s['n_pos_uniform'], log)

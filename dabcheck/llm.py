@@ -73,6 +73,10 @@ class Usage:
     def as_dict(self): return dict(self.__dict__)
 
 
+TRUNCATED = '\n[TRUNCATED: max_tokens reached]'
+MAX_TOKENS_CAP = 16000
+
+
 class BaseLLM:
     """Interface shared by LLM and MockLLM."""
     usage: Usage
@@ -89,8 +93,12 @@ class BaseLLM:
         return self.complete(flat, system, model=model, max_tokens=max_tokens, effort=effort, tag=tag)
 
     def json(self, user: str, system: str = '', *, retries: int = 1, **kw) -> Any:
-        """complete() and parse JSON; on failure ask once more with the parse error."""
+        """complete() and parse JSON. A reply cut off by max_tokens is retried with twice the room
+        (thinking tokens count against max_tokens); an unparseable reply is asked for once more."""
         reply = self.complete(user, system, **kw)
+        if reply.endswith(TRUNCATED) and kw.get('max_tokens', 4096) < MAX_TOKENS_CAP:
+            kw = dict(kw, max_tokens=min(MAX_TOKENS_CAP, 2 * kw.get('max_tokens', 4096)))
+            return self.json(user, system, retries=retries, **kw)
         try: return extract_json(reply)
         except ValueError as e:
             if retries <= 0: raise
@@ -100,6 +108,9 @@ class BaseLLM:
 
     def chat_json(self, messages: list, system: str = '', *, retries: int = 1, **kw) -> Any:
         reply = self.chat(messages, system, **kw)
+        if reply.endswith(TRUNCATED) and kw.get('max_tokens', 4096) < MAX_TOKENS_CAP:
+            kw = dict(kw, max_tokens=min(MAX_TOKENS_CAP, 2 * kw.get('max_tokens', 4096)))
+            return self.chat_json(messages, system, retries=retries, **kw)
         try: return extract_json(reply)
         except ValueError as e:
             if retries <= 0: raise
@@ -144,14 +155,14 @@ class LLM(BaseLLM):
         if resp.stop_reason == 'refusal':
             raise RuntimeError(f'model refused ({tag}): {getattr(resp, "stop_details", None)}')
         text = ''.join(b.text for b in resp.content if getattr(b, 'type', '') == 'text')
-        if resp.stop_reason == 'max_tokens':
-            text += '\n[TRUNCATED: max_tokens reached]'
+        truncated = resp.stop_reason == 'max_tokens'
+        if truncated: text += TRUNCATED
         u = resp.usage
         with self._lock:
             self.usage.add(model, (u.input_tokens or 0) + (getattr(u, 'cache_read_input_tokens', 0) or 0)
                            + (getattr(u, 'cache_creation_input_tokens', 0) or 0), u.output_tokens or 0,
                            getattr(u, 'cache_read_input_tokens', 0) or 0)
-        if path:
+        if path and not truncated:   # a truncated reply is never cached: the caller retries with more room
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps({'model': model, 'tag': tag, 'text': text, 'time': time.time()}))
         return text

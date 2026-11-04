@@ -6,7 +6,7 @@ prompt applied per record. `get_candidate_featurizations` is the iterative gener
 loop that uses cost-to-cover to pick the examples the LLM sees next.
 """
 from __future__ import annotations
-import json, math, re, textwrap, random
+import json, math, os, re, textwrap, random
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -109,8 +109,27 @@ class Featurization:
         return 'llm' if 'llm' in (self.left.kind, self.right.kind) else 'code'
 
 
+WORKERS = int(os.environ.get('DABCHECK_WORKERS', '8'))   # concurrent LLM calls for per-record extraction and labelling
+
+
+def warm_extractors(feats: Sequence[Featurization], L: Sequence[Record], R: Sequence[Record],
+                    left_keys: Optional[Sequence[int]] = None, right_keys: Optional[Sequence[int]] = None, workers: int = WORKERS):
+    """Fill the extractor memos for the given records, LLM extractors concurrently (the paper's
+    linear pass over the records; the reference batches 50 requests at a time)."""
+    from concurrent.futures import ThreadPoolExecutor
+    jobs = []
+    for f in feats:
+        if f.left.kind == 'llm': jobs += [(f.left, L[i], i) for i in (left_keys if left_keys is not None else range(len(L)))]
+        if f.right.kind == 'llm': jobs += [(f.right, R[j], j) for j in (right_keys if right_keys is not None else range(len(R)))]
+    jobs = [(ex, rec, k) for ex, rec, k in jobs if k not in ex._memo]
+    if not jobs: return
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        list(pool.map(lambda t: t[0](t[1], t[2]), jobs))
+
+
 def distance_matrix(feats: Sequence[Featurization], L: Sequence[Record], R: Sequence[Record], pairs: Sequence[Pair]) -> List[List[float]]:
     """D[f][k] = feats[f](L[i], R[j]) for pairs[k] = (i, j)."""
+    warm_extractors(feats, L, R, sorted({i for i, _ in pairs}), sorted({j for _, j in pairs}))
     return [[f(L[i], R[j], i, j) for (i, j) in pairs] for f in feats]
 
 

@@ -31,9 +31,10 @@ def crm_case():
     q = ("Who had the quickest average turnaround from opening to closing opportunities among agents in April 2023? "
          "Return only the Id of the agent. Sales Cycle Policy: the sales cycle is measured as the number of days between an "
          "opportunity's creation date and the company signed date on the corresponding contract.")
-    right = """SELECT o.OwnerId AS agent, AVG(julianday(c.CompanySignedDate) - julianday(o.CreatedDate)) AS avg_days
+    # both queries return only the agent Id, so the verifiers judge the date-field choice, not an extra column
+    right = """SELECT agent FROM (SELECT o.OwnerId AS agent, AVG(julianday(c.CompanySignedDate) - julianday(o.CreatedDate)) AS avg_days
 FROM Opportunity o JOIN Contract c ON c.Id = o.ContractID__c
-WHERE c.CompanySignedDate >= '2023-04-01' AND c.CompanySignedDate < '2023-05-01' GROUP BY o.OwnerId ORDER BY avg_days LIMIT 1"""
+WHERE c.CompanySignedDate >= '2023-04-01' AND c.CompanySignedDate < '2023-05-01' GROUP BY o.OwnerId ORDER BY avg_days LIMIT 1)"""
     wrong = right.replace("c.CompanySignedDate >= '2023-04-01' AND c.CompanySignedDate < '2023-05-01'",
                           "o.CreatedDate >= '2023-04-01' AND o.CreatedDate < '2023-05-01'")
     return ('crmarenapro_q12_date_field', q, sc, right, wrong, 'month anchored on signing date vs creation date')
@@ -146,14 +147,18 @@ def stage_fdj(llm, out, budget, max_candidates=20000):
     Rpos = {k: j for j, k in enumerate(R)}
     truth = {(i, Rpos[partner[l]]) for i, l in enumerate(L) if l in partner}
     oracle = lambda l, r: int(partner.get(l) == r)
-    haiku_labels = {'n': 0, 'agree': 0}
-    from dabcheck.fdj.join import llm_labeler
+    import threading
+    haiku_labels = {'n': 0, 'agree': 0}; lock = threading.Lock()
+    from dabcheck.fdj.join import llm_labeler, _label_many
+    from dabcheck.fdj.featurize import WORKERS
     hl = llm_labeler(llm, 'Do these two noisy keys encode the same CVE identifier (the same CVE-YYYY-NNNN)? Keys carry random prefixes, '
                           'suffixes, wrapper text, inserted noise fragments, and the year/number may be re-encoded (offsets, reversal, '
                           'base-36, hex, interleaving, OCR-like character substitutions).')
 
     def labeler(l, r):   # Haiku labels; agreement with the oracle is recorded
-        y = hl(l, r); haiku_labels['n'] += 1; haiku_labels['agree'] += int(y == oracle(l, r)); return y
+        y = hl(l, r)
+        with lock: haiku_labels['n'] += 1; haiku_labels['agree'] += int(y == oracle(l, r))
+        return y
     t = Timer()
     res = fdj_join(L, R, 'same CVE identifier', llm, labeler=labeler, T=0.9, delta=0.1, min_train_pos=40, n_train_neg=400,
                    batch=100, max_uniform=1500, discovery_pos=20, discovery_neg=80, candidates_fn=lambda: sorted(truth),
@@ -162,7 +167,8 @@ def stage_fdj(llm, out, budget, max_candidates=20000):
     cand_recall = len(cands & truth) / max(1, len(truth)); cand_precision = len(cands & truth) / max(1, len(cands))
     refined = None
     if len(cands) <= max_candidates and llm.usage.cost_usd < budget:   # refinement: Haiku confirms every candidate (Alg. 5 line 10)
-        matches = [p for p in res.candidates if hl(L[p[0]], R[p[1]])]
+        ys = _label_many(labeler, L, R, res.candidates, WORKERS)
+        matches = [p for p, y in zip(res.candidates, ys) if y]
         refined = {'matches': len(matches), 'recall': len(set(matches) & truth) / max(1, len(truth)),
                    'precision': len(set(matches) & truth) / max(1, len(matches)), 'refinement_calls': len(res.candidates)}
     else:
