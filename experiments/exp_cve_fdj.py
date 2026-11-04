@@ -152,11 +152,12 @@ def main():
     for j, k in enumerate(R):
         for c in decode_families(k): dec_index.setdefault(c, []).append(j)
 
-    # The paper samples S uniformly from L x R with k large enough to hold enough positives; at this
-    # density (321 in 3.2M) that would need ~400k oracle labels, so the positives are supplied from the
-    # truth set instead (a uniform sample of the positives), which keeps the recall estimate unbiased.
-    res = fdj_join(L, R, 'same CVE', labeler=oracle, featurizations=feats, generate=False, T=0.9, delta=0.1, k=600, k2=600,
-                   min_pos=60, candidates_fn=lambda: sorted(truth), seed=0)
+    # The paper samples S uniformly from L x R until enough positives are labelled; at this density
+    # (321 in 3.2M) that would need ~600k oracle labels, so after 2000 uniform labels the positives are
+    # supplied from the truth set (a uniform sample of the positives), which keeps the recall estimate unbiased.
+    res = fdj_join(L, R, 'same CVE', labeler=oracle, featurizations=feats, generate=False, T=0.9, delta=0.1,
+                   min_train_pos=60, n_train_neg=600, batch=200, max_uniform=2000, discovery_pos=30, discovery_neg=100,
+                   candidates_fn=lambda: sorted(truth), seed=0)
     found = set(res.matches)
     recall = len(found & truth) / len(truth); precision = len(found & truth) / max(1, len(found))
     out = {'kev_rows': len(kev), 'vulns_rows': len(vulns_keys), 'oracle_recomputed_kev_keys': oracle_ok, 'kev_with_vulns_partner': len(partner),
@@ -177,6 +178,7 @@ def main():
           f"- decomposition: {res.scaffold.describe(feats)}", f"- adjusted recall target T' = {res.adjusted_target:.3f}, sample recall {res.sample_recall:.3f}",
           f"- recall {recall:.3f}, precision {precision:.3f}, matches {len(found)}; recall target feasible on the sample: {res.target_feasible}",
           f"- oracle (L_p) calls: {res.n_labeled} labels + {res.n_refined} refinement = {calls['n']} vs {len(L) * len(R)} for the naive all-pairs join",
+          f"- construction log: {res.log}",
           '', 'Join audit (match counts by rule): ' + ', '.join(f"{k}={v['matched_keys']}" for k, v in out['audit']['rules'].items())]
     save('cve_fdj', out, '\n'.join(md) + '\n'); print('\n'.join(md)); print('seconds', t())
 

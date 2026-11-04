@@ -9,8 +9,9 @@ sys.path.insert(0,str(PROJECT))
 import native104
 p=argparse.ArgumentParser();p.add_argument('--status',action='store_true')
 p.add_argument('--harness',choices=sorted(native104.DEFAULT_MODEL),default='codex');p.add_argument('--model',default=None)
-p.add_argument('--trial',type=int,default=None);p.add_argument('--budget',type=float,default=None);a=p.parse_args()
-OUT=native104.configure(a.harness,a.model,a.trial,a.budget)
+p.add_argument('--trial',type=int,default=None);p.add_argument('--budget',type=float,default=None)
+p.add_argument('--checks',action='store_true',help='finalize a description+hints+checks trial (dabcheck condition)');a=p.parse_args()
+OUT=native104.configure(a.harness,a.model,a.trial,a.budget,a.checks)
 ROOT=native104.ROOT
 ORIGINAL=a.trial is None  # the original 104x1 run keeps its historical test log and archive name
 ARCHIVE_NAME=OUT.name if ORIGINAL else f'{OUT.parent.name}-{OUT.name}'

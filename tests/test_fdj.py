@@ -4,7 +4,7 @@ import pytest
 from dabcheck.fdj import distances as dist
 from dabcheck.fdj.canonical import numeric_id, strip_decorations, ocr_fold, canonical_key, cve_candidates, canonical_name
 from dabcheck.fdj.featurize import Featurization, FunctionExtractor, CodeExtractor, cost_to_cover, evaluate_and_pick_examples, distance_matrix
-from dabcheck.fdj.cnf import Scaffold, best_thresholds, build_scaffold, cost_estimate, set_thresholds, adjusted_recall_target, recall_and_fpr
+from dabcheck.fdj.cnf import Scaffold, best_thresholds, build_scaffold, cost_estimate, set_thresholds, adjusted_recall_target, adjusted_target_single, adjusted_target_high_dim, recall_and_fpr, recall_and_cost
 from dabcheck.fdj.join import fdj_join, audit_join
 from dabcheck.llm import MockLLM
 
@@ -24,7 +24,8 @@ def test_canonical():
     assert numeric_id('tt0000042') == 42 and numeric_id('nm001') == 1 and numeric_id('InfT~~7') == 7 and numeric_id(5) == 5
     assert numeric_id('Kw00002083') == 2083 and numeric_id('kwd..2905') == 2905
     assert strip_decorations('#001Wt00000PFj4zIAD ') == '001Wt00000PFj4zIAD'
-    assert ocr_fold('naics-33G411', digits_only=True) == 'NAICS336411' and ocr_fold('S1O2', digits_only=True) == '5102'
+    assert ocr_fold('naics-33G411', digits_only=True) == 'NA1C5336411' and ocr_fold('S1O2', digits_only=True) == '5102'
+    assert ocr_fold('ks00002083') == ocr_fold('KS00002083') == 'K500002083'
     assert canonical_key('#AbC ') == 'abc' and canonical_key('tt0000042', numeric=True) == '42'
     assert cve_candidates('xref-CVE 2023 - 23397 :rawpfh') == ['2023-23397']
     assert cve_candidates('cve-2O19-1253') == ['2019-1253']
@@ -81,10 +82,28 @@ def test_cost_to_cover_and_example_picking():
     assert ('E', 1) in ex and ('D', 1) in ex and all(y == 0 for p, y in ex if p in 'UVWXZ')
 
 
-def test_adjusted_target_is_conservative_and_attainable():
-    assert adjusted_recall_target(0.9, 50, 0.1) > 0.9
-    assert adjusted_recall_target(0.9, 50, 0.1) <= 1.0
-    assert adjusted_recall_target(0.9, 10 ** 9, 0.1) == pytest.approx(0.9, abs=1e-4)
+def test_adjusted_target_single_is_the_reference_binomial_bound():
+    # reference get_single_thresh_target: smallest r/k with P(Bin(k, T) >= r) < delta
+    import math
+    k, T, d = 50, 0.9, 0.1
+    tail = lambda r: sum(math.comb(k, i) * T ** i * (1 - T) ** (k - i) for i in range(r, k + 1))
+    expected = next(r / k for r in range(int(math.ceil(T * k)), k + 1) if tail(r) < d)
+    assert adjusted_target_single(k, T, d) == expected == 0.98
+    assert 0.9 < adjusted_target_single(1000, 0.9, 0.1) < 0.92   # tightens with k
+    assert adjusted_recall_target(0.9, 50, 0.1) == 0.98
+    assert adjusted_recall_target(0.9, 10 ** 4, 0.1) < 0.91
+
+
+def test_adjusted_target_high_dim_monte_carlo_is_above_T_and_cached():
+    tp = adjusted_target_high_dim(40, 2000, 0.9, 2, 0.08, trials=200)
+    assert tp == 0.0 or 0.9 < tp <= 1.0
+    assert adjusted_recall_target(0.9, 40, 0.1, d=2, n_sampled=1000, n_total=10 ** 6, trials=200) > 0.9
+
+
+def test_cost_modes():
+    flags = [True, True, False, True, True, False]; labels = [1, 1, 1, 0, 0, 0]
+    assert recall_and_cost(flags, labels, 'fpr') == (2 / 3, 2 / 4)      # paper: FP / (TP + FP)
+    assert recall_and_cost(flags, labels, 'neg') == (2 / 3, 2 / 3)      # reference: FP / |S_n|
 
 
 def test_code_extractor_is_restricted():
@@ -115,12 +134,14 @@ def test_fdj_join_with_oracle_meets_recall_and_precision():
              Featurization('raw_edit', FunctionExtractor(lambda d: d['id']), FunctionExtractor(lambda d: d['ref']), 'char_edit'),
              Featurization('name_tokens', FunctionExtractor(lambda d: d['name']), FunctionExtractor(lambda d: d['note']), 'token_jaccard')]
     res = fdj_join(L, R, 'same entity', labeler=oracle, featurizations=feats, generate=False, T=0.9, delta=0.1,
-                   k=300, k2=300, min_pos=15, candidates_fn=lambda: sorted(truth), seed=1)
+                   min_train_pos=20, n_train_neg=200, batch=50, discovery_pos=10, discovery_neg=40, seed=1)
     found = set(res.matches)
     assert found <= truth                                   # precision 1 by refinement
     assert len(found) / len(truth) >= 0.9                   # recall target met
     assert 0 in res.scaffold.predicates()                    # the numeric id feature is selected
     assert res.n_refined <= len(res.candidates)
+    assert res.n_pos_uniform >= 20 and res.n_sampled_uniform > 0 and res.target_feasible
+    assert res.adjusted_target >= 0.9
 
 
 def test_fdj_join_llm_generation_path_with_mock():
@@ -130,6 +151,7 @@ def test_fdj_join_llm_generation_path_with_mock():
     oracle = lambda l, r: int(numeric_id(l['id']) == numeric_id(r['ref']))
 
     def handler(user, system, tag):
+        if tag == 'fdj.walkthrough': return 'The join holds when both records carry the same embedded integer id.'
         if tag == 'fdj.descriptions':
             return '[{"name": "embedded_number", "description": "the integer embedded in the id", "left_feature": "digits of id", "right_feature": "digits of ref"}]'
         if tag.startswith('fdj.extractor'):
@@ -139,11 +161,14 @@ def test_fdj_join_llm_generation_path_with_mock():
         if tag == 'fdj.distance': return '{"distance": "numeric_abs"}'
         raise AssertionError(tag)
     llm = MockLLM(handler)
-    res = fdj_join(L, R, 'same entity', llm, labeler=oracle, T=0.9, delta=0.1, k=200, k2=200, min_pos=10,
-                   candidates_fn=lambda: sorted(truth), seed=2, max_iter=2)
+    res = fdj_join(L, R, 'same entity', llm, labeler=oracle, T=0.9, delta=0.1, min_train_pos=12, n_train_neg=150,
+                   batch=40, discovery_pos=6, discovery_neg=30, seed=2, max_iter=2)
     assert set(res.matches) <= truth and len(res.matches) / len(truth) >= 0.9
-    assert res.featurizations[0].name == 'embedded_number'
-    assert any(e['tag'] == 'fdj.descriptions' for e in llm.log)
+    names = [f.name for f in res.featurizations]
+    assert names[0] == 'raw_similarity' and 'embedded_number' in names      # reference seeds a similarity feature first
+    tags = [e['tag'] for e in llm.log]
+    assert tags.index('fdj.walkthrough') < tags.index('fdj.descriptions')    # discuss the examples before proposing
+    assert 'fdj.extractor.left' in tags and 'fdj.extractor.right' in tags and 'fdj.distance' in tags
 
 
 def test_audit_join_warns_on_leading_zeros_and_rule_swing():
@@ -153,3 +178,5 @@ def test_audit_join_warns_on_leading_zeros_and_rule_swing():
     assert rep['rules']['raw']['matched_keys'] == 0 and rep['rules']['numeric_id']['matched_keys'] == 299
     assert rep['best_rule'] == 'numeric_id'
     assert any('swings' in w for w in rep['warnings']) and any('zero-padded' in w for w in rep['warnings'])
+    custom = audit_join(['1', '2'], ['1'], rules={'num': lambda v: v})            # custom rules without a 'raw' key
+    assert custom['best_rule'] == 'num' and custom['rules']['num']['matched_keys'] == 1

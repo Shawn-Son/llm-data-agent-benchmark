@@ -53,7 +53,7 @@ output) and compared field by field, with deterministic date-window and date-fie
 
 ## 3. What has been validated without an API key
 
-All 32 unit tests run with a scripted mock LLM (`tests/`), including the FDJ paper's Fig. 6 scaffold
+All 37 unit tests run with a scripted mock LLM (`tests/`), including the FDJ paper's Fig. 6 scaffold
 example, gleaning with validator feedback, folded reduce with a scratchpad, resolve, and the
 right/wrong SQL pair of crmarenapro q12 through synthetic execution. The offline experiments in
 `experiments/` use the real DAB data:
@@ -63,7 +63,7 @@ right/wrong SQL pair of crmarenapro q12 through synthetic execution. The offline
 | imdb keyword join audit | raw key equality matches 0 keys, integer ids match all 134,170; the q10 keyword filter links 2,371 movies under the digit-string rule and 21,046 under the integer rule; warnings fire without an LLM |
 | DEPS fork/star extraction | naive `(\d+) forks`: 67% coverage, 18 truncation signals, 522 for material-ui; the pipeline: 100% coverage and all five q2 ground-truth fork counts exact |
 | usaspending amount_text | code parses 6.6% of rows (681 of 10,266); the coverage warning says the answer would rest on a subset before any aggregation |
-| cve KEV-vulns join (oracle from DAB's own corruption code) | the oracle reproduces q3 exactly (1262); FDJ with hand-written features reaches recall 0.988 >= 0.9 at precision 1, but the only feasible predicate is a loose digit-edit distance, so refinement touches 99% of pairs: the LLM feature-generation loop is what buys the cost reduction |
+| cve KEV-vulns join (oracle from DAB's own corruption code) | the oracle reproduces q3 exactly (1262); FDJ with hand-written features builds `(digit_stream_edit <= 12 OR family_decoders <= 0)` and reaches recall 0.991 >= 0.9 at precision 1, but refinement still touches 97% of pairs: the LLM feature-generation loop is what buys the cost reduction |
 | crmarenapro q12 SQL verification | the signed-date and created-date queries name different agents on the real data; synthetic execution accepts the signed-date query and rejects the created-date one; intent cards flag the date-field mismatch |
 
 ## 4. Evaluation plan (needs an API key; estimated < $40 with Haiku for agents and Sonnet for verifiers)

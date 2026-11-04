@@ -8,28 +8,38 @@ from .ops import render, Doc
 
 
 def glean(llm: BaseLLM, doc: Doc, prompt: str, schema: Dict[str, str], *, validation_prompt: str,
-          max_rounds: int = 1, model: Optional[str] = None, validator_model: Optional[str] = None,
+          max_rounds: int = 2, model: Optional[str] = None, validator_model: Optional[str] = None,
           initial: Optional[Dict[str, Any]] = None, log: Optional[list] = None) -> Dict[str, Any]:
-    """Map_R (validator) checks the output against the original prompt and a task-specific
-    validation prompt; Map_S refines it with the chat history retained. Stops when the
-    validator is satisfied or after max_rounds."""
+    """Eq. 7: Map -> (Map_validate -> Map_refine)^T.
+
+    As in DocETL (operations/utils/api.py, gleaning), the validator receives the original prompt,
+    the previous answer as an assistant turn and the validation instruction, and returns
+    {should_refine, improvements}; the refinement call carries the whole chat history (original
+    prompt, the model's previous response, the validator's feedback) and asks for an improved
+    answer. Stops when the validator is satisfied or after max_rounds (DocETL default 2).
+    """
     base = render(prompt, input=doc) + '\n\nReply with a JSON object with exactly this schema: ' + json.dumps(schema)
+    messages = [{'role': 'user', 'content': base}]
     out = initial
     if out is None:
-        res = llm.json(base, model=model, max_tokens=2000, tag='extract.glean.init')
+        res = llm.chat_json(messages, model=model, max_tokens=2000, tag='extract.glean.init')
         out = res if isinstance(res, dict) else {'value': res}
-    history = ''
     for r in range(max_rounds):
-        vuser = ('Original task given to another model:\n' + render(prompt, input=doc)[:6000] +
-                 '\n\nIts output:\n' + json.dumps(out, ensure_ascii=False)[:4000] +
-                 '\n\nValidation instruction: ' + render(validation_prompt, input=doc, output=out) +
-                 '\n\nReply with JSON: {"needs_refinement": true|false, "feedback": "specific, actionable"}')
-        v = llm.json(vuser, model=validator_model or model, max_tokens=600, tag='extract.glean.validate')
+        validator_messages = messages + [{'role': 'assistant', 'content': json.dumps(out, ensure_ascii=False)},
+                                         {'role': 'user', 'content': ('Evaluate the previous response against this validation instruction: ' +
+                                                                      render(validation_prompt, input=doc, output=out) +
+                                                                      '\nReply with JSON: {"should_refine": true|false, "improvements": "specific, actionable feedback"}')}]
+        v = None
+        for _ in range(2):   # a malformed verdict is asked again, as DocETL's tool schema would enforce
+            try: v = llm.chat_json(validator_messages, model=validator_model or model, max_tokens=600, tag='extract.glean.validate', retries=0)
+            except ValueError: v = None
+            if isinstance(v, dict) and 'should_refine' in v: break
+            v = None
         if log is not None: log.append({'round': r, 'verdict': v})
-        if not (isinstance(v, dict) and v.get('needs_refinement')): break
-        history += ('\n\nPrevious answer:\n' + json.dumps(out, ensure_ascii=False)[:4000] +
-                    '\nValidator feedback: ' + str(v.get('feedback', '')))
-        res = llm.json(base + history + '\n\nImprove the answer using the feedback. Reply with the full corrected JSON.',
-                       model=model, max_tokens=2000, tag='extract.glean.refine')
+        if not (v and v.get('should_refine')): break
+        messages = messages + [{'role': 'assistant', 'content': json.dumps(out, ensure_ascii=False)},
+                               {'role': 'user', 'content': 'Based on the validation feedback:\n```\n' + str(v.get('improvements', '')) +
+                                                           '\n```\nPlease improve your previous response. Reply with the full corrected JSON object.'}]
+        res = llm.chat_json(messages, model=model, max_tokens=2000, tag='extract.glean.refine')
         out = res if isinstance(res, dict) else {'value': res}
     return out

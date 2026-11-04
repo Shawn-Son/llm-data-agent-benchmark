@@ -14,4 +14,4 @@ Unparsed samples:
 - The Department of Defense's partnership with The Boeing Company in aircraft manufacturing reflects a scale consistent with substantial, nation-shaping investmen
 
 award_id join audit (contracts vs contract_amounts):
-best rule raw: raw=9921, strip_hash_case=9921, numeric_id=6730, ocr_fold_digits=9471
+best rule raw: raw=9921, strip_hash_case=9921, numeric_id=6730, ocr_fold_digits=9242

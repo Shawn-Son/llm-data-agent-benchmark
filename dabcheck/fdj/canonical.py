@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from typing import Iterable, List, Optional
 
-OCR_MAP = str.maketrans({'O': '0', 'o': '0', 'I': '1', 'l': '1', 'S': '5', 'Z': '2', 'G': '6', 'B': '8'})
+OCR_MAP = str.maketrans({'O': '0', 'I': '1', 'S': '5', 'Z': '2', 'G': '6', 'B': '8'})   # applied after upper-casing
 
 
 def numeric_id(value) -> Optional[int]:
@@ -39,7 +39,7 @@ def ocr_fold(value, digits_only: bool = False) -> Optional[str]:
     hint: prefixes, case, separators at letter/digit boundaries).
     """
     if value is None: return None
-    s = str(value).strip().translate(OCR_MAP).upper()
+    s = str(value).strip().upper().translate(OCR_MAP)   # upper first: 'ks5' and 'KS5' must fold alike
     if digits_only: s = re.sub(r'[^0-9A-Z]', '', s)
     return s or None
 
@@ -68,7 +68,7 @@ def cve_candidates(value) -> List[str]:
     so this function is only the first, cheapest featurization.
     """
     if value is None: return []
-    s = str(value).translate(OCR_MAP)
+    s = str(value).upper().translate(OCR_MAP)
     return sorted({f'{y}-{int(n)}' for y, n in _CVE.findall(s)})
 
 

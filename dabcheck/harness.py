@@ -15,8 +15,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 PACKAGE_DIR = Path(__file__).resolve().parent
-CONDITION = 'description+hints+checks'
-_SQL = re.compile(r'(?is)\b((?:WITH\b.*?\bSELECT|SELECT)\b.*?)(?:;|"|\n|$)')
+CONDITION = 'description+hints+checks'   # must equal native104.CONDITIONS[True]
+# A statement starts at WITH/SELECT and ends at ';', a Python/shell string terminator ("""/'''/")/'),
+# a heredoc end marker, a blank line, or the end of the text; newlines inside the statement are kept.
+_SQL = re.compile(r'(?is)\b((?:WITH\b.*?\bSELECT|SELECT)\b.*?)(?:;|"""|\'\'\'|"\)|\'\)|",|\',|\n\s*\n|\n(?:PY|EOF|SQL)\b|$)')
 
 
 def prompt_addendum() -> str:
@@ -57,6 +59,9 @@ def sql_from_events(path: Path, min_len: int = 30) -> List[str]:
         text = text.replace('\\n', '\n')
         for m in _SQL.finditer(text):
             s = re.sub(r'\s+', ' ', m.group(1)).strip().rstrip(';').rstrip('\\')
+            s = s.replace('\\"', '"').replace("\\'", "'")                 # shell/python escapes
+            for q in ('"', "'"):                                             # a dangling closing quote of the host string
+                if s.endswith(q) and s.count(q) % 2 == 1: s = s[:-1].rstrip()
             if len(s) >= min_len and s.lower() not in seen and ' from ' in s.lower():
                 seen.add(s.lower()); out.append(s)
     return out

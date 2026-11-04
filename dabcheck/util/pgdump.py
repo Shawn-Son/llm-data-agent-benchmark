@@ -21,8 +21,14 @@ def _copy_options(opts: str) -> Dict[str, str]:
     return o
 
 
+_ESC = {'t': '\t', 'n': '\n', 'r': '\r', '\\': '\\', 'b': '\b', 'f': '\f', 'v': '\v'}
+
+
 def _unescape(v: str) -> str:
-    return v.replace('\\t', '\t').replace('\\n', '\n').replace('\\r', '\r').replace('\\\\', '\\')
+    """COPY text-format escapes, decoded in one pass so that a literal backslash followed by
+    't' stays a backslash plus 't'."""
+    if '\\' not in v: return v
+    return re.sub(r'\\(.)', lambda m: _ESC.get(m.group(1), m.group(1)), v)
 
 
 def _strip_schema(stmt: str) -> str:

@@ -1,12 +1,13 @@
-"""FDJ end-to-end (paper Alg. 5) and the LLM-free join audit."""
+"""FDJ end-to-end (paper Alg. 5; reference fdj/create_fd/get_join_features.py + utils/prep_data.py)
+and the LLM-free join audit."""
 from __future__ import annotations
-import math, random
+import math, random, re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from .featurize import Featurization, Pair, distance_matrix, get_candidate_featurizations
-from .cnf import Scaffold, build_scaffold, set_thresholds
+from .featurize import Featurization, FunctionExtractor, Pair, distance_matrix, get_candidate_featurizations
+from .cnf import Scaffold, build_scaffold, set_thresholds, recall_and_cost
 from .canonical import canonical_key
 from ..llm import BaseLLM
 
@@ -14,13 +15,21 @@ Labeler = Callable[[Any, Any], int]   # L_p(l, r) -> 0/1
 
 
 def llm_labeler(llm: BaseLLM, predicate: str, model: Optional[str] = None) -> Labeler:
-    """The join LLM L_p: substitutes the pair into the natural-language predicate."""
+    """The join LLM L_p (reference join_prompt_with_val: the predicate plus both values, Yes/No)."""
     def label(l, r) -> int:
-        user = (f'Join condition: "{predicate}"\n\nLEFT record:\n{str(l)[:4000]}\n\nRIGHT record:\n{str(r)[:4000]}\n\n'
-                'Does the join condition hold for this pair? Reply with JSON: {"match": true|false, "reason": "..."}')
-        out = llm.json(user, model=model or getattr(llm, 'cheap_model', None), max_tokens=300, tag='fdj.label')
+        user = (f'{predicate}\n\nLEFT record:\n{str(l)[:4000]}\n\nRIGHT record:\n{str(r)[:4000]}\n\n'
+                'Does the join condition hold for this pair? Reply with JSON: {"match": true|false}')
+        out = llm.json(user, model=model or getattr(llm, 'cheap_model', None), max_tokens=200, tag='fdj.label')
         return int(bool(out.get('match'))) if isinstance(out, dict) else 0
     return label
+
+
+def raw_similarity_featurization() -> Featurization:
+    """Stand-in for the reference's initial `sem_sim` featurization (embedding cosine similarity
+    of the raw values): token Jaccard distance of the records' text. Register an embedding
+    distance with `distances.register_distance` to use embeddings instead."""
+    return Featurization('raw_similarity', FunctionExtractor(lambda d: str(d), 'raw.left'),
+                         FunctionExtractor(lambda d: str(d), 'raw.right'), 'token_jaccard', 'token overlap of the raw records')
 
 
 @dataclass
@@ -33,39 +42,60 @@ class FDJResult:
     n_labeled: int
     n_refined: int
     sample_recall: float
-    target_feasible: bool = True   # False: no thresholds reached the adjusted target on S'; most permissive thresholds were used
+    target_feasible: bool = True   # False: no thresholds reached the adjusted target on the threshold sample
+    n_sampled_uniform: int = 0      # uniformly sampled pairs labelled (for the positive-rate estimate)
+    n_pos_uniform: int = 0
     log: list = field(default_factory=list)
 
     def summary(self) -> Dict[str, Any]:
         return {'matches': len(self.matches), 'candidates': len(self.candidates),
                 'decomposition': self.scaffold.describe(self.featurizations), 'adjusted_target': self.adjusted_target,
                 'labeled_pairs': self.n_labeled, 'llm_refinement_calls': self.n_refined, 'sample_recall': self.sample_recall,
-                'target_feasible': self.target_feasible}
+                'target_feasible': self.target_feasible, 'uniform_sample': {'pairs': self.n_sampled_uniform, 'positives': self.n_pos_uniform}}
 
 
-def _sample_pairs(nL, nR, k, rng, exclude=frozenset()):
-    total = nL * nR
-    if total <= k: return [(i, j) for i in range(nL) for j in range(nR) if (i, j) not in exclude]
-    out, seen = [], set(exclude)
-    while len(out) < k:
-        p = (rng.randrange(nL), rng.randrange(nR))
-        if p not in seen: seen.add(p); out.append(p)
-    return out
+def sample_training_pairs(L, R, labeler: Labeler, *, min_train_pos: int, n_train_neg: int, batch: int, rng: random.Random,
+                          max_uniform: Optional[int] = None, candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None,
+                          label_random_negatives: bool = True) -> Dict[str, Any]:
+    """Reference prep_data.get_suffiecient_positives + get_train_with_negatives.
 
-
-def _enriched_sample(nL, nR, k, rng, labeler, L, R, min_pos, candidates_fn=None):
-    """Uniform sample, topped up with pairs from a cheap candidate generator until it holds
-    min_pos positives (the paper sizes k so that enough positives are present; for very
-    sparse joins uniform sampling alone would rarely hit one)."""
-    pairs = _sample_pairs(nL, nR, k, rng)
-    labels = [labeler(L[i], R[j]) for i, j in pairs]
-    if sum(labels) < min_pos and candidates_fn is not None:
-        extra = [p for p in candidates_fn() if p not in set(pairs)]
-        rng.shuffle(extra)
+    Pairs are drawn uniformly without replacement in batches of `batch` and labelled until
+    `min_train_pos` positives are found (or `max_uniform` pairs were labelled). Negatives are the
+    labelled negatives plus random extra pairs up to `n_train_neg`; the reference assumes those
+    extra pairs negative without labelling them (label_random_negatives=False), the paper labels
+    everything (default). When the uniform budget runs out and `candidates_fn` is given, the
+    positives are topped up from that generator (a deviation for very sparse joins, logged).
+    """
+    nL, nR = len(L), len(R); total = nL * nR
+    labels: Dict[Pair, int] = {}; seen = set(); n_uniform = 0; n_pos_uniform = 0; topped_up = 0
+    cap = total if max_uniform is None else min(total, max_uniform)
+    while n_pos_uniform < min_train_pos and len(seen) < cap:
+        want = min(batch, cap - len(seen))
+        drawn = 0
+        while drawn < want and len(seen) < total:
+            p = (rng.randrange(nL), rng.randrange(nR))
+            if p in seen: continue
+            seen.add(p); y = labeler(L[p[0]], R[p[1]]); labels[p] = y; drawn += 1; n_uniform += 1; n_pos_uniform += y
+    if n_pos_uniform < min_train_pos and candidates_fn is not None:
+        extra = [p for p in candidates_fn() if p not in labels]; rng.shuffle(extra)
         for p in extra:
-            if sum(labels) >= min_pos: break
-            pairs.append(p); labels.append(labeler(L[p[0]], R[p[1]]))
-    return pairs, labels
+            if sum(labels.values()) >= min_train_pos: break
+            labels[p] = labeler(L[p[0]], R[p[1]]); topped_up += 1
+    positives = [p for p, y in labels.items() if y]
+    negatives = [p for p, y in labels.items() if not y]
+    attempts = 0
+    while len(negatives) < n_train_neg and attempts < 10 * n_train_neg and len(labels) < total:
+        p = (rng.randrange(nL), rng.randrange(nR)); attempts += 1
+        if p in labels: continue
+        if label_random_negatives:
+            y = labeler(L[p[0]], R[p[1]]); labels[p] = y
+            if y: positives.append(p)
+            else: negatives.append(p)
+        else:
+            labels[p] = 0; negatives.append(p)
+    rng.shuffle(positives); rng.shuffle(negatives)
+    return {'positives': positives, 'negatives': negatives[:n_train_neg], 'labels': labels, 'n_uniform': n_uniform,
+            'n_pos_uniform': n_pos_uniform, 'topped_up': topped_up, 'n_labeled': len(labels) if label_random_negatives else n_uniform + topped_up}
 
 
 def evaluate_pairs(feats: Sequence[Featurization], scaffold: Scaffold, L, R, block_on: Optional[int] = None) -> List[Pair]:
@@ -102,17 +132,21 @@ def _holds(feats, scaffold, L, R, i, j) -> bool:
 
 
 def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[BaseLLM] = None, *,
-             labeler: Optional[Labeler] = None, T: float = 0.9, delta: float = 0.1, k: int = 400, k2: int = 400,
-             min_pos: int = 15, featurizations: Optional[Sequence[Featurization]] = None, generate: bool = True,
-             max_iter: int = 4, alpha: int = 10, beta: int = 20, gamma: float = 0.01, seed: int = 0,
-             candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None, refine: bool = True,
-             model: Optional[str] = None) -> FDJResult:
+             labeler: Optional[Labeler] = None, T: float = 0.9, delta: float = 0.1,
+             min_train_pos: int = 250, n_train_neg: int = 1500, batch: int = 100, max_uniform: Optional[int] = None,
+             discovery_pos: int = 50, discovery_neg: int = 100, n_examples: int = 5,
+             featurizations: Optional[Sequence[Featurization]] = None, generate: bool = True,
+             max_iter: int = 4, alpha: int = 10, beta: int = 10, gamma: float = 0.1, cost_mode: str = 'fpr',
+             seed: int = 0, candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None, refine: bool = True,
+             label_random_negatives: bool = True, mc_trials: int = 1000, model: Optional[str] = None) -> FDJResult:
     """Approximate semantic join with recall target T and failure probability delta (Alg. 5).
 
-    labeler: L_p; defaults to the LLM with `predicate`. featurizations: seed features (e.g.
-    code canonicalisers); generate=False uses only those (no LLM needed for construction).
-    candidates_fn: optional cheap generator of likely-positive pairs used only to make sure the
-    labelled samples contain >= min_pos positives.
+    Sampling and splits follow the reference implementation: uniform pairs are labelled until
+    `min_train_pos` positives exist (reference 250), negatives are completed to `n_train_neg`
+    (1500); the first `discovery_pos` positives and `discovery_neg` negatives (50 / 100) drive
+    featurization generation and the scaffold, the rest set the thresholds at the adjusted target.
+    `labeler` is L_p (defaults to the LLM with `predicate`); `featurizations` seeds the candidate
+    set; generate=False uses only the seeds (no LLM needed).
     """
     rng = random.Random(seed)
     if labeler is None:
@@ -120,48 +154,53 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
         labeler = llm_labeler(llm, predicate, model)
     log: list = []
     nL, nR = len(L), len(R)
-    # 1-2. sample S and label it
-    pairs, labels = _enriched_sample(nL, nR, k, rng, labeler, L, R, min_pos, candidates_fn)
-    n_labeled = len(pairs)
-    # 3. candidate featurizations
+    s = sample_training_pairs(L, R, labeler, min_train_pos=min_train_pos, n_train_neg=n_train_neg, batch=batch, rng=rng,
+                              max_uniform=max_uniform, candidates_fn=candidates_fn, label_random_negatives=label_random_negatives)
+    if s['topped_up']: log.append({'step': 'sample', 'note': f"{s['topped_up']} positives supplied by candidates_fn (uniform sample too sparse)"})
+    pos, neg = s['positives'], s['negatives']
+    disc_pairs = pos[:discovery_pos] + neg[:discovery_neg]; disc_labels = [1] * len(pos[:discovery_pos]) + [0] * len(neg[:discovery_neg])
+    thr_pairs = pos[discovery_pos:] + neg[discovery_neg:]; thr_labels = [1] * len(pos[discovery_pos:]) + [0] * len(neg[discovery_neg:])
+    if not any(thr_labels):   # too few positives to hold a threshold split: reuse the discovery sample (logged)
+        thr_pairs, thr_labels = disc_pairs, disc_labels; log.append({'step': 'sample', 'note': 'threshold sample reuses the discovery sample'})
+    # candidate featurizations (Alg. 1-3) on the discovery sample
     feats = list(featurizations or [])
     if generate:
         if llm is None: raise ValueError('generate=True needs an llm')
-        feats = get_candidate_featurizations(llm, L, R, pairs, labels, predicate, seed=feats, max_iter=max_iter,
-                                             alpha=alpha, beta=beta, model=model, rng=rng, log=log)
+        if not feats: feats = [raw_similarity_featurization()]
+        feats = get_candidate_featurizations(llm, L, R, disc_pairs, disc_labels, predicate, seed=feats, max_iter=max_iter,
+                                             alpha=alpha, beta=beta, n_examples=n_examples, model=model, rng=rng, log=log)
     if not feats: raise ValueError('no featurizations available')
-    D = distance_matrix(feats, L, R, pairs)
-    # 4. scaffold on S
-    scaffold = build_scaffold(D, labels, T, gamma=gamma, log=log)
-    # 5-7. fresh sample S', thresholds at the adjusted target
-    pairs2, labels2 = _enriched_sample(nL, nR, k2, rng, labeler, L, R, min_pos, candidates_fn)
-    n_labeled += len(pairs2)
-    D2 = distance_matrix(feats, L, R, pairs2)
-    scaffold, Tp, feasible = set_thresholds(scaffold, D2, labels2, T, delta)
-    from .cnf import recall_and_fpr
-    sample_recall = recall_and_fpr(scaffold.evaluate(D2), labels2)[0]
-    # 8-9. candidate result
+    D = distance_matrix(feats, L, R, disc_pairs)
+    # scaffold (Alg. 4) on the discovery sample
+    scaffold = build_scaffold(D, disc_labels, T, gamma=gamma, log=log, cost_mode=cost_mode)
+    # thresholds at the adjusted target on the threshold sample (Sec. 6.3)
+    D2 = distance_matrix(feats, L, R, thr_pairs)
+    scaffold, Tp, feasible = set_thresholds(scaffold, D2, thr_labels, T, delta, cost_mode=cost_mode,
+                                            n_sampled=s['n_uniform'] or None, n_total=nL * nR, trials=mc_trials)
+    sample_recall = recall_and_cost(scaffold.evaluate(D2), thr_labels)[0]
+    # candidate result and refinement with L_p (precision 1)
     candidates = evaluate_pairs(feats, scaffold, L, R)
-    # 10. refinement with L_p (precision 1)
-    known = {p: y for p, y in zip(pairs + pairs2, labels + labels2)}
+    known = s['labels']
     matches, n_refined = [], 0
     for p in candidates:
         if p in known: y = known[p]
         elif refine: y = labeler(L[p[0]], R[p[1]]); n_refined += 1
         else: y = 1
         if y: matches.append(p)
-    return FDJResult(matches, candidates, feats, scaffold, Tp, n_labeled, n_refined, sample_recall, feasible, log)
+    return FDJResult(matches, candidates, feats, scaffold, Tp, s['n_labeled'], n_refined, sample_recall, feasible,
+                     s['n_uniform'], s['n_pos_uniform'], log)
 
 
 # ---------------------------------------------------------------- LLM-free join audit
 
-def audit_join(left: Sequence[Any], right: Sequence[Any], *, rules: Optional[Dict[str, Callable[[Any], Any]]] = None,
+def audit_join(left, right, *, rules: Optional[Dict[str, Callable[[Any], Any]]] = None,
                left_name: str = 'left', right_name: str = 'right') -> Dict[str, Any]:
     """Compare match statistics of an identifier join under several canonicalisation rules.
 
     Fires the warnings from the DAB failure review: match counts that swing with the rule,
-    leading zeros / decorations on one side only, many unmatched keys, duplicate keys that
-    fan a join out. Returns a dict with per-rule statistics and a list of warnings.
+    zero-padded ids / `#` decorations on one side only, many unmatched keys, duplicate keys that
+    fan a join out. `left` / `right` are lists of keys or {key: count} dicts (e.g. from GROUP BY).
+    The first rule is the baseline the swing is measured against.
     """
     rules = rules or {
         'raw': lambda v: canonical_key(v, strip_hash=False),
@@ -172,7 +211,6 @@ def audit_join(left: Sequence[Any], right: Sequence[Any], *, rules: Optional[Dic
     stats, warnings = {}, []
 
     def counts(values, fn):
-        """values: a list of keys, or a dict {key: count} (e.g. from GROUP BY) for large tables."""
         c, nulls = Counter(), 0
         items = values.items() if isinstance(values, dict) else ((v, 1) for v in values)
         for v, n in items:
@@ -192,28 +230,25 @@ def audit_join(left: Sequence[Any], right: Sequence[Any], *, rules: Optional[Dic
                        'right_unmatched_rows': sum(rc[k] for k in rc if k not in common),
                        'many_to_many_keys': fan, 'left_dup_keys': sum(1 for k in lc if lc[k] > 1),
                        'right_dup_keys': sum(1 for k in rc if rc[k] > 1)}
-    counts = {n: s['matched_keys'] for n, s in stats.items()}
-    best = max(counts, key=counts.get)
-    if counts[best] and counts['raw'] < 0.9 * counts[best]:
-        warnings.append(f"match count swings with the key rule: raw={counts['raw']} vs {best}={counts[best]}; "
+    counts_by_rule = {n: s['matched_keys'] for n, s in stats.items()}
+    baseline = next(iter(rules)); best = max(counts_by_rule, key=counts_by_rule.get)
+    if counts_by_rule[best] and counts_by_rule[baseline] < 0.9 * counts_by_rule[best]:
+        warnings.append(f"match count swings with the key rule: {baseline}={counts_by_rule[baseline]} vs {best}={counts_by_rule[best]}; "
                         f"canonicalise keys ({best}) before joining")
     for side, vals in ((left_name, left), (right_name, right)):
-        keys = list(vals.keys()) if isinstance(vals, dict) else vals
+        keys = list(vals.keys()) if isinstance(vals, dict) else list(vals)
         sample = [str(v) for v in keys[:2000] if v is not None]
         if sample and sum(1 for v in sample if v.strip().startswith('#')) > 0.05 * len(sample):
             warnings.append(f'{side}: >5% of keys carry a leading "#"')
         # zero-padded numeric ids: an optional non-digit prefix, then zeros, then the number (tt0000042, Kw00002083)
         if sample and sum(1 for v in sample if re.fullmatch(r'[^0-9]*0+\d+', v.strip())) > 0.2 * len(sample):
             warnings.append(f'{side}: >20% of keys are zero-padded numbers behind a prefix; compare as integers, not digit strings')
-    s = stats[best]
-    tot_l = s['left_matched_rows'] + s['left_unmatched_rows']; tot_r = s['right_matched_rows'] + s['right_unmatched_rows']
-    if tot_l and s['left_unmatched_rows'] / tot_l > 0.2:
-        warnings.append(f"{left_name}: {s['left_unmatched_rows']}/{tot_l} rows have no partner even under rule {best}")
-    if tot_r and s['right_unmatched_rows'] / tot_r > 0.2:
-        warnings.append(f"{right_name}: {s['right_unmatched_rows']}/{tot_r} rows have no partner even under rule {best}")
-    if s['many_to_many_keys']:
-        warnings.append(f"{s['many_to_many_keys']} keys are duplicated on both sides: the join fans out ({s['join_rows']} rows)")
+    st = stats[best]
+    tot_l = st['left_matched_rows'] + st['left_unmatched_rows']; tot_r = st['right_matched_rows'] + st['right_unmatched_rows']
+    if tot_l and st['left_unmatched_rows'] / tot_l > 0.2:
+        warnings.append(f"{left_name}: {st['left_unmatched_rows']}/{tot_l} rows have no partner even under rule {best}")
+    if tot_r and st['right_unmatched_rows'] / tot_r > 0.2:
+        warnings.append(f"{right_name}: {st['right_unmatched_rows']}/{tot_r} rows have no partner even under rule {best}")
+    if st['many_to_many_keys']:
+        warnings.append(f"{st['many_to_many_keys']} keys are duplicated on both sides: the join fans out ({st['join_rows']} rows)")
     return {'rules': stats, 'best_rule': best, 'warnings': warnings}
-
-
-import re  # noqa: E402  (used by audit_join)

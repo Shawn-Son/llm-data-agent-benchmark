@@ -84,19 +84,19 @@
         "right_dup_keys": 559
       },
       "ocr_fold_digits": {
-        "left_keys": 9471,
-        "right_keys": 9471,
+        "left_keys": 9242,
+        "right_keys": 9242,
         "left_null": 0,
         "right_null": 0,
-        "matched_keys": 9471,
+        "matched_keys": 9242,
         "left_matched_rows": 9921,
         "right_matched_rows": 10266,
-        "join_rows": 11304,
+        "join_rows": 11924,
         "left_unmatched_rows": 0,
         "right_unmatched_rows": 0,
-        "many_to_many_keys": 405,
-        "left_dup_keys": 405,
-        "right_dup_keys": 721
+        "many_to_many_keys": 593,
+        "left_dup_keys": 593,
+        "right_dup_keys": 898
       }
     },
     "best_rule": "raw",

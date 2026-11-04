@@ -42,7 +42,11 @@ def _evidence_ok(text: str, out: Dict[str, Any]) -> bool:
     if out.get('value') in (None, ''): return True      # an honest null is acceptable
     if not ev or ev.strip() not in str(text): return False
     v = out.get('value')
-    if isinstance(v, (int, float)):
+    if isinstance(v, str) and not isinstance(v, bool):
+        from .numbers import parse_number
+        parsed = parse_number(v)
+        if parsed is not None: v = parsed          # '99999' is a number too
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
         from .numbers import find_numbers
         nums = [n for n, _, _ in find_numbers(ev)]
         return any(abs(n - float(v)) <= 1e-6 * max(1, abs(float(v))) for n in nums) if nums else False
@@ -71,6 +75,7 @@ def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLL
                                            'and is it the quantity asked for (not a different number in the text)? '
                                            'If the text only gives a vague magnitude, the value must be null.'))
             if not isinstance(out, dict): out = {'value': out, 'evidence': ''}
+            if isinstance(out.get('value'), bool): out['value'] = None      # true/false is not an extracted value
             if _evidence_ok(doc['text'], out):
                 v = out.get('value')
                 if spec.parse in ('number', 'amount', 'int') and isinstance(v, str): v = parse_number(v)

@@ -35,7 +35,9 @@ def words_to_number(text: str) -> Optional[float]:
 
 
 _NUM = r'(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?'
-_MONEY = re.compile(r'(?P<cur>\$|usd\s*|us\$)?\s*(?P<num>' + _NUM + r')\s*(?P<scale>k|m|mm|b|bn|t|thousand|million|billion|trillion)?\b\s*(?P<sfx>usd|dollars?)?', re.I)
+# A single-letter scale (1.5M, 750K, 2B) must be attached to the number; a word scale may follow a space.
+# "100 m" or "5 t" are units, not scales.
+_MONEY = re.compile(r'(?P<cur>\$|usd\s*|us\$)?\s*(?P<num>' + _NUM + r')(?:(?P<scale>k|m|mm|b|bn|t)|\s*(?P<wscale>thousand|million|billion|trillion))?\b\s*(?P<sfx>usd|dollars?)?', re.I)
 
 
 def parse_number(token: str) -> Optional[float]:
@@ -46,9 +48,12 @@ def parse_number(token: str) -> Optional[float]:
     m = _MONEY.fullmatch(s)
     if m:
         v = float(m.group('num').replace(',', ''))
-        sc = (m.group('scale') or '').lower()
+        sc = (m.group('scale') or m.group('wscale') or '').lower()
         if sc: v *= _ABBREV.get(sc, _SCALES.get(sc, 1))
         return v
+    m = _MONEY.match(s)
+    if m and m.group('num') and re.fullmatch(r'\s*[A-Za-z]{1,3}\.?', s[m.end():]):   # '100 m', '5 t': a unit, not a scale
+        return parse_number(m.group(0))
     w = words_to_number(s.replace('dollars', '').replace('usd', ''))
     return w
 
@@ -57,11 +62,13 @@ def find_numbers(text: str) -> List[Tuple[float, str, Tuple[int, int]]]:
     """All numeric mentions in a text: (value, matched text, span). Digits and word forms."""
     out = []
     if not text: return out
+    taken = []
     for m in _MONEY.finditer(text):
         if not m.group('num'): continue
         v = parse_number(m.group(0))
-        if v is not None: out.append((v, m.group(0).strip(), m.span()))
+        if v is not None: out.append((v, m.group(0).strip(), m.span())); taken.append(m.span())
     for m in _WORD.finditer(text):
+        if any(a < m.end() and m.start() < b for a, b in taken): continue   # "5 million": the word is part of the number
         v = words_to_number(m.group(0))
         if v is not None and v > 0: out.append((v, m.group(0).strip(), m.span()))
     out.sort(key=lambda t: t[2][0])

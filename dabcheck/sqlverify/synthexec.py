@@ -37,11 +37,12 @@ def synthesize_cases(llm: BaseLLM, question: str, schema: Schema, *, mode: str =
 
 def _transpile(sql: str, dialect: str) -> str:
     if dialect in ('sqlite', '', None): return sql
-    try:
-        import sqlglot
-        out = sqlglot.transpile(sql, read=dialect, write='sqlite')[0]
+    try: import sqlglot
+    except ImportError as e:
+        raise RuntimeError(f'sqlglot is required to execute {dialect} SQL on the sqlite test database (pip install sqlglot)') from e
+    try: out = sqlglot.transpile(sql, read=dialect, write='sqlite')[0]
     except Exception:
-        return sql
+        return sql   # unparseable for sqlglot: try the query as written
     if sqlite3.sqlite_version_info < (3, 30):   # NULLS FIRST/LAST needs sqlite >= 3.30
         out = re.sub(r'\s+NULLS\s+(FIRST|LAST)\b', '', out, flags=re.I)
     return out
@@ -106,11 +107,34 @@ def normalize_result(value: Any) -> List[Tuple[Any, ...]]:
     return [(_scalar(value),)]
 
 
+def _normalize_rows_ordered(value: Any) -> List[Tuple[Any, ...]]:
+    """Like normalize_result but keeps the vertical row order (inner sort only)."""
+    if value is None: return [(None,)]
+    if isinstance(value, dict) and 'rows' in value: value = value['rows']
+    if isinstance(value, (list, tuple)):
+        if not value: return []
+        if all(isinstance(x, (list, tuple)) for x in value): return [tuple(sorted((_scalar(v) for v in x), key=lambda z: json.dumps(z, default=str))) for x in value]
+        if all(isinstance(x, dict) for x in value): return [tuple(sorted((_scalar(v) for v in x.values()), key=lambda z: json.dumps(z, default=str))) for x in value]
+        return [(_scalar(x),) for x in value]
+    return [(_scalar(value),)]
+
+
+def has_order_by(sql: str) -> bool:
+    return re.search(r'\border\s+by\b', sql, re.I) is not None
+
+
 def results_match(expected: Any, actual_rows: Sequence[Sequence[Any]], ordered: bool = False) -> bool:
-    """Equality up to ordering, number formatting and case; a scalar expected value also matches
-    a single-cell result and a result whose rows all equal it in one column."""
+    """Equality up to number formatting and case. ordered=False: rows are an unordered multiset
+    (inner and outer sorting); ordered=True (the query has ORDER BY): the vertical row order must
+    match, columns within a row may differ in order (inner sort only), as in the paper's Sec. 4.2.
+    A scalar expected value also matches a single-cell result and a projection of a single row."""
     e = normalize_result(expected); a = normalize_result([list(r) for r in actual_rows])
-    if ordered and e == a: return True
+    if ordered:
+        eo = _normalize_rows_ordered(expected); ao = _normalize_rows_ordered([list(r) for r in actual_rows])
+        if eo == ao: return True
+        if len(eo) == len(ao) and all(set(x) <= set(y) for x, y in zip(eo, ao)): return True
+        if len(e) == 1 and len(e[0]) == 1 and len(a) == 1 and e[0][0] in a[0]: return True   # scalar expected
+        return False
     if e == a: return True
     if len(e) == 1 and len(e[0]) == 1:               # scalar expected
         ev = e[0][0]
@@ -131,9 +155,10 @@ def synthetic_execution_verify(llm: BaseLLM, question: str, sql: str, schema: Sc
         cases = []
         for m in modes: cases += synthesize_cases(llm, question, schema, mode=m, n_cases=n_cases, model=model)
     results = []
+    ordered = has_order_by(sql)
     for c in cases:
         ex = execute_sql(schema, c['tables'], sql)
-        ok = ('error' not in ex) and results_match(c['expected'], ex['rows'])
+        ok = ('error' not in ex) and results_match(c['expected'], ex['rows'], ordered=ordered)
         results.append({'note': c.get('note', ''), 'mode': c.get('mode'), 'expected': c['expected'], 'actual': ex.get('rows'),
                         'error': ex.get('error'), 'match': ok})
     n_fail = sum(1 for r in results if not r['match'])

@@ -13,22 +13,32 @@
     "L": 1583,
     "R": 2000,
     "true_pairs": 321,
-    "matches": 317,
-    "recall": 0.9875389408099688,
+    "matches": 318,
+    "recall": 0.9906542056074766,
     "precision": 1.0,
-    "decomposition": "(digit_stream_edit <= 16)",
-    "adjusted_target": 0.9496516464983791,
+    "decomposition": "(digit_stream_edit <= 12 OR family_decoders <= 0)",
+    "adjusted_target": 1.0,
     "sample_recall": 1.0,
-    "labelled_pairs": 1320,
-    "refinement_calls": 3136440,
+    "labelled_pairs": 2060,
+    "refinement_calls": 3084433,
     "target_feasible": true,
-    "oracle_calls_total": 3137760,
+    "oracle_calls_total": 3086493,
     "cross_product": 3166000,
     "construction_log": [
       {
+        "step": "sample",
+        "note": "60 positives supplied by candidates_fn (uniform sample too sparse)"
+      },
+      {
         "step": "conjunct",
         "feature": 2,
-        "cost": 0.9060869565217391
+        "cost": 0.7619047619047619
+      },
+      {
+        "step": "disjunct",
+        "feature": 1,
+        "clause": 0,
+        "cost": 0.5573770491803278
       }
     ]
   },
@@ -50,31 +60,31 @@
         "right_dup_keys": 0
       },
       "plain_cve": {
-        "left_keys": 289,
-        "right_keys": 411,
-        "left_null": 1294,
-        "right_null": 1587,
-        "matched_keys": 4,
-        "left_matched_rows": 4,
-        "right_matched_rows": 4,
-        "join_rows": 4,
-        "left_unmatched_rows": 285,
-        "right_unmatched_rows": 409,
+        "left_keys": 295,
+        "right_keys": 414,
+        "left_null": 1288,
+        "right_null": 1584,
+        "matched_keys": 3,
+        "left_matched_rows": 3,
+        "right_matched_rows": 3,
+        "join_rows": 3,
+        "left_unmatched_rows": 292,
+        "right_unmatched_rows": 413,
         "many_to_many_keys": 0,
         "left_dup_keys": 0,
         "right_dup_keys": 2
       },
       "family_decoders": {
-        "left_keys": 1149,
-        "right_keys": 1459,
-        "left_null": 434,
-        "right_null": 540,
-        "matched_keys": 11,
-        "left_matched_rows": 11,
-        "right_matched_rows": 11,
-        "join_rows": 11,
-        "left_unmatched_rows": 1138,
-        "right_unmatched_rows": 1449,
+        "left_keys": 1196,
+        "right_keys": 1523,
+        "left_null": 387,
+        "right_null": 476,
+        "matched_keys": 10,
+        "left_matched_rows": 10,
+        "right_matched_rows": 10,
+        "join_rows": 10,
+        "left_unmatched_rows": 1186,
+        "right_unmatched_rows": 1514,
         "many_to_many_keys": 0,
         "left_dup_keys": 0,
         "right_dup_keys": 1
@@ -82,10 +92,10 @@
     },
     "best_rule": "family_decoders",
     "warnings": [
-      "match count swings with the key rule: raw=0 vs family_decoders=11; canonicalise keys (family_decoders) before joining",
-      "kev.cve_ref: 1138/1149 rows have no partner even under rule family_decoders",
-      "vulns.cve_id: 1449/1460 rows have no partner even under rule family_decoders"
+      "match count swings with the key rule: raw=0 vs family_decoders=10; canonicalise keys (family_decoders) before joining",
+      "kev.cve_ref: 1186/1196 rows have no partner even under rule family_decoders",
+      "vulns.cve_id: 1514/1524 rows have no partner even under rule family_decoders"
     ]
   },
-  "seconds": 188.8
+  "seconds": 117.6
 }

@@ -18,3 +18,14 @@ def test_respond_message_and_addendum():
     msg = continue_with_warnings({'checks': [{'sql': 'SELECT 1 FROM t', 'accept': False, 'warnings': ['date field differs']}]})
     assert 'date field differs' in msg and 'final answer' in msg
     assert 'audit_join' in prompt_addendum() and 'execute_sql' in prompt_addendum()
+
+
+def test_sql_recovery_multiline_and_quoted_identifiers(tmp_path):
+    ev = [{'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'name': 'Write', 'input': {'content':
+           'import duckdb\nq = """\nSELECT o.OwnerId,\n       AVG(x) AS d\nFROM Opportunity o\nWHERE o.CreatedDate >= \'2023-04-01\'\n"""\nprint(con.execute(q).fetchall())\n'}}]}},
+          {'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'name': 'Bash', 'input': {'command':
+           'python -c "import duckdb; print(duckdb.sql(\'SELECT count(*) FROM \\"Opportunity\\" WHERE x > 1\').fetchall())"'}}]}}]
+    p = tmp_path / 'events.jsonl'; p.write_text('\n'.join(json.dumps(e) for e in ev))
+    sqls = sql_from_events(p)
+    assert sqls[0] == "SELECT o.OwnerId, AVG(x) AS d FROM Opportunity o WHERE o.CreatedDate >= '2023-04-01'"
+    assert any(s.startswith('SELECT count(*) FROM "Opportunity" WHERE x > 1') for s in sqls)

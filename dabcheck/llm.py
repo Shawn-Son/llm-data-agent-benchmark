@@ -81,6 +81,13 @@ class BaseLLM:
                  max_tokens: int = 4096, effort: str = 'low', tag: str = '') -> str:
         raise NotImplementedError
 
+    def chat(self, messages: list, system: str = '', *, model: Optional[str] = None, max_tokens: int = 4096,
+             effort: str = 'low', tag: str = '') -> str:
+        """Multi-turn completion over [{'role': 'user'|'assistant', 'content': str}, ...]. The default
+        implementation flattens the history into one user turn; LLM overrides it with real turns."""
+        flat = '\n\n'.join(f"[{m['role'].upper()}]\n{m['content']}" for m in messages)
+        return self.complete(flat, system, model=model, max_tokens=max_tokens, effort=effort, tag=tag)
+
     def json(self, user: str, system: str = '', *, retries: int = 1, **kw) -> Any:
         """complete() and parse JSON; on failure ask once more with the parse error."""
         reply = self.complete(user, system, **kw)
@@ -90,6 +97,15 @@ class BaseLLM:
             fix = user + '\n\nYour previous reply could not be parsed as JSON (' + str(e)[:120] + \
                   '). Reply with only the JSON value.'
             return self.json(fix, system, retries=retries - 1, **kw)
+
+    def chat_json(self, messages: list, system: str = '', *, retries: int = 1, **kw) -> Any:
+        reply = self.chat(messages, system, **kw)
+        try: return extract_json(reply)
+        except ValueError as e:
+            if retries <= 0: raise
+            return self.chat_json(messages + [{'role': 'assistant', 'content': reply},
+                                              {'role': 'user', 'content': 'That could not be parsed as JSON (' + str(e)[:120] + '). Reply with only the JSON value.'}],
+                                  system, retries=retries - 1, **kw)
 
 
 class LLM(BaseLLM):
@@ -112,12 +128,16 @@ class LLM(BaseLLM):
         return self.cache_dir / (h[:2]) / (h + '.json')
 
     def complete(self, user, system='', *, model=None, max_tokens=4096, effort='low', tag=''):
+        return self.chat([{'role': 'user', 'content': user}], system, model=model, max_tokens=max_tokens, effort=effort, tag=tag)
+
+    def chat(self, messages, system='', *, model=None, max_tokens=4096, effort='low', tag=''):
         model = model or self.model
-        path = self._cache_path(model, system, user, max_tokens, effort) if self.cache else None
+        key = json.dumps(messages, ensure_ascii=False)
+        path = self._cache_path(model, system, key, max_tokens, effort) if self.cache else None
         if path and path.exists():
             with self._lock: self.usage.cached_calls += 1
             return json.loads(path.read_text())['text']
-        kwargs = dict(model=model, max_tokens=max_tokens, messages=[{'role': 'user', 'content': user}],
+        kwargs = dict(model=model, max_tokens=max_tokens, messages=[{'role': m['role'], 'content': m['content']} for m in messages],
                       output_config={'effort': effort})
         if system: kwargs['system'] = system
         resp = self._client.messages.create(**kwargs)
@@ -153,6 +173,15 @@ class MockLLM(BaseLLM):
         self.usage.calls += 1
         if self.responses: return self.responses.pop(0)
         if self.handler: return self.handler(user, system, tag)
+        raise RuntimeError(f'MockLLM has no response for tag={tag!r}')
+
+    def chat(self, messages, system='', *, model=None, max_tokens=4096, effort='low', tag=''):
+        """Logs the full message list; the handler receives the last user turn (and `messages`
+        through the log) so tests can assert on the retained history."""
+        self.log.append({'messages': list(messages), 'user': messages[-1]['content'], 'system': system, 'tag': tag, 'model': model})
+        self.usage.calls += 1
+        if self.responses: return self.responses.pop(0)
+        if self.handler: return self.handler(messages[-1]['content'], system, tag)
         raise RuntimeError(f'MockLLM has no response for tag={tag!r}')
 
 

@@ -125,3 +125,11 @@ def test_verify_combination_and_selective():
     assert out['abstained'] is True and out['sql'] is None
     out2 = selective(lambda q: SQL_RIGHT, gen, 'q', CRM, methods=('se',))
     assert out2['abstained'] is False and out2['sql'] == SQL_RIGHT
+
+
+def test_ordered_comparison_follows_order_by():
+    from dabcheck.sqlverify.synthexec import has_order_by
+    assert has_order_by('SELECT a FROM t ORDER BY a') and not has_order_by('SELECT a FROM t')
+    assert results_match([[1, 'a'], [2, 'b']], [(2, 'b'), (1, 'a')], ordered=False)
+    assert not results_match([[1, 'a'], [2, 'b']], [(2, 'b'), (1, 'a')], ordered=True)   # ORDER BY: row order matters
+    assert results_match([[1, 'a'], [2, 'b']], [('a', 1), ('b', 2)], ordered=True)       # column order does not
