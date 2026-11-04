@@ -1,0 +1,69 @@
+model,dataset,query,primary,rule,run_a,run_a_primary,run_a_evidence,run_b,run_b_primary,run_b_evidence
+terra,GITHUB_REPOS,query1,Cohort and aggregation,same,T0,Cohort and aggregation,unresolved,T1,Cohort and aggregation,unresolved
+terra,imdb,query5,Cohort and aggregation,same,T0,Cohort and aggregation,supported,T1,Cohort and aggregation,supported
+terra,imdb,query6,Cohort and aggregation,same,T0,Cohort and aggregation,supported,T1,Cohort and aggregation,supported
+terra,imdb,query9,Cohort and aggregation,same,T0,Cohort and aggregation,likely,T1,Cohort and aggregation,likely
+terra,krama,query3,Cohort and aggregation,same,T0,Cohort and aggregation,supported,T1,Cohort and aggregation,supported
+terra,stockmarket,query4,Cohort and aggregation,same,T0,Cohort and aggregation,supported,T1,Cohort and aggregation,supported
+terra,yelp,query2,Cohort and aggregation,same,T0,Cohort and aggregation,supported,T1,Cohort and aggregation,supported
+terra,agnews,query3,Execution and unsupported result,same,T0,Execution and unsupported result,likely,T1,Execution and unsupported result,likely
+terra,cve,query2,Execution and unsupported result,split: stronger evidence,T0,Execution and unsupported result,supported,T1,Identifier joins and identity,likely
+terra,cve,query4,Execution and unsupported result,same,T0,Execution and unsupported result,unresolved,T1,Execution and unsupported result,unresolved
+terra,cve,query10,Execution and unsupported result,split: stronger evidence,T0,Execution and unsupported result,supported,T1,Identifier joins and identity,likely
+terra,PANCANCER_ATLAS,query1,Extraction and representation,same,T0,Extraction and representation,supported,T1,Extraction and representation,supported
+terra,cve,query5,Extraction and representation,same,T0,Extraction and representation,supported,T1,Extraction and representation,supported
+terra,usaspending,query1,Extraction and representation,same,T0,Extraction and representation,likely,T1,Extraction and representation,likely
+terra,usaspending,query2,Extraction and representation,same,T0,Extraction and representation,likely,T1,Extraction and representation,likely
+terra,usaspending,query5,Extraction and representation,same,T0,Extraction and representation,likely,T1,Extraction and representation,likely
+terra,usaspending,query8,Extraction and representation,same,T0,Extraction and representation,supported,T1,Extraction and representation,supported
+terra,usaspending,query9,Extraction and representation,same,T0,Extraction and representation,likely,T1,Extraction and representation,supported
+terra,civic_unstructured,query5,Identifier joins and identity,split: stronger evidence,T0,Identifier joins and identity,supported,T1,Cohort and aggregation,likely
+terra,civic_unstructured,query9,Identifier joins and identity,split: stronger evidence,T0,Identifier joins and identity,likely,T1,Execution and unsupported result,unresolved
+terra,cve,query3,Identifier joins and identity,split: stronger evidence,T0,Execution and unsupported result,unresolved,T1,Identifier joins and identity,supported
+terra,cve,query6,Identifier joins and identity,same,T0,Identifier joins and identity,likely,T1,Identifier joins and identity,likely
+terra,cve,query8,Identifier joins and identity,same,T0,Identifier joins and identity,unresolved,T1,Identifier joins and identity,supported
+terra,cve,query9,Identifier joins and identity,same,T0,Identifier joins and identity,supported,T1,Identifier joins and identity,likely
+terra,usaspending,query6,Identifier joins and identity,same,T0,Identifier joins and identity,unresolved,T1,Identifier joins and identity,unresolved
+terra,agnews,query2,Semantic classification,same,T0,Semantic classification,likely,T1,Semantic classification,likely
+terra,agnews,query4,Semantic classification,same,T0,Semantic classification,likely,T1,Semantic classification,likely
+terra,civic_unstructured,query2,Semantic classification,split: stronger evidence,T0,Semantic classification,supported,T1,Identifier joins and identity,supported
+terra,civic_unstructured,query3,Temporal state and status,split: stronger evidence,T0,Temporal state and status,likely,T1,Identifier joins and identity,likely
+terra,civic_unstructured,query4,Temporal state and status,split: stronger evidence,T0,Identifier joins and identity,likely,T1,Temporal state and status,supported
+terra,civic_unstructured,query6,Temporal state and status,split: stronger evidence,T0,Temporal state and status,likely,T1,Execution and unsupported result,unresolved
+terra,civic_unstructured,query10,Temporal state and status,same,T0,Temporal state and status,likely,T1,Temporal state and status,likely
+terra,crmarenapro,query7,Temporal state and status,same,T0,Temporal state and status,likely,T1,Temporal state and status,likely
+terra,crmarenapro,query12,Temporal state and status,same,T0,Temporal state and status,supported,T1,Temporal state and status,supported
+terra,krama,query6,Temporal state and status,same,T0,Temporal state and status,likely,T1,Temporal state and status,likely
+terra,krama,query10,Temporal state and status,same,T0,Temporal state and status,supported,T1,Temporal state and status,supported
+haiku,PATENTS,query3,Answer format vs validator,same,H1,Answer format vs validator,supported,H2,Answer format vs validator,supported
+haiku,civic_unstructured,query7,Answer format vs validator,same,H1,Answer format vs validator,supported,H2,Answer format vs validator,supported
+haiku,cve,query5,Answer format vs validator,same,H1,Answer format vs validator,supported,H2,Answer format vs validator,supported
+haiku,googlelocal,query3,Answer format vs validator,same,H1,Answer format vs validator,supported,H2,Answer format vs validator,supported
+haiku,GITHUB_REPOS,query1,Cohort and aggregation,same,H1,Cohort and aggregation,unresolved,H2,Cohort and aggregation,unresolved
+haiku,crmarenapro,query13,Cohort and aggregation,same,H1,Cohort and aggregation,supported,H2,Cohort and aggregation,supported
+haiku,imdb,query9,Cohort and aggregation,same,H1,Cohort and aggregation,likely,H2,Cohort and aggregation,likely
+haiku,krama,query4,Cohort and aggregation,split: stronger evidence,H1,Cohort and aggregation,supported,H2,Extraction and representation,supported
+haiku,stockmarket,query4,Cohort and aggregation,same,H1,Cohort and aggregation,supported,H2,Cohort and aggregation,supported
+haiku,cve,query3,Execution and unsupported result,same,H1,Execution and unsupported result,likely,H2,Execution and unsupported result,supported
+haiku,cve,query8,Execution and unsupported result,split: stronger evidence,H1,Identifier joins and identity,likely,H2,Execution and unsupported result,supported
+haiku,usaspending,query1,Execution and unsupported result,same,H1,Execution and unsupported result,supported,H2,Execution and unsupported result,supported
+haiku,usaspending,query5,Execution and unsupported result,same,H1,Execution and unsupported result,supported,H2,Execution and unsupported result,supported
+haiku,usaspending,query9,Execution and unsupported result,same,H1,Execution and unsupported result,supported,H2,Execution and unsupported result,supported
+haiku,DEPS_DEV_V1,query1,Extraction and representation,same,H1,Extraction and representation,likely,H2,Extraction and representation,likely
+haiku,DEPS_DEV_V1,query2,Extraction and representation,same,H1,Extraction and representation,supported,H2,Extraction and representation,likely
+haiku,PANCANCER_ATLAS,query1,Extraction and representation,same,H1,Extraction and representation,supported,H2,Extraction and representation,supported
+haiku,civic_unstructured,query5,Identifier joins and identity,split: stronger evidence,H1,Identifier joins and identity,supported,H2,Semantic classification,likely
+haiku,civic_unstructured,query6,Identifier joins and identity,same,H1,Identifier joins and identity,likely,H2,Identifier joins and identity,unresolved
+haiku,cve,query1,Identifier joins and identity,same,H1,Identifier joins and identity,supported,H2,Identifier joins and identity,likely
+haiku,cve,query4,Identifier joins and identity,split: stronger evidence,H1,Identifier joins and identity,supported,H2,Execution and unsupported result,supported
+haiku,cve,query6,Identifier joins and identity,same,H1,Identifier joins and identity,supported,H2,Identifier joins and identity,supported
+haiku,cve,query10,Identifier joins and identity,same,H1,Identifier joins and identity,likely,H2,Identifier joins and identity,supported
+haiku,music_brainz_20k,query1,Identifier joins and identity,same,H1,Identifier joins and identity,supported,H2,Identifier joins and identity,supported
+haiku,usaspending,query6,Identifier joins and identity,same,H1,Identifier joins and identity,unresolved,H2,Identifier joins and identity,unresolved
+haiku,agnews,query3,Semantic classification,same,H1,Semantic classification,supported,H2,Semantic classification,supported
+haiku,crmarenapro,query2,Semantic classification,same,H1,Semantic classification,likely,H2,Semantic classification,likely
+haiku,googlelocal,query2,Semantic classification,same,H1,Semantic classification,supported,H2,Semantic classification,supported
+haiku,krama,query6,Semantic classification,same,H1,Semantic classification,supported,H2,Semantic classification,supported
+haiku,civic_unstructured,query2,Temporal state and status,same,H1,Temporal state and status,supported,H2,Temporal state and status,supported
+haiku,civic_unstructured,query3,Temporal state and status,split: stronger evidence,H1,Temporal state and status,supported,H2,Answer format vs validator,supported
+haiku,crmarenapro,query12,Temporal state and status,same,H1,Temporal state and status,supported,H2,Temporal state and status,supported

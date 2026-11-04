@@ -6,7 +6,7 @@
 
 **Limits.** This is a retrospective assistant review (six parallel reviewers using shared instructions), not an independent judge. Databases were not re-queried. Haiku's hidden thinking is not recorded, so its causes are judged from its actions.
 
-Per-question findings: `[A–F]_*.json` (schema in `REVIEW_INSTRUCTIONS.md`). Process signals per run: `signals.json`.
+Per-question findings: `[A–F]_*.json` (schema in `REVIEW_INSTRUCTIONS.md`). Process signals per run: `signals.json`. Questions wrong in both runs of a model: `both_runs_wrong.csv` (section 7). Scripts: `scripts/` (section 8).
 
 ## 1. terra — what goes wrong most
 
@@ -90,3 +90,29 @@ Per-question findings: `[A–F]_*.json` (schema in `REVIEW_INSTRUCTIONS.md`). Pr
 | median duration (s) | 130 | 93 | 172 | 158 |
 
 The hedged and declined counts in this table come from a regex over answers. The reviewer-coded counts in the tables above are similar: Haiku 27 hedged, 3 declined.
+
+## 7. Which failures can we catch while the agent works? (questions wrong in both runs)
+
+One primary category per question that a model got wrong in **both** of its runs: terra 36 (original + run 1), Haiku 32 (runs 1–2). The category is the one both runs share (27 of 36 terra questions, 27 of 32 Haiku questions). Where the runs disagree, the category of the run with stronger evidence is used. Per-question list: `both_runs_wrong.csv`. This replaces the earlier classification built from grader reasons and final answers only. Shares include hypotheses and are not proven causal or repair rates.
+
+| Review category (terra / Haiku) | Real example from these runs (T = terra, H = Haiku) | When the warning fires | What to do | Can we fix it? |
+|---|---|---|---|---|
+| Identifier joins and identity — T 7/36 · H 8/32 | T cve q8: digit-subsequence matching gives 244 vs 58. H music_brainz q1: misses the duplicate "GetMe Bodied". usaspending q6: 57 vs 56 in all four runs | Match counts swing with the rule; many unmatched keys; duplicates stay unmerged | Canonical keys; recall and cardinality checks against the clean side | Partly; identity may need adjudication |
+| Temporal state and status — T 8/36 · H 3/32 | T civic q4/q6/q10: static project lists instead of the latest report before each grant. crmarenapro q12: created instead of signed date (all four runs). H civic q2: misdated rid_0010 | Time-dependent eligibility with no dated join; stated and internal dates conflict | As-of joins; reconcile stated and internal dates | Partly; report interpretation needed |
+| Extraction and representation — T 7/36 · H 3/32 | T usaspending q1/2/5/8/9: prose amounts via keyword regexes (q1: 900 vs 898). PANCANCER q1: histology names instead of ICD-O-3 codes (all runs). H DEPS q1/q2: star and fork regexes miss phrasings | Low parse coverage; the answer's unit or representation differs from the question | Report parse coverage; keep raw and parsed values; check the required representation | Potentially; not tested |
+| Cohort and aggregation — T 7/36 · H 5/32 | stockmarket q4: ranks by up-day count, not the up-minus-down margin (all runs). imdb q9: role_type instead of the credit note (all runs). T yelp q2: metadata review_count. T krama q3: includes Puerto Rico | The population, denominator or ranking basis changes between steps | Record cohort lineage, denominators and the ranking metric | Potentially; semantics still matter |
+| Execution and unsupported result — T 4/36 · H 5/32 | H usaspending q1/q5/q9: uses only the 522 numeric rows of 10,266 and reports a floor (q1: 71 vs 898). H cve q3/q8: no definite number. T agnews q3: reports a value no command produced. T cve q10: drops the right 5 | The final value appears in no output; the answer says "estimate" or "lower bound" | Require the final value to be traceable to a printed output; don't stop at a floor | Potentially; not tested |
+| Semantic classification — T 3/36 · H 4/32 | agnews q2/q4: keyword topic labels. H googlelocal q2: the "massage" keyword misses a business. H crmarenapro q2: misreads discount tiers. H krama q6: "no violation recorded" counted as a violation | Labels come from keywords; an audited sample disagrees | Audit a labelled sample; prefer category fields; check every policy clause | Uncertain |
+| Answer format vs validator — T 0/36 · H 4/32 | H cve q5: "Answer: 1." rejected. H civic q7: correct empty answer plus candidate names. H googlelocal q3: weekday-only hours. H PATENTS q3: validator bug | The value matches apart from punctuation, extra text or layout | Put the final value alone on its own line, in the full requested format | Yes for format; PATENTS q3 is a validator bug. Official grades unchanged |
+
+## 8. Reproducing this review
+
+| Step | Script | Input → output |
+|---|---|---|
+| 1. Export trajectories | `scripts/export_digest.py OUT_DIR` (run on Great Lakes) | Run artifacts in `~/dab-artifacts` → one JSON per failing question with all four runs' steps, answers, grades, validator and ground truth. Scans for credentials. The digests contain ground truth and are not committed. |
+| 2. Review | `REVIEW_INSTRUCTIONS.md` | Digests → `[A–F]_*.json` (six reviewers with shared instructions) |
+| 3. Process signals | `scripts/signals.py DIGEST_DIR signals.json` | Digests → `signals.json` and the section 6 summary |
+| 4. Combine | `scripts/synth.py` | `[A–F]_*.json` → category, sub-issue, evidence and signal counts; `both_runs_wrong.csv` (section 7) |
+| 5. Recheck grades | `scripts/recheck_validators.py DIGEST_DIR [DataAgentBench checkout]` | Re-runs each unchanged validator on the recorded answers: 243 scored runs, 0 mismatches |
+
+Run every script with `python3 -I`. Full trajectories stay in the verified archives on Great Lakes (`~/dab-archives/<run>.tar.gz`; terra run 1 in `~/dab-artifacts/terra-native-104x3/trial1`).
