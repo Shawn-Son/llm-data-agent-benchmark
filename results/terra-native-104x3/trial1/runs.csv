@@ -1,0 +1,459 @@
+model,dataset,query,trial,condition,status,grading_status,passed,duration_s,tool_calls,command_calls,command_errors,api_errors,input_tokens,cached_input_tokens,output_tokens,estimated_cost_usd,answer
+gpt-5.6-terra,DEPS_DEV_V1,1,1,description+hints,runtime_error,scored,,36.404409896582365,0,0,0,0,0,0,0,,
+gpt-5.6-terra,DEPS_DEV_V1,2,1,description+hints,completed,scored,True,92.42187096178532,6,6,0,0,103590,17875,3162,,"The 5 qualifying GitHub projects with the most forks are:
+
+1. `mui-org/material-ui` — 30,522 forks  
+2. `moment/moment` — 7,201 forks  
+3. `semantic-org/semantic-ui` — 4,955 forks  
+4. `react-native-elements/react-native-elements` — 4,623 forks  
+5. `sveltejs/svelte` — 4,091 forks  
+
+I filtered NPM package versions to `IsRelease = true`, joined their project mappings, retained projects licensed `MIT`, and ranked their GitHub fork counts."
+gpt-5.6-terra,GITHUB_REPOS,1,1,description+hints,completed,scored,False,154.4881452266127,9,9,0,0,135609,53088,4130,,"15 of 101 non-Python repositories’ `README.md` files include “copyright” information: **14.85%**.
+
+This uses repositories with available language metadata and excludes any whose language description mentions Python."
+gpt-5.6-terra,GITHUB_REPOS,2,1,description+hints,completed,scored,True,72.96293769776821,6,6,0,0,132782,57639,2174,,"Repository: `SwiftAndroid/swift`
+
+Most frequently copied non-binary Swift file:
+
+- Path: `validation-test/compiler_crashers_fixed/27485-swift-bracestmt-create.swift`
+- Blob ID: `71a17ce92451858f3eb01aa8082551e48bc5550d`
+- Copies: 23
+- Size: 470 bytes"
+gpt-5.6-terra,GITHUB_REPOS,3,1,description+hints,completed,scored,True,111.01370921358466,8,8,0,0,115756,37238,2817,,"1,077 commit messages meet those criteria (treating the excluded prefixes case-insensitively)."
+gpt-5.6-terra,GITHUB_REPOS,4,1,description+hints,completed,scored,False,67.57123319804668,8,8,1,0,107914,34411,1305,,"1. torvalds/linux  
+2. apple/swift  
+3. twbs/bootstrap  
+4. Microsoft/vscode  
+5. facebook/react"
+gpt-5.6-terra,PANCANCER_ATLAS,1,1,description+hints,completed,scored,False,40.46538583189249,6,6,2,0,122001,36090,2151,,"Average `log10(normalized_count + 1)` for valid LGG IGF2 expression records:
+
+| Histology type | Patients | Average |
+|---|---:|---:|
+| Astrocytoma | 10 | 2.5713 |
+| Oligoastrocytoma | 5 | 2.7136 |
+| Oligodendroglioma | 8 | 2.6825 |"
+gpt-5.6-terra,PANCANCER_ATLAS,2,1,description+hints,completed,scored,True,50.270696984604,6,6,0,0,168937,11212,1927,,"Among alive BRCA patients, the top three histological types by CDH1 mutation prevalence are:
+
+1. Infiltrating Lobular Carcinoma — 90/178 patients (50.56%)
+2. Mixed Histology (please specify) — 4/24 (16.67%)
+3. Other specify — 3/36 (8.33%)
+
+Percentages use distinct patients with at least one CDH1 mutation divided by all alive BRCA patients in that histological type."
+gpt-5.6-terra,PANCANCER_ATLAS,3,1,description+hints,completed,scored,True,60.14297117292881,8,8,0,0,118889,50059,2920,,"χ² = **305.124**.
+
+Filtered patient-level contingency table (`FILTER = 'PASS'`; histology marginal total > 10):
+
+| Histological type | CDH1 mutation | No CDH1 mutation | Total |
+|---|---:|---:|---:|
+| Infiltrating Ductal Carcinoma | 9 | 757 | 766 |
+| Infiltrating Lobular Carcinoma | 83 | 118 | 201 |
+| Mixed Histology | 4 | 26 | 30 |
+| Mucinous Carcinoma | 0 | 17 | 17 |
+| Other, specify | 3 | 42 | 45 |
+| **Total** | **99** | **960** | **1,059** |
+
+Excluded were unknown histology and histology categories with totals ≤10. The statistic has 4 degrees of freedom."
+gpt-5.6-terra,PATENTS,1,1,description+hints,completed,scored,True,149.25723998434842,12,12,2,0,271061,86369,4732,,"A22B
+A23J
+A23P
+A24D
+A24F
+A41G
+A47F
+A61G
+A61H
+A61P
+A62D
+A63H
+B04B
+B07B
+B08B
+B09C
+B21J
+B22F
+B24B
+B25B
+B25D
+B27C
+B27M
+B60D
+B60L
+B60P
+B61H
+B63C
+B63G
+B65G
+B66F
+C01D
+C01G
+C21B
+C21C
+C22C
+D21B
+E01H
+E02B
+E02D
+E03B
+E04B
+E04G
+E21D
+E21F
+F02K
+F04F
+F16M
+F25J
+F26B
+G01H
+G01L
+G01S
+G05D
+G06N
+G06Q
+G06T
+G06V
+G08G
+G09F
+G10L
+G16B
+G16C
+G16H
+G21F
+H01M
+H02B
+H02G
+H02J
+H03H
+H04K
+H05F"
+gpt-5.6-terra,PATENTS,2,1,description+hints,completed,scored,False,134.6103546898812,10,9,1,0,170888,56643,4807,,"For Germany patents granted July–December 2019, the level-4 CPC areas and their peak filing EMA (α = 0.1) are:
+
+| CPC group | Full title | Best year | Peak EMA |
+|---|---|---:|---:|
+| A61 | MEDICAL OR VETERINARY SCIENCE; HYGIENE | 2016 | 2 |
+| B23 | MACHINE TOOLS; METAL-WORKING NOT OTHERWISE PROVIDED FOR | 2015 | 1 |
+| B29 | WORKING OF PLASTICS; WORKING OF SUBSTANCES IN A PLASTIC STATE IN GENERAL | 2007 | 1 |
+| B41 | PRINTING; LINING MACHINES; TYPEWRITERS; STAMPS | 2007 | 1 |
+| B60 | VEHICLES IN GENERAL | 2009 | 1 |
+| E02 | HYDRAULIC ENGINEERING; FOUNDATIONS; SOIL SHIFTING | 2012 | 1 |
+| E05 | LOCKS; KEYS; WINDOW OR DOOR FITTINGS; SAFES | 2012 | 1 |
+| F02 | COMBUSTION ENGINES; HOT-GAS OR COMBUSTION-PRODUCT ENGINE PLANTS | 2010 | 1 |
+| F16 | ENGINEERING ELEMENTS AND UNITS; GENERAL MEASURES FOR PRODUCING AND MAINTAINING EFFECTIVE FUNCTIONING OF MACHINES OR INSTALLATIONS; THERMAL INSULATION IN GENERAL | 2009 | 1 |
+| F23 | COMBUSTION APPARATUS; COMBUSTION PROCESSES | 2018 | 1 |
+| F24 | HEATING; RANGES; VENTILATING | 2018 | 1 |
+| F41 | WEAPONS | 2012 | 1 |
+| G01 | MEASURING; TESTING | 2008 | 1 |
+| G02 | OPTICS | 2016 | 1 |
+| G08 | SIGNALLING | 2017 | 1 |
+| H01 | ELECTRIC ELEMENTS | 2013 | 1 |
+| H02 | GENERATION; CONVERSION OR DISTRIBUTION OF ELECTRIC POWER | 2009 | 1 |
+| H03 | ELECTRONIC CIRCUITRY | 2015 | 1 |
+| H04 | ELECTRIC COMMUNICATION TECHNIQUE | 2015 | 2 |
+
+I used only primary CPC assignments, deduplicated each patent within a group, and included zero-filing years between each group’s first and last filing year. Ties were resolved to the earliest year."
+gpt-5.6-terra,PATENTS,3,1,description+hints,completed,scored,True,161.54121494665742,15,15,1,0,404663,165051,5566,,"The citing assignees (excluding UNIV CALIFORNIA) are:
+
+| Citing assignee | Primary CPC subclass | Full subclass title |
+|---|---|---|
+| CALIFORNIA INST OF TECHN | G01V | GEOPHYSICS; GRAVITATIONAL MEASUREMENTS; DETECTING MASSES OR OBJECTS; TAGS |
+| BLOOM ENERGY CORP | H01M | PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY |
+| CRYSTAL IS INC | C30B | SINGLE-CRYSTAL GROWTH; UNIDIRECTIONAL SOLIDIFICATION OF EUTECTIC MATERIAL OR UNIDIRECTIONAL DEMIXING OF EUTECTOID MATERIAL; REFINING BY ZONE-MELTING OF MATERIAL; PRODUCTION OF A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; SINGLE CRYSTALS OR HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; AFTER-TREATMENT OF SINGLE CRYSTALS OR A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; APPARATUS THEREFOR |
+| SCHOWALTER LEO J | H01L | SEMICONDUCTOR DEVICES NOT COVERED BY CLASS H10 |
+
+The corresponding primary detailed CPC codes were G01V1/01; H01M8/2425 and H01M4/9066; C30B11/003, C30B25/16, and C30B25/10; and H01L21/0262, respectively."
+gpt-5.6-terra,agnews,1,1,description+hints,completed,scored,True,56.88780028373003,7,7,0,0,143600,10542,2459,,The sports article is **“The Rundown.”**
+gpt-5.6-terra,agnews,2,1,description+hints,completed,scored,False,50.40038186311722,5,5,0,0,86826,10716,3609,,"Amy Jones authored 111 articles total. Of these, 20 are Science/Technology.
+
+Fraction: **20/111** (approximately **18.0%**)."
+gpt-5.6-terra,agnews,3,1,description+hints,completed,scored,False,169.07829184271395,14,14,0,0,251080,100634,8999,,"There were 3,716 business articles published in Europe from 2010–2020. Across 11 years, the average was **337.82 business articles per year**."
+gpt-5.6-terra,agnews,4,1,description+hints,completed,scored,False,146.88943874277174,15,15,1,0,226477,89684,7024,,Europe published the largest number of World-category articles in 2015.
+gpt-5.6-terra,bookreview,1,1,description+hints,completed,scored,True,59.703061228618026,10,10,2,0,192003,58541,3276,,The **2020s** have the highest average rating among qualifying decades (21 distinct rated books; average review rating ≈ **4.66**).
+gpt-5.6-terra,bookreview,2,1,description+hints,completed,scored,True,60.34510039910674,8,8,1,0,214099,105504,2495,,"All 15 matching English-language Literature & Fiction books have a 5.0 average review rating:
+
+- Reunion: The Children of Lauderdale Park
+- The Prophet: With Original 1923 Illustrations by the Author
+- The Melancholy Strumpet Master
+- Child Of The King A Journey of Hope Book 1: Earthly Story With A Heavenly Message
+- Fire Cracker
+- Local Honey
+- Hollywood Confessions: Hollywood Headlines Book #3 (Hollywood Headlines Mysteries)
+- Knowing When To Die: Uncollected Stories
+- Childe Harold of Dysna
+- Forged in Blood (Freehold)
+- Exits, Desires, & Slow Fires
+- Kennebago Moments
+- The Sludge
+- Liza of Lambeth
+- Something That Feels Like Truth (Switchgrass Books)"
+gpt-5.6-terra,bookreview,3,1,description+hints,completed,scored,True,66.15246933698654,8,8,0,0,134919,34569,3499,,"Books in **Children’s Books** with a 2020+ review average of at least 4.5:
+
+| Book | 2020+ reviews | Average rating |
+|---|---:|---:|
+| Around the World Mazes | 1 | 5.00 |
+| Behind the Wheel (Choose Your Own Adventure #35)(Paperback/Revised) | 1 | 5.00 |
+| Benny Goes To The Moon: The great new book from Top Children's entertainer Gerry Ogilvie (1) | 1 | 5.00 |
+| Cheer Up, Ben Franklin! (Young Historians) | 1 | 5.00 |
+| Cleo Porter and the Body Electric | 24 | 4.71 |
+| Clark the Shark: Tooth Trouble, No. 1 | 4 | 4.75 |
+| Egypt (Enchantment of the World) | 1 | 5.00 |
+| Favorite Thorton W. Burgess Stories: 6 Books | 3 | 5.00 |
+| LunaLu the Llamacorn | 3 | 5.00 |
+| Monstrous Stories #4: The Day the Mice Stood Still | 1 | 5.00 |
+| Pokémon: Sun & Moon, Vol. 8 (8) | 1 | 5.00 |
+| The Library Book | 3 | 5.00 |
+| The Old Man and the Pirate Princess | 1 | 5.00 |
+| Trouble in the CTC!: The Terra Prime Adventures Book 2 | 10 | 4.90 |"
+gpt-5.6-terra,civic_unstructured,1,1,description+hints,completed,scored,True,63.48633315600455,8,8,0,0,224735,28583,2804,,"As of 2023-01-01, these projects qualify (latest report: November 10, 2022; Capital Improvement Projects — Design):
+
+| Project | Accumulated funding |
+|---|---:|
+| 2022 Annual Street Maintenance | $2,762,000 |
+| Marie Canyon Green Streets | $6,997,000 |
+| PCH Median Improvements Project | $2,042,000 |
+| PCH Signal Synchronization System Improvements Project | $2,585,000 |
+| Westward Beach Road Repair Project | $773,000 |
+| Civic Center Water Treatment Facility Phase 2 | $4,239,000 |
+| Permanent Skate Park | $694,000 |
+| PCH at Trancas Canyon Road Right Turn Lane | $6,994,000 |
+| Michael Landon Center Roof Replacement Project | $6,753,000 |
+
+I treated the annual-maintenance entries as distinct year-specific projects; therefore, only the funding named for the 2022 project was included."
+gpt-5.6-terra,civic_unstructured,10,1,description+hints,completed,scored,False,133.6941322721541,16,16,1,0,551351,235699,8737,,"0.39
+
+Completed total: $12,795,000; not-started total: $33,175,000."
+gpt-5.6-terra,civic_unstructured,2,1,description+hints,completed,scored,False,67.33524508215487,8,8,0,0,293677,35163,3110,,"**Citywide Guardrail Replacement (FEMA/CalOES Project)** has the highest accumulated funding: **$35,712,000 USD**.
+
+Its latest applicable agenda report (March 23, 2022) lists it as completed. I resolved and summed its four funding-name variants through 2023-01-01:
+
+- `citywide_guardrail_replacement`: $2,295,000
+- `guardrail_replacement_citywide`: $8,823,000
+- `..._fema_project`: $12,519,000
+- `..._fema_caloes_project`: $12,075,000"
+gpt-5.6-terra,civic_unstructured,3,1,description+hints,completed,scored,False,137.09063389897346,14,14,0,0,650911,246635,7737,,"- Municipal Fund — 7 of 28 distinct resolved projects completed (25.0%)
+
+I used the internally stated report dates; the latest eligible agenda report is dated July 27, 2022."
+gpt-5.6-terra,civic_unstructured,4,1,description+hints,completed,scored,False,129.7425876725465,14,14,0,0,498330,223568,8982,,0.66
+gpt-5.6-terra,civic_unstructured,5,1,description+hints,completed,scored,False,151.93852933496237,19,19,4,0,781751,337535,8397,,"Average total funding per qualifying project: **$3,476,181.82**.
+
+This is based on 11 projects with documented status changes, totaling $38,238,000 in grants during the period. I consolidated clear name variants such as the Malibu Park/Birdview, Broad Beach, Clover Heights, Encinal Canyon, and Malibu Road projects."
+gpt-5.6-terra,civic_unstructured,6,1,description+hints,completed,scored,False,167.7319857813418,19,19,2,0,793149,366497,10692,,"Capital projects received their highest total funding in **2023**, totaling **$76,886,000 USD**."
+gpt-5.6-terra,civic_unstructured,7,1,description+hints,completed,scored,True,71.79053295217454,10,10,1,0,342071,81716,3507,,"No projects qualify.
+
+The latest report on or before 2022-11-01 is dated July 27, 2022. Its disaster projects are all classified as either “design” or “construction”; it contains no “Disaster Projects (Not Started)” section. Therefore no project can meet both required report conditions, regardless of accumulated funding."
+gpt-5.6-terra,civic_unstructured,8,1,description+hints,completed,scored,True,74.92005966603756,10,10,1,0,349812,148022,3860,,"**City Hall Roof Replacement** has the lowest accumulated funding: **$1,340,000 USD**.
+
+This sums its five grants through 2021-05-04. Its latest applicable agenda entry places it under Capital Improvement Projects — Construction."
+gpt-5.6-terra,civic_unstructured,9,1,description+hints,completed,scored,False,128.09079013206065,13,13,1,0,541335,195938,7917,,"No funding source qualifies: none had more than 55% of its distinct funded civic projects classified as disaster projects in their latest report available by 2022-11-01.
+
+The closest were Federal Grant and Municipal Fund, each below the threshold (about 52%)."
+gpt-5.6-terra,crmarenapro,1,1,description+hints,completed,scored,True,43.55834738351405,5,5,0,0,125143,11633,1186,,Authority
+gpt-5.6-terra,crmarenapro,10,1,description+hints,completed,scored,True,129.5078880880028,11,11,1,0,281433,132402,3479,,005Wt000003NDqDIAW
+gpt-5.6-terra,crmarenapro,11,1,description+hints,completed,scored,True,52.66793663427234,4,4,1,0,60085,23175,1102,,01tWt000006hV8LIAU
+gpt-5.6-terra,crmarenapro,12,1,description+hints,completed,scored,False,59.44033904932439,5,5,2,0,73504,24516,1759,,005Wt000003NJgAIAW
+gpt-5.6-terra,crmarenapro,13,1,description+hints,completed,scored,True,66.3444385677576,5,5,1,0,78490,23442,2397,,005Wt000003NIXCIA4
+gpt-5.6-terra,crmarenapro,2,1,description+hints,completed,scored,True,83.37485433928668,7,7,2,0,181706,35755,3218,,ka0Wt000000Eq0MIAS
+gpt-5.6-terra,crmarenapro,3,1,description+hints,completed,scored,False,37.28493603505194,2,2,0,0,35016,11486,467,,Quote
+gpt-5.6-terra,crmarenapro,4,1,description+hints,completed,scored,True,70.1164420414716,6,6,1,0,116475,11193,2012,,November
+gpt-5.6-terra,crmarenapro,5,1,description+hints,completed,scored,True,74.2004721891135,8,8,1,0,121942,23807,2043,,a03Wt00000JqnHwIAJ
+gpt-5.6-terra,crmarenapro,6,1,description+hints,completed,scored,True,69.65096389688551,4,4,0,0,87361,0,2383,,ka0Wt000000EnwvIAC
+gpt-5.6-terra,crmarenapro,7,1,description+hints,completed,scored,False,77.5834506843239,9,9,1,0,306564,110652,1795,,None
+gpt-5.6-terra,crmarenapro,8,1,description+hints,completed,scored,True,70.73967626690865,5,5,0,0,98724,11674,2291,,005Wt000003NIliIAG
+gpt-5.6-terra,crmarenapro,9,1,description+hints,completed,scored,True,67.47271748818457,6,6,0,0,121660,11523,1907,,MI
+gpt-5.6-terra,cve,1,1,description+hints,completed,scored,False,139.1610007006675,15,15,1,0,414085,127278,8182,,"3 distinct CVEs.
+
+They are CVE-2023-27524 (Superset), CVE-2023-33246 (RocketMQ), and CVE-2023-46604 (ActiveMQ)."
+gpt-5.6-terra,cve,10,1,description+hints,completed,scored,False,303.9213644936681,18,18,4,0,618689,303292,14176,,**15** distinct Microsoft KEV products meet the CVSS v3 base-score threshold of 9.0 or higher.
+gpt-5.6-terra,cve,2,1,description+hints,completed,scored,False,151.2650225572288,11,11,1,0,265944,73238,6251,,microsoft
+gpt-5.6-terra,cve,3,1,description+hints,completed,scored,False,314.63941504247487,19,19,1,0,824914,425772,11189,,35 KEV catalog entries reference a CVE with no matching NVD record in `vulns_db`.
+gpt-5.6-terra,cve,4,1,description+hints,completed,scored,False,339.1309759635478,21,21,6,0,930103,556434,14989,,atlassian
+gpt-5.6-terra,cve,5,1,description+hints,completed,scored,False,161.13819785416126,17,17,2,0,734220,330353,10282,,"**6** distinct affected version strings.
+
+Normalized unique values: `9.0.0`, `9.0.98`, `10.1.0`, `10.1.34`, `11.0.0`, and `11.0.2`. Wildcard version entries were excluded."
+gpt-5.6-terra,cve,6,1,description+hints,completed,scored,False,197.6147967390716,22,22,2,0,1025299,454641,12368,,75 distinct CVEs.
+gpt-5.6-terra,cve,7,1,description+hints,completed,scored,True,197.76096639223397,15,15,2,0,383582,136528,8899,,cisco:adaptive_security_appliance_software
+gpt-5.6-terra,cve,8,1,description+hints,completed,scored,False,247.4629103858024,19,19,2,0,734156,293584,13314,,244 distinct CVEs.
+gpt-5.6-terra,cve,9,1,description+hints,completed,scored,False,383.7346620634198,19,19,1,0,868203,491436,14402,,17 distinct CVEs.
+gpt-5.6-terra,googlelocal,1,1,description+hints,completed,scored,True,33.344231605529785,5,5,1,0,76814,20738,1844,,"Top 5 Los Angeles businesses by average review rating:
+
+| Rank | Business | Average rating |
+|---:|---|---:|
+| 1 | Widows Peak Salon | 4.86 |
+| 2 | City Textile | 4.50 |
+| 3 | Nobel Textile Co | 4.29 |
+| 4 | San Soo Dang | 4.28 |
+| 5 | Nova Fabrics | 3.33 |
+
+These averages are calculated from the linked review records; the Los Angeles location was identified from each business description."
+gpt-5.6-terra,googlelocal,2,1,description+hints,completed,scored,True,48.81187021173537,9,9,1,0,131885,31464,2042,,"Businesses meeting the 4.0 average-rating threshold:
+
+| Business | Average rating |
+|---|---:|
+| Elite Massage | 5.00 |
+| Angel-A Massage | 4.33 |
+| Aurora Massage | 4.18 |
+| J B Oriental Inc | 4.17 |"
+gpt-5.6-terra,googlelocal,3,1,description+hints,completed,scored,False,66.11902683414519,8,8,2,0,173150,45569,4509,,"All five tie for the highest average rating: 5.00. I broke the tie by review count.
+
+| Rank | Business | Weekday operating hours | Average rating |
+|---:|---|---|---:|
+| 1 | Taba Rug Gallery | Mon–Fri: 10 AM–7 PM | 5.00 (18 reviews) |
+| 2 | Beauty Divine Artistry | Mon–Fri: 9 AM–8 PM | 5.00 (8 reviews) |
+| 3 | Mariscos el poblano | Thu: 24 hours; Mon: 9 AM–3:30 AM | 5.00 (3 reviews) |
+| 4 | TACOS LA CABANA | Mon & Fri: 5–11 PM | 5.00 (2 reviews) |
+| 5 | White Barn Candle Co | Mon–Fri: 10 AM–9 PM | 5.00 (2 reviews) |
+
+I treated a business as qualifying when it closes later than 6 PM on at least one Monday–Friday, including 24-hour and overnight schedules."
+gpt-5.6-terra,googlelocal,4,1,description+hints,completed,scored,True,73.21259643509984,6,6,1,0,85627,10263,1534,,"1. Encino Dermatology & Laser: Alex Khadavi MD — 19 high-rating reviews  
+2. The Boochyard @ Local Roots — 17  
+3. Aurora Massage — 14  
+
+“High-rating” counts ratings of 4.5 or higher during 2019."
+gpt-5.6-terra,imdb,1,1,description+hints,completed,scored,True,110.63352114520967,11,11,1,0,189792,58737,3159,,"The alphabetically first qualifying title is **Dirt Merchant** — a **movie**.
+
+It was produced in 1999, has keywords, is associated with the US company Quantum Entertainment, has a US internet release dated 16 September 1999, and its cast is marked complete+verified."
+gpt-5.6-terra,imdb,10,1,description+hints,completed,scored,True,281.66508729197085,15,15,3,0,300628,181291,8802,,"Alphabetically first cast member: **Abell, Alistair**  
+Alphabetically first title: **...And Then I...**"
+gpt-5.6-terra,imdb,2,1,description+hints,completed,scored,False,198.8318525198847,13,13,2,0,220898,102389,6072,,"The alphabetically first registered pseudonym is `""A.J.""`, and the alphabetically first qualifying title is `#`."
+gpt-5.6-terra,imdb,3,1,description+hints,completed,scored,True,339.93333975970745,22,22,2,0,468042,238642,11517,,"The alphabetically first actress is **Aaron, Caroline**. The alphabetically first qualifying title is **$9.99**.
+
+(For Aaron, Caroline’s qualifying credit specifically, the title is *Spang Ho: Something Fishy*.)"
+gpt-5.6-terra,imdb,4,1,description+hints,completed,scored,True,220.76835974864662,15,15,2,0,367305,132745,5947,,"The alphabetically first qualifying name is **Z'Dar, Robert**.
+
+He is credited in *Caesar and Otto's Deadly Christmas* (movie ID 1755050), which has the normalized `character-name-in-title` keyword and an associated company."
+gpt-5.6-terra,imdb,5,1,description+hints,completed,scored,False,207.63370524719357,14,14,1,0,284190,130348,6553,,"The result is:
+
+- Company: `""O"" Films`
+- Rating: `6.5`
+- Title: `Parking Ticket`"
+gpt-5.6-terra,imdb,6,1,description+hints,completed,scored,False,163.8907475899905,14,14,2,0,275409,161730,5846,,"- Character: **Abby Mallard**
+- Actress: **Andrews, Julie**
+- Title: **Chicken Little**"
+gpt-5.6-terra,imdb,7,1,description+hints,completed,scored,True,109.21058989875019,10,10,1,0,194742,84744,3680,,"The alphabetically first pseudonym is `!!!, Toy`, and the alphabetically first title is `& Teller`."
+gpt-5.6-terra,imdb,8,1,description+hints,completed,scored,True,269.7325251828879,19,19,4,0,519400,215270,9545,,"- Alternate name: `!!!, Toy`
+- Character name: `""Cockamamie's"" Salesgirl`
+- Actress name: `Aaron, Caroline`
+- Title: `$15,000.00 Error`"
+gpt-5.6-terra,imdb,9,1,description+hints,completed,scored,False,313.73526015132666,26,26,6,0,600527,328413,14877,,"- Genre: Horror
+- Vote count: 101188
+- Writer: Agnew, Jim
+- Title: A Dangerous Method"
+gpt-5.6-terra,krama,1,1,description+hints,completed,scored,True,153.46684695966542,12,12,0,0,378564,151418,6221,,NWCC (Northwest Interagency Coordination Center).
+gpt-5.6-terra,krama,10,1,description+hints,completed,scored,False,85.34922581538558,13,13,2,0,413752,87609,4018,,"The mean BSTAR drag coefficient for NORAD 43180 during the May 10–13, 2024 geomagnetic-storm period is **0.000708**."
+gpt-5.6-terra,krama,2,1,description+hints,completed,scored,True,227.1176141910255,19,19,3,0,821387,375471,13337,,"Idaho — its intersecting GACCs (Great Basin, Northern Rockies, and Northwest) sum to 23,355 lightning-caused wildfires across the 2014–2024 latest annual reports."
+gpt-5.6-terra,krama,3,1,description+hints,completed,scored,False,138.6744511462748,19,19,2,0,775660,260834,7823,,"The average is **12,751.9643 reported identity thefts**.
+
+I linearly estimated 2023 population as:
+
+\[
+P_{2023}=P_{2020}+0.75(P_{2024}-P_{2020})
+\]
+
+This yielded 56 MSAs above one million that also appeared in the 2024 identity-theft data, with 714,110 identity-theft reports in total."
+gpt-5.6-terra,krama,4,1,description+hints,completed,scored,True,133.16513545066118,19,19,2,0,1052418,522458,6066,,"Miami–Fort Lauderdale–West Palm Beach, FL had the highest reported 2024 identity-theft rate: 903 per 100K.
+
+Its population rose from 6,138,333 (2020) to 6,457,988 (2024), an absolute change of **319,655 people**."
+gpt-5.6-terra,krama,5,1,description+hints,completed,scored,True,85.64431098662317,11,11,0,0,384228,90400,4905,,Kings (DCR) @ Eastern Ave. had the most failed bacterial samples (154). Its 2012–2018 water-temperature readings average to **20.03 °C**.
+gpt-5.6-terra,krama,6,1,description+hints,completed,scored,False,83.42073350958526,10,10,1,0,394676,145801,5027,,"Ocean @ Squibnocket Beach had the lowest average water temperature (10.55 °C across 2 readings).
+
+It had 4 bacterial violations among 93 samples from 2008–2016:
+
+\[
+(4 / 93) \times 100 = \mathbf{4.30\%}
+\]"
+gpt-5.6-terra,krama,7,1,description+hints,completed,scored,True,305.8745805900544,33,18,2,0,1610568,929159,8932,,"The average age is **60.00 years** (patients aged 67, 75, and 38)."
+gpt-5.6-terra,krama,8,1,description+hints,completed,scored,True,136.604688372463,17,17,3,0,564648,228524,5221,,The oldest eligible Serous patient was S016 (age 90; C3L-00358). Their hyperactivated protein was **PFN1**.
+gpt-5.6-terra,krama,9,1,description+hints,completed,scored,True,116.478904010728,16,16,1,0,628362,209377,4560,,The peak Swarm-B mean thermospheric-density month was October 2024. The mean hourly OMNI2 Kp index for that month was **2.4431**.
+gpt-5.6-terra,music_brainz_20k,1,1,description+hints,completed,scored,True,31.615277329459786,6,6,3,0,80010,21495,1344,,"Apple Music made **$1,059.46 USD** from “Get Me Bodied” in Canada."
+gpt-5.6-terra,music_brainz_20k,2,1,description+hints,completed,scored,True,22.168963318690658,4,4,1,0,55730,10525,821,,Amazon Music earned the most: **$682.23 USD** in total revenue.
+gpt-5.6-terra,music_brainz_20k,3,1,description+hints,completed,scored,True,181.22486204840243,12,12,4,0,418480,126137,10284,,"“Zo gaat het leven aan je voor” by Syb van der Ploeg generated the highest total revenue: **$9,013.69 USD** across all stores and countries."
+gpt-5.6-terra,stockindex,1,1,description+hints,completed,scored,True,71.29988298937678,6,6,1,0,81533,34119,1734,,"The Shenzhen Component Index (`399001.SZ`) had the highest average intraday volatility among the Asia-region indices: **1.8341% per trading day** since 2020.
+
+Calculated as the average of `(High − Low) / Open` over 342 available trading days (2020-01-02 through 2021-06-02)."
+gpt-5.6-terra,stockindex,2,1,description+hints,completed,scored,True,32.701835714280605,6,6,1,0,82328,10684,1461,,"The NASDAQ Composite (`IXIC`) was the only North American index with more up than down days in 2018: 131 up days versus 120 down days.
+
+For comparison: NYSE Composite (`NYA`) had 125 up / 126 down; S&P/TSX Composite (`GSPTSE`) had 115 up / 135 down."
+gpt-5.6-terra,stockindex,3,1,description+hints,completed,scored,True,55.73120313882828,6,6,0,0,91872,22487,3273,,"Using $100 invested at each month-end, valued in USD, the top five are:
+
+| Rank | Index | Exchange / country | Overall return |
+|---:|---|---|---:|
+| 1 | IXIC (NASDAQ Composite) | NASDAQ, United States | 382.38% |
+| 2 | GDAXI (DAX) | Frankfurt Stock Exchange, Germany | 134.93% |
+| 3 | NSEI (NIFTY 50) | National Stock Exchange, India | 134.87% |
+| 4 | 399001.SZ (Shenzhen Component) | Shenzhen Stock Exchange, China | 134.04% |
+| 5 | TWII (Taiwan Weighted) | Taiwan Stock Exchange, Taiwan | 129.65% |
+
+I used `CloseUSD` so results are comparable across currencies, invested once per available calendar month from 2000 onward (or the index’s first available month), and valued at the final available month."
+gpt-5.6-terra,stockmarket,1,1,description+hints,completed,scored,True,25.42474859394133,4,4,1,0,56476,11368,787,,"The maximum adjusted closing price for The RealReal, Inc. (REAL) in 2020 was **$18.44**, on January 3, 2020."
+gpt-5.6-terra,stockmarket,2,1,description+hints,completed,scored,True,20.59034140408039,2,2,0,0,34647,0,974,,"31 NYSE Arca ETFs exceeded an adjusted close of $200 during 2015:
+
+BOIL, BZQ, COM, DUST, EDZ, ERX, FAZ, FXP, GFIN, GUSH, HYUP, JDST, JNUG, JPN, LABD, LABU, LBJ, MDY, PTIN, RTL, SDOW, SOXS, SSG, TECS, TZA, UVXY, VIXY, VPC, XES, XOP, YANG.
+
+Total: **31 ETFs**."
+gpt-5.6-terra,stockmarket,3,1,description+hints,completed,scored,True,35.57403019070625,4,4,0,0,61021,10566,1924,,"NASDAQ-listed financially troubled companies with non-null 2008 volume:
+
+| Company | Ticker | Avg. daily volume (2008) |
+|---|---:|---:|
+| Apex Global Brands Inc. | APEX | 23,781.42 |
+| BIO-key International, Inc. | BKYI | 10,988.14 |
+| CBAK Energy Technology, Inc. | CBAT | 86,223.32 |
+| China Ceramics Co., Ltd. | CCCL | 4,366.80 |
+| Correvio Pharma Corp. | CORV | 145,247.83 |
+| CounterPath Corporation | CPAH | 375.49 |
+| DASAN Zhone Solutions, Inc. | DZSI | 15,578.66 |
+| Future FinTech Group Inc. | FTFT | 9.85 |
+| Frontier Communications Corporation | FTR | 254,397.63 |
+| Ideanomics, Inc. | IDEX | 10.28 |
+| Ocean Power Technologies, Inc. | OPTT | 254.15 |
+| Pacific Ethanol, Inc. | PEIX | 10,706.72 |
+| Synthesis Energy Systems, Inc. | SES | 2,390.51 |
+| Sunesis Pharmaceuticals, Inc. | SNSS | 781.82 |
+| Sypris Solutions, Inc. | SYPR | 36,836.36 |
+
+I filtered NASDAQ listings (`Listing Exchange = Q`) with deficient, delinquent, or both status (`D`, `E`, or `H`), then averaged only non-null daily `Volume` records dated in 2008."
+gpt-5.6-terra,stockmarket,4,1,description+hints,completed,scored,False,35.90117449685931,5,5,2,0,80083,11434,2030,,"Ranked by number of 2017 up days, the top five were:
+
+1. HDFC Bank Limited — 146 up days, 102 down days  
+2. Albany International Corporation — 143 up days, 101 down days  
+3. Getty Realty Corporation — 143 up days, 104 down days  
+4. Mettler-Toledo International, Inc. — 143 up days, 108 down days  
+5. Pfizer, Inc. — 141 up days, 105 down days"
+gpt-5.6-terra,stockmarket,5,1,description+hints,completed,scored,True,36.2335319686681,5,5,1,0,71678,22218,1417,,"1. Synthesis Energy Systems, Inc. — 51 days  
+2. TD Holdings, Inc. — 42 days  
+3. TMSR Holding Company Limited — 40 days  
+4. Verb Technology Company, Inc. — 38 days  
+5. Sunesis Pharmaceuticals, Inc. — 32 days"
+gpt-5.6-terra,usaspending,1,1,description+hints,completed,scored,False,129.30594711191952,17,17,2,0,546571,230639,8547,,"There are **909** distinct Department of Defense contract awards with award amounts greater than $1,000,000."
+gpt-5.6-terra,usaspending,10,1,description+hints,completed,scored,True,84.71324262581766,18,18,2,0,283702,136011,5209,,141 contracts among the top 10 recipients have a superseded amount entry on record.
+gpt-5.6-terra,usaspending,2,1,description+hints,completed,scored,False,172.33127529546618,28,28,5,0,745531,435526,12666,,71 contract awards.
+gpt-5.6-terra,usaspending,3,1,description+hints,completed,scored,True,59.09289919398725,10,10,1,0,160475,62216,3338,,There are **601 distinct recipient UEIs** associated with contracts in NAICS sector 33 (Manufacturing).
+gpt-5.6-terra,usaspending,4,1,description+hints,completed,scored,True,98.19636748172343,14,14,1,0,386924,141325,6768,,Department of Homeland Security
+gpt-5.6-terra,usaspending,5,1,description+hints,completed,scored,False,86.94706803001463,15,15,1,0,441631,227994,5566,,"**11** distinct 2-digit NAICS sectors are represented: 22, 23, 31, 32, 33, 48, 51, 54, 56, 62, and 81."
+gpt-5.6-terra,usaspending,6,1,description+hints,completed,scored,False,26.928331922739744,3,3,0,0,51073,0,1278,,57 distinct recipient entities are associated with more than one UEI.
+gpt-5.6-terra,usaspending,7,1,description+hints,completed,scored,True,89.15245296619833,13,13,2,0,341308,125654,6629,,23
+gpt-5.6-terra,usaspending,8,1,description+hints,completed,scored,False,55.68369617126882,7,7,1,0,134671,24147,3897,,"**23** contract awards met the criteria: awarded by the Department of Defense to Lockheed Martin (Corp./Corporation variants) and exceeding $1,000,000."
+gpt-5.6-terra,usaspending,9,1,description+hints,completed,scored,False,147.01753393001854,23,20,2,0,678996,368289,8831,,"138 contracts have no English-language description and an award amount greater than $1,000,000."
+gpt-5.6-terra,yelp,1,1,description+hints,completed,scored,True,27.568222012370825,5,5,0,0,71437,11412,1356,,"The average rating is **3.55 out of 5**.
+
+This is across 117 reviews for the 8 businesses whose descriptions list Indianapolis, Indiana."
+gpt-5.6-terra,yelp,2,1,description+hints,completed,scored,False,39.55855209752917,5,5,0,0,73524,34090,1995,,"Missouri has the highest total number of business reviews: 2,243.
+
+The average review rating for businesses in Missouri is 3.91 out of 5 (832 rating points across 213 review records)."
+gpt-5.6-terra,yelp,3,1,description+hints,completed,scored,True,37.185023475438356,6,6,0,0,93089,22469,2511,,35 businesses. I counted distinct businesses with at least one review dated in 2018 and with either a true bike-parking attribute or at least one available business-parking option.
+gpt-5.6-terra,yelp,4,1,description+hints,completed,scored,True,35.70123190432787,6,6,0,0,90050,22658,1869,,Restaurants has the most credit-card-accepting businesses: 27. Their reviews average **3.63 / 5** (778 reviews).
+gpt-5.6-terra,yelp,5,1,description+hints,completed,scored,True,33.79988124407828,6,6,0,0,87321,23929,1756,,"Pennsylvania has the most WiFi-offering businesses: 8.
+
+Their 281 reviews have an average rating of **3.48 / 5** (979 total rating points)."
+gpt-5.6-terra,yelp,6,1,description+hints,completed,scored,True,23.075488429516554,4,4,0,0,58498,0,950,,"Coffee House Too Cafe received the highest qualifying average rating: 4.0 across 5 reviews between January 1 and June 30, 2016.
+
+It belongs to the Cafes category (also listed under Restaurants, Breakfast & Brunch, and American (New))."
+gpt-5.6-terra,yelp,7,1,description+hints,completed,scored,True,73.0905144661665,11,11,1,0,203230,75431,5977,,"The top 5 categories are:
+
+| Rank | Category | Total reviews |
+|---:|---|---:|
+| 1 | Restaurants | 58 |
+| 2 | Food | 48 |
+| 3 | American (New) | 24 |
+| 4 | Shopping | 20 |
+| 5 | Breakfast & Brunch | 19 |
+
+I filtered to the 168 users registered in 2016 and counted their reviews dated 2016 or later, matching review businesses to the category lists in business descriptions."

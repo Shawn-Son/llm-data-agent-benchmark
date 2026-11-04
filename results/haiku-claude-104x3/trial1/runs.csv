@@ -1,0 +1,1483 @@
+model,dataset,query,trial,condition,status,grading_status,passed,duration_s,tool_calls,command_calls,command_errors,api_errors,input_tokens,cached_input_tokens,output_tokens,estimated_cost_usd,answer
+claude-haiku-5-5,DEPS_DEV_V1,1,1,description+hints,completed,scored,False,52.58785438351333,12,12,0,0,101890,86587,7994,0.006775195,"The top 5 NPM packages by GitHub stars, using each package's latest release, are:
+
+| Rank | Package | Latest version | GitHub project | Stars |
+|---|---|---|---|---|
+| 1 | @dylanvann/svelte | 3.25.4 | sveltejs/svelte | 73,499 |
+| 2 | @dumc11/tailwindcss | 0.4.0 | tailwindcss/tailwindcss | 73,464 |
+| 3 | @dman777/shadow-dom-quill-temp | 1.0.0 | quilljs/quill | 42,407 |
+| 4 | @dynasty/styled-components | 3.2.1 | styled-components/styled-components | 39,660 |
+| 5 | @dothq/styled-components | 1.0.0 | styled-components/styled-components | 39,660 |
+
+Ranks 4 and 5 are tied, so both are included. The 6th place is @ec-nordbund/leaflet (1.7.1, 38,715 stars).
+
+How I got there:
+- **Latest release:** For each NPM package name, I kept only versions with `IsRelease: true` and took the one with the highest `Ordinal`. Using the latest upstream publish time instead gives the same top 5.
+- **Join:** I matched `System`, `Name`, and `Version` to `project_packageversion`, keeping only `ProjectType = GITHUB`, then matched `ProjectName` to the repo named in `project_info`.
+- **Stars:** `project_info` has no key column, so I parsed the `owner/repo` name and the star count from the `Project_Information` text. That covered 617 repositories.
+
+Two caveats. The package names look unusual (for example, @dylanvann/svelte maps to sveltejs/svelte), but the mapping comes straight from the `project_packageversion` table. The ranking covers only packages whose GitHub project appears in `project_info` with a parseable star count, so a package whose repository isn't in that table can't rank."
+claude-haiku-5-5,DEPS_DEV_V1,2,1,description+hints,completed,scored,False,303.74273100402206,7,7,1,0,59742,49498,5065,0.0043075299999999995,"The top 5 NPM MIT projects with release versions by GitHub fork count are:
+
+| Rank | Project | Forks | Stars |
+|---|---|---|---|
+| 1 | semantic-org/semantic-ui | 4,955 | not parsed |
+| 2 | react-native-community/react-native-webview | 2,962 | 6,345 |
+| 3 | sass/node-sass | 1,326 | 8,498 |
+| 4 | mbrn/material-table | 1,035 | 3,464 |
+| 5 | thejameskyle/react-loadable | 857 | 16,576 |
+
+The stars column is shown for completeness. It was not part of the ranking.
+
+**How I got there**
+- **Release packages:** I kept NPM rows in `packageinfo` whose `VersionInfo` has `""IsRelease"": true`, giving 166,288 distinct (Name, Version) pairs.
+- **Package-to-project link:** I joined those pairs to `project_packageversion` on Name and Version.
+- **Project record:** I took the repo from the `""The project <owner/repo> ...""` prefix of `project_info.Project_Information` and matched it to `ProjectName`, ignoring case.
+- **MIT filter:** I kept projects whose `project_info.Licenses` contains ""MIT"".
+- **Fork count:** I parsed the number before ""forks"" in `Project_Information`.
+
+This leaves 357 MIT projects with a release package. I ranked them by fork count and kept the top 5.
+
+**Caveats**
+- 111 of the 652 `project_info` descriptions did not follow the ""The project …"" pattern, so I could not parse a repo name from them. If any of those are MIT-licensed NPM projects with high fork counts, they are missing from the ranking.
+- The `semantic-ui` fork count of 4,955 is what the database says, but I did not check it against GitHub."
+claude-haiku-5-5,GITHUB_REPOS,1,1,description+hints,completed,scored,False,70.06328031420708,8,8,0,0,74315,60058,5177,0.004970755,"Among non-Python repositories, about **16.8%** of their README.md files include copyright information (17 of 101).
+
+**How I got there**
+
+- **Non-Python repos:** I treated a repo as non-Python if its `language_description` does not mention Python. That gives 2.77M repos in the `languages` table, which I joined to the artifacts data by repo name.
+- **README files:** I used `contents` rows where `sample_path = 'README.md'` (exact case) in those repos. This gave 101 files across these repos.
+- **Copyright:** a file counts if its content contains ""copyright"" (case-insensitive) or the © symbol. Fifteen match the word ""copyright"" and two match only ©.
+
+**Sensitivity to choices**
+
+| Definition | Files | With copyright | Proportion |
+|---|---|---|---|
+| Exact `README.md`, includes repos with no language info (main answer) | 101 | 17 | 16.8% |
+| Exact `README.md`, excludes repos with no language info | 95 | 17 | 17.9% |
+| Case-insensitive `readme.md` | 105 | 18 | 17.1% |
+
+The answer is roughly 17–18% under any reasonable variant. I used the main definition because repos with no language information still don't declare Python."
+claude-haiku-5-5,GITHUB_REPOS,2,1,description+hints,completed,scored,True,41.655909274704754,9,9,0,0,127972,109893,5550,0.006133255,"The repository is **SwiftAndroid/swift**, and the file is **`validation-test/compiler_crashers_fixed/27485-swift-bracestmt-create.swift`** (blob id `71a17ce92451858f3eb01aa8082551e48bc5550d`, mode 33188, ref `refs/heads/master`).
+
+This answer is weaker than the query implies, for three reasons:
+
+- **Copy counts come from the description text.** The `files` table has only one row per id for the Swift candidates, so the ""copies"" figure is the number parsed from `repo_data_description`. That gives 23 copies for this file.
+- **The overall top file has no repo.** `ContactTableViewCell.swift` (`Demos/Demo 4/...`, id `6f4cdb70…`) has 38 copies by description, but its id does not appear in `files`, so I can't attach a repository to it. Among Swift non-binary files that do join to `files`, this one has the most copies. The only other joinable one is `practicalswift/swift-compiler-crashes` with 15 copies.
+- **Swift is not the primary language of SwiftAndroid/swift.** Its `languages` entry lists C++ (18.9 MB) first and Swift (12.5 MB) second. It does contain Swift code, which is what the query asks for, but it is not a Swift-primary repo."
+claude-haiku-5-5,GITHUB_REPOS,3,1,description+hints,completed,scored,True,264.3550750166178,15,15,1,0,205672,184864,11199,0.010048290000000001,"**Answer: 0**
+
+No commit message in the artifacts database meets all the conditions. The commits table holds only 6 repositories, and none of them is an Apache-2.0 repository whose primary language is Shell.
+
+How I got there:
+
+1. **Primary language:** The `languages` table stores free-text descriptions such as ""The majority of the code is in C (50,032 bytes), followed by Shell (8,539 bytes)."" I parsed the byte counts for each repo and took the language with the most bytes as its primary language. That gave 13,966 repos with Shell as primary and an `apache-2.0` license.
+2. **Commits:** The `commits` table has 17,976 rows across only 6 repos: tensorflow/tensorflow, twbs/bootstrap, Microsoft/vscode, apple/swift, torvalds/linux and facebook/react. Only tensorflow/tensorflow and apple/swift are Apache-2.0, and both have C++ as their primary language. So zero commits qualify.
+
+Sensitivity check: if ""uses Shell"" means Shell appears anywhere in the repo's language list, tensorflow and apple/swift both qualify. Their commits passing the message filters total 1,077 (963 from swift, 114 from tensorflow). I did not use that reading because the question asks about the repos' language, which most naturally means the primary one.
+
+Other choices that did not change the result:
+- The ""begins with"" check ignores case. A case-sensitive check also gives 0.
+- Excluding empty messages also gives 0."
+claude-haiku-5-5,GITHUB_REPOS,4,1,description+hints,completed,scored,True,27.016716664656997,7,7,1,0,48153,37330,3069,0.003260275,"The top five non-Python repositories by commit count are:
+
+1. apple/swift (1,051 commits; main language C++)
+2. twbs/bootstrap (340 commits; JavaScript)
+3. Microsoft/vscode (190 commits; TypeScript)
+4. facebook/react (178 commits; JavaScript)
+5. tensorflow/tensorflow (156 commits; C++, ahead of Python's 42.8 MB)
+
+I determined each repo's main language by taking the entry with the most bytes in `languages.language_description`. torvalds/linux has the most commits (16,061), but it has no row in the `languages` table, so I couldn't confirm its main language and left it out. If you want it counted as C, it would rank first."
+claude-haiku-5-5,PANCANCER_ATLAS,1,1,description+hints,completed,scored,False,35.050389534793794,10,10,0,0,119409,98342,5997,0.006614795000000001,"For LGG patients, the average log10(normalized_count + 1) of IGF2 expression by histology type is:
+
+| Histological type | Mean log10(IGF2 + 1) | Patients |
+|---|---|---|
+| Astrocytoma | 2.5713 (2.571298) | 10 |
+| Oligoastrocytoma | 2.7136 (2.713571) | 5 |
+| Oligodendroglioma | 2.6825 (2.682458) | 8 |
+
+Across all 23 patients the overall mean is 2.6409.
+
+Each of the 23 patients has one IGF2 sample, so using all samples or only primary tumor (TP) samples gives identical results.
+
+Method:
+- **Cohort:** The clinical table has no cancer-type column, so I took LGG to mean the 513 patients whose `Patient_description` names ""Brain lower grade glioma"". I pulled each TCGA barcode from that text with a regex and matched it to `ParticipantBarcode`.
+- **Filters:** I kept only patients with a non-null IGF2 `normalized_count` and a histology annotation not in square brackets. No LGG rows had bracketed values, so that filter removed nothing.
+- **Transformation:** I computed log10(normalized_count + 1) per sample, then averaged within each histology type.
+
+The 23 matched patients are a small slice of the 513 LGG patients, because most LGG patients have no IGF2 expression row in the RNA-seq table."
+claude-haiku-5-5,PANCANCER_ATLAS,2,1,description+hints,completed,scored,True,30.848110943101346,9,9,0,0,92275,78721,5620,0.00529091,"Among living BRCA patients, the top three histological types by CDH1 mutation rate are:
+
+1. **Infiltrating Lobular Carcinoma: 50.56%** (90 of 178 patients)
+2. **Mixed Histology (please specify): 16.67%** (4 of 24)
+3. **Other, specify: 8.33%** (3 of 36)
+
+The next group is Infiltrating Ductal Carcinoma at 2.09% (14 of 671), so the third place is clear.
+
+**Method**
+- **Cohort:** 1,087 BRCA (""Breast invasive carcinoma"") patients from the clinical table. I kept the 936 whose description states vital status ""Alive""; the other 151 are ""Dead"".
+- **Linking:** I pulled the `TCGA-XX-XXXX` barcode from `Patient_description` and matched it to `ParticipantBarcode` in `Mutation_Data`.
+- **Mutation call:** A patient counts as mutated if they have any CDH1 record in `Mutation_Data`, with no filter on `FILTER` (the question doesn't specify one).
+- **Percentage:** mutated patients ÷ all living patients in that histological type × 100.
+
+**Caveat:** If you restrict to `FILTER = 'PASS'` calls only, the lobular rate drops to 41.6% (74 of 178). Mixed Histology falls to 12.5% and Other, specify stays at 8.3%, so the ranking is unchanged. The Mixed Histology and Other groups are small (24 and 36 patients), so their percentages are unstable."
+claude-haiku-5-5,PANCANCER_ATLAS,3,1,description+hints,completed,scored,True,160.889497959055,10,10,2,0,104755,87360,7935,0.007014925,"The chi-square statistic is **χ² ≈ 305.12** with df = 4 (p ≈ 8.5 × 10⁻⁶⁵), so histological type and CDH1 mutation status are strongly associated in this cohort.
+
+**Method**
+- **Cohort:** 1,075 female patients with Breast invasive carcinoma in `clinical_info`. The barcode, gender, and cancer type were parsed from the free-text `Patient_description` field, which embeds them. Each barcode appears once, and there were no conflicting entries.
+- **Histology:** one patient with a NULL `histological_type` was dropped.
+- **Mutation:** a patient counts as CDH1-mutated if they have at least one `Hugo_Symbol = 'CDH1'` row with `FILTER = 'PASS'`, which I took as the reliable calls.
+- **Filter:** histology categories with a total of 10 or fewer patients were excluded. The mutation columns (99 and 960) were both well above 10, so only rows were affected.
+
+**Contingency table (patients)**
+
+| Histological type | CDH1 mutated | CDH1 not mutated | Total |
+|---|---|---|---|
+| Infiltrating Ductal Carcinoma | 9 | 757 | 766 |
+| Infiltrating Lobular Carcinoma | 83 | 118 | 201 |
+| Other specify | 3 | 42 | 45 |
+| Mixed Histology (please specify) | 4 | 26 | 30 |
+| Mucinous Carcinoma | 0 | 17 | 17 |
+
+Excluded for total ≤ 10: Metaplastic Carcinoma (8), Medullary Carcinoma (6), Infiltrating Carcinoma NOS (1).
+
+Column totals are 99 mutated and 960 not mutated, with grand total N = 1,059.
+
+**Result**
+χ² = Σ (Oij − Eij)² / Eij = **305.12**, df = (5 − 1)(2 − 1) = 4.
+
+The association is driven mostly by Infiltrating Lobular Carcinoma, which has a CDH1 mutation rate of about 41% (83 of 201), against about 1% for Infiltrating Ductal Carcinoma (9 of 766). That fits CDH1's known role in lobular breast cancer.
+
+**Assumptions to check**
+- ""Other specify"" was kept as a category. Dropping it would change the statistic.
+- The p-value was computed with a hand-written chi-square survival function, since scipy isn't installed.
+
+Scripts are in the work directory: `build.py` (cohort and mutation extraction) and `chi.py` (table and statistic)."
+claude-haiku-5-5,PATENTS,1,1,description+hints,completed,scored,True,217.29532775934786,12,12,3,0,182852,162992,8002,0.00811272,"Seventy-two CPC level-5 groups have their highest exponential moving average (α = 0.2) in 2022:
+
+A22B, A23J, A23P, A24D, A24F, A41G, A47F, A61G, A61H, A61P, A62D, A63H, B04B, B07B, B08B, B09C, B21J, B22F, B24B, B25B, B25D, B27C, B27M, B60D, B60L, B60P, B61H, B63C, B63G, B65G, B66F, C01D, C01G, C21B, C21C, C22C, D21B, E01H, E02B, E02D, E03B, E04B, E04G, E21D, E21F, F02K, F04F, F16M, F25J, F26B, G01H, G01L, G01S, G05D, G06N, G06Q, G06T, G06V, G08G, G09F, G10L, G16B, G16C, G16H, G21F, H01M, H02B, H02G, H02J, H03H, H04K, H05F
+
+Each code was checked against the `cpc_definition` table: all 72 exist at level 5 with status ""published"".
+
+How I got there:
+- **Level 5 mapping:** In `cpc_definition`, level 5 is the 4-character subclass (e.g., `H01M`), so each patent's primary code was truncated to its first four characters.
+- **Filings:** I counted each patent once per subclass, using only CPC entries with `first = true`, and grouped by the year parsed from `filing_date`.
+- **EMA:** For each subclass I ran from its first filing year to its last, with zero-filing years included, using EMA = 0.2 × count + 0.8 × previous EMA. The best year is the one with the highest EMA, taking the earliest on ties.
+
+Caveats:
+- 13,224 patents had no parseable filing year and were excluded.
+- I used `filing_date` for ""filings""; the hints also mention publication and grant dates, so using one of those would change the result."
+claude-haiku-5-5,PATENTS,2,1,description+hints,completed,scored,True,244.4847951522097,14,14,3,0,196007,174118,14079,0.011516005,"**Result: Germany, CPC level 4 (class), patents granted July–December 2019**
+
+Only 34 German patents fall in this window. Two classes have a peak smoothed value above 1; the other 21 peak at exactly 1.0, the value they reach in their single filing year.
+
+| Rank | CPC | Full title | Peak EMA | Best year |
+|---|---|---|---|---|
+| 1 | A61 | MEDICAL OR VETERINARY SCIENCE; HYGIENE | 2.00 | 2016 |
+| 2 | H04 | ELECTRIC COMMUNICATION TECHNIQUE | 2.00 | 2015 |
+| 3 | A21 | BAKING; EDIBLE DOUGHS | 1.00 | 2015 |
+| 3 | B23 | MACHINE TOOLS; METAL-WORKING NOT OTHERWISE PROVIDED FOR | 1.00 | 2015 |
+| 3 | B29 | WORKING OF PLASTICS; WORKING OF SUBSTANCES IN A PLASTIC STATE IN GENERAL | 1.00 | 2007 |
+| 3 | B41 | PRINTING; LINING MACHINES; TYPEWRITERS; STAMPS | 1.00 | 2007 |
+| 3 | B60 | VEHICLES IN GENERAL | 1.00 | 2009 |
+| 3 | B62 | LAND VEHICLES FOR TRAVELLING OTHERWISE THAN ON RAILS | 1.00 | 2010 |
+| 3 | B63 | SHIPS OR OTHER WATERBORNE VESSELS; RELATED EQUIPMENT | 1.00 | 2014 |
+| 3 | C09 | DYES; PAINTS; POLISHES; NATURAL RESINS; ADHESIVES; COMPOSITIONS NOT OTHERWISE PROVIDED FOR; APPLICATIONS OF MATERIALS NOT OTHERWISE PROVIDED FOR | 1.00 | 2015 |
+| 3 | E02 | HYDRAULIC ENGINEERING; FOUNDATIONS; SOIL SHIFTING | 1.00 | 2012 |
+| 3 | E05 | LOCKS; KEYS; WINDOW OR DOOR FITTINGS; SAFES | 1.00 | 2012 |
+| 3 | F02 | COMBUSTION ENGINES; HOT-GAS OR COMBUSTION-PRODUCT ENGINE PLANTS | 1.00 | 2010 |
+| 3 | F16 | ENGINEERING ELEMENTS AND UNITS; GENERAL MEASURES FOR PRODUCING AND MAINTAINING EFFECTIVE FUNCTIONING OF MACHINES OR INSTALLATIONS; THERMAL INSULATION IN GENERAL | 1.00 | 2009 |
+| 3 | F23 | COMBUSTION APPARATUS; COMBUSTION PROCESSES | 1.00 | 2018 |
+| 3 | F24 | HEATING; RANGES; VENTILATING | 1.00 | 2018 |
+| 3 | F41 | WEAPONS | 1.00 | 2012 |
+| 3 | G01 | MEASURING; TESTING | 1.00 | 2008 |
+| 3 | G02 | OPTICS | 1.00 | 2016 |
+| 3 | G08 | SIGNALLING | 1.00 | 2017 |
+| 3 | H01 | ELECTRIC ELEMENTS | 1.00 | 2008 |
+| 3 | H02 | GENERATION; CONVERSION OR DISTRIBUTION OF ELECTRIC POWER | 1.00 | 2009 |
+| 3 | H03 | ELECTRONIC CIRCUITRY | 1.00 | 2015 |
+
+The CPC codes are the level-4 group symbols (for example A61, H04). The answer is the top two classes, A61 and H04, which are the only ones with an EMA above 1.
+
+**Method**
+- **Germany:** a patent counts as German when its publication number starts with `DE-`.
+- **Grant window:** grant dates were parsed from their varied text formats, keeping July–December 2019.
+- **Primary codes:** each patent's `first = true` CPC codes were reduced to their 3-character class and counted once per class.
+- **Time series:** all patents were granted in 2019, so the yearly series uses filing year. Years without filings are zero-filled from each class's first to last filing year.
+- **EMA:** initialised at the first year's count, then `EMA_t = 0.1 × count_t + 0.9 × EMA_{t-1}`. The best year is the peak year, earliest on ties.
+- **Titles:** the `titleFull` values come from the level-4 rows of `cpc_definition`.
+
+**Caveats**
+- ""Level 4"" was taken from the `level` field, where level-4 symbols are 3-character classes. If the intended level was the deeper group or subclass, the grouping would change.
+- With only 34 patents, most classes have a single filing, so the EMA is 1.0 for them and the ranking below the top two is essentially a tie."
+claude-haiku-5-5,PATENTS,3,1,description+hints,completed,scored,False,171.5439318008721,13,13,3,0,177191,158978,10915,0.009323155,"The query returns four citing patents from three assignees, plus one individual holder. Each subclass has a single official title in the CPC dump.
+
+| Citing assignee | Primary CPC subclass | Full subclass title |
+|---|---|---|
+| CALIFORNIA INST OF TECHN | G01V | GEOPHYSICS; GRAVITATIONAL MEASUREMENTS; DETECTING MASSES OR OBJECTS; TAGS |
+| BLOOM ENERGY CORP | H01M | PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY |
+| CRYSTAL IS INC | C30B | SINGLE-CRYSTAL GROWTH; UNIDIRECTIONAL SOLIDIFICATION OF EUTECTIC MATERIAL OR UNIDIRECTIONAL DEMIXING OF EUTECTOID MATERIAL; REFINING BY ZONE-MELTING OF MATERIAL; PRODUCTION OF A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; SINGLE CRYSTALS OR HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; AFTER-TREATMENT OF SINGLE CRYSTALS OR A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; APPARATUS THEREFOR |
+| SCHOWALTER LEO J (individual holder) | H01L | SEMICONDUCTOR DEVICES NOT COVERED BY CLASS H10 |
+
+**Details**
+
+- **CALIFORNIA INST OF TECHN** cites US-6237292-B1. Its primary CPC is G01V1/01.
+- **BLOOM ENERGY CORP** cites US-6767662-B2. Its primary CPCs are H01M4/9066 and H01M8/2425.
+- **CRYSTAL IS INC** cites US-2010025717-A1. Its primary CPCs are C30B11/003, C30B25/10 and C30B25/16.
+- **SCHOWALTER LEO J** cites US-2010025717-A1. Its primary CPC is H01L21/0262. This is an individual, not a company, so you may not want it counted as an assignee.
+
+**Method**
+
+- I identified the 169 UNIV CALIFORNIA patents from their `Patents_info` text. Then I matched their publication numbers against the `publication_number` entries in every patent's `citation` list. All citation JSON parsed, so no matches were skipped.
+- The assignee names come from the `Patents_info` sentence for each citing patent.
+- I took the subclass from the `first = true` CPC entries and mapped it to its four-character symbol.
+- The titles come from the `titleFull` field of the CPC dump. The live Postgres socket wasn't available, so I read the bundled `patent_CPCDefinition.sql` file directly."
+claude-haiku-5-5,agnews,1,1,description+hints,completed,scored,True,47.91282824892551,7,7,1,0,61346,45464,2809,0.0038439900000000003,"The sports article with the longest description is **""The Rundown""** (article_id 69413). Its description is 841 characters long.
+
+The description is a college football preview (""4 Miami at N.C. State … ESPN … the Wolfpack … ACC""), which makes it a Sports article. I checked the 39 longer descriptions above it, and none were sports articles. The next-longest sports articles, ""Cavaliers, Hokies Play Host"" (773 characters) and ""Area College Football Capsules"" (761 characters), are shorter.
+
+I read the articles directly from the MongoDB instance and did not join against the SQLite metadata, since the category comes from the text itself."
+claude-haiku-5-5,agnews,2,1,description+hints,completed,scored,False,153.66704691201448,8,8,3,0,60439,43513,6670,0.0058854300000000005,"**Answer: 15 of Amy Jones's 111 articles are Science/Technology, a fraction of 15/111 ≈ 0.135 (about 13.5%).**
+
+How I got there:
+- **Author lookup:** The `authors` table has one ""Amy Jones"" (author_id 218). She has 111 rows in `article_metadata`.
+- **Text lookup:** I fetched the title and description for all 111 article_ids from MongoDB. All 111 matched.
+- **Classification:** I read each title and description and assigned one of the four categories by hand. There is no automated labeling, so the count depends on my judgment.
+
+The 15 Science/Technology articles are:
+- article 192: GameBoy mini-games prize
+- article 2844: Students win national science competition
+- article 2987: Teenager's wave-energy science award
+- article 17491 (Iraq): Iraqi physicist rebuilding a science program
+- article 21238 (Genesis probe): Space probe crash
+- article 24495 (shuttle repair): Shuttle repair cost
+- article 25960: Microsoft settles with UK phone maker
+- article 35882: EMC e-mail storage product
+- article 46531: Ex-astronaut on space tourism
+- article 92992: Research on crowd fear behavior
+- article 105804: HP virus-throttling software
+- article 106908: XM satellite radio on cell phones
+- article 108586: eBay ""Want It Now"" feature
+- article 112770: PayPal and iTunes link-up
+- article 126655: Internet-based satellite spy technology
+
+Several borderline articles were placed in Business because they were about financial results or corporate actions rather than technology: Intel's revenue cut, Applied Micro Circuits layoffs, Texas Instruments profits, the Vodafone ""TechBrief,"" and the Chinese purchase of IBM's PC unit. If a tech-company earnings story should count as Science/Technology, the fraction would be higher, up to about 19/111 (≈17%) if all of those were included."
+claude-haiku-5-5,agnews,3,1,description+hints,completed,scored,False,53.80648250877857,11,11,1,0,90478,78806,7791,0.00614191,"The average is about **339 business articles per year** (3,724 ÷ 11 years, roughly 338.5), but this is an estimate, not an exact figure.
+
+- **Data used:** I took the 14,860 articles with region ""Europe"" and publication dates in 2010–2020 from the SQLite metadata, then joined them to the MongoDB articles by `article_id`. All of them matched.
+- **Categorization:** The database has no category field, so I classified each article's title and description with a keyword-scoring script. It assigns the category with the most matching keywords and defaults to World when nothing matches. I checked a sample by eye and it misclassifies some articles, so the Business count is probably off by some amount in either direction.
+- **Per-year Business counts (2010–2020):** 318, 339, 346, 341, 346, 335, 341, 352, 339, 327, 340.
+
+The exact answer requires a proper classifier or manual labels, which I did not run. The helper script is at `tmp/classify.py` and the exported articles are at `tmp/eu_articles.json`, if you want to refine the keywords."
+claude-haiku-5-5,agnews,4,1,description+hints,completed,scored,True,165.43821514584124,11,11,1,0,88115,76171,7297,0.00590256,"**Best estimate: North America, but with low confidence.** The regional counts are too close to call reliably with the tools available here.
+
+The data needed a category label that isn't stored in either database, so I had to infer it from each article's title and description.
+
+- **Data:** 6,696 articles have a 2015 publication date. Each region's count comes from SQLite and the article text from MongoDB.
+- **Keyword classifier:** South America had the most World articles (499), with Africa and North America tied at 487.
+- **Naive Bayes classifier (self-trained from the keyword labels):** North America had the most (411), ahead of Asia (400), Africa (399), South America (397) and Europe (380).
+- **Articles both methods label World:** North America leads (399), ahead of Asia (378), Africa (376), South America (374) and Europe (361).
+
+Only the last comparison favors North America, and its margin over Asia is about 20 articles. The two classifiers disagree on the winner, and a spot-check of the keyword labels found errors, so the ranking is not reliable. Confirming the answer would need either the original category labels or a manual review of the 2015 World candidates.
+
+Working files are in the current directory: `y2015.json` (2015 articles joined with regions), `classified.json` (keyword labels), and `nb.json` (Naive Bayes labels)."
+claude-haiku-5-5,bookreview,1,1,description+hints,completed,scored,True,30.052802877500653,10,10,2,0,80894,69785,5360,0.004765925000000001,"The highest average rating is the **2020s**, at about 4.66.
+
+I averaged every review rating by the decade the book was published, keeping only decades with at least 10 distinct rated books:
+
+| Decade | Distinct rated books | Reviews | Avg rating |
+|---|---|---|---|
+| 1980s | 11 | 72 | 4.21 |
+| 1990s | 18 | 69 | 3.84 |
+| 2000s | 46 | 285 | 4.27 |
+| 2010s | 88 | 1,257 | 4.61 |
+| 2020s | 21 | 110 | 4.66 |
+
+**Answer: 2020s**
+
+Two things affect how much weight to give this:
+- **Publication year:** `books_info` has no year column, so I took it from the first ""Month D, YYYY"" date in `details` (falling back to `subtitle`, then a bare 4-digit year). Ten books had no extractable year and were excluded.
+- **Averaging method:** If you average per book instead of per review, the 1980s come out on top (4.55 vs 4.53 for the 2020s). The question's wording points to the per-review average, which gives the 2020s.
+
+The join was clean: every review's `purchase_id` (`purchaseid_N`) matched a `book_id` (`bookid_N`). The working script is `q_decade.py` in the work directory."
+claude-haiku-5-5,bookreview,2,1,description+hints,completed,scored,True,28.985683230683208,10,10,1,0,74832,60835,4965,0.0048398749999999996,"Fifteen books match. Each is in the Literature & Fiction category, its details say it is written or available in English, and its review average is exactly 5.0.
+
+| # | book_id | Title | Reviews (all 5 stars) |
+|---|---|---|---|
+| 1 | bookid_9 | Reunion: The Children of Lauderdale Park | 3 |
+| 2 | bookid_38 | The Prophet: With Original 1923 Illustrations by the Author | 4 |
+| 3 | bookid_39 | The Melancholy Strumpet Master | 2 |
+| 4 | bookid_74 | Child Of The King A Journey of Hope Book 1: Earthly Story With A Heavenly Message | 8 |
+| 5 | bookid_82 | Fire Cracker | 2 |
+| 6 | bookid_84 | Local Honey | 2 |
+| 7 | bookid_98 | Hollywood Confessions: Hollywood Headlines Book #3 (Hollywood Headlines Mysteries) | 1 |
+| 8 | bookid_101 | Knowing When To Die: Uncollected Stories | 2 |
+| 9 | bookid_122 | Childe Harold of Dysna | 1 |
+| 10 | bookid_144 | Forged in Blood (Freehold) | 6 |
+| 11 | bookid_171 | Exits, Desires, & Slow Fires | 3 |
+| 12 | bookid_177 | Kennebago Moments | 1 |
+| 13 | bookid_180 | The Sludge | 1 |
+| 14 | bookid_182 | Liza of Lambeth | 1 |
+| 15 | bookid_195 | Something That Feels Like Truth (Switchgrass Books) | 2 |
+
+Method:
+- **Join:** I matched `books_info.book_id` to `review.purchase_id` on the numeric suffix (for example, `bookid_9` with `purchaseid_9`). All 200 books matched a set of reviews.
+- **Average:** the mean of all review ratings for each book, compared exactly to 5.0.
+- **Language:** I read it from the free-text `details` field, since there is no language column. Every book in the list says it is written in or available in English.
+
+Several of these averages come from only one to three reviews, so a 5.0 average is a small-sample result."
+claude-haiku-5-5,bookreview,3,1,description+hints,completed,scored,True,22.034823103807867,6,6,0,0,39599,31193,3434,0.00307933,"Fourteen Children's Books have an average review rating of at least 4.5 across reviews dated 2020 or later.
+
+| Book | Avg rating | Reviews (2020+) |
+|---|---|---|
+| Monstrous Stories #4: The Day the Mice Stood Still | 5.00 | 1 |
+| Benny Goes To The Moon: The great new book from Top Children's entertainer Gerry Ogilvie (1) | 5.00 | 1 |
+| Pokémon: Sun & Moon, Vol. 8 (8) | 5.00 | 1 |
+| Behind the Wheel (Choose Your Own Adventure #35) (Paperback/Revised) | 5.00 | 1 |
+| Around the World Mazes | 5.00 | 1 |
+| Favorite Thorton W. Burgess Stories: 6 Books | 5.00 | 3 |
+| LunaLu the Llamacorn | 5.00 | 3 |
+| Egypt (Enchantment of the World) | 5.00 | 1 |
+| The Library Book | 5.00 | 3 |
+| The Old Man and the Pirate Princess | 5.00 | 1 |
+| Cheer Up, Ben Franklin! (Young Historians) | 5.00 | 1 |
+| Trouble in the CTC!: The Terra Prime Adventures Book 2 | 4.90 | 10 |
+| Clark the Shark: Tooth Trouble, No. 1 | 4.75 | 4 |
+| Cleo Porter and the Body Electric | 4.71 | 24 |
+
+Several of these rest on only one or three reviews, so the averages are less stable than the 24- and 10-review books.
+
+How I got there:
+- **Category:** I took books whose `categories` list contains ""Children's Books"" exactly. That gave 25 books.
+- **Join:** Review `purchase_id` values (`purchaseid_N`) map one-to-one onto `book_id` values (`bookid_N`). All 200 distinct review IDs matched a book.
+- **Date filter:** I kept reviews with `review_time` from 2020-01-01 onward. Of the 25 Children's Books, 17 have reviews in that window.
+- **Aggregation:** I averaged the review `rating` per book and kept those at 4.5 or higher."
+claude-haiku-5-5,civic_unstructured,1,1,description+hints,completed,scored,True,123.41083628125489,23,23,1,0,813770,738944,21715,0.02759894,"Nine projects meet all three conditions. Each one's most recent agenda on or before 2023-01-01 lists it as Capital under Design, and each has more than $500,000 granted by that date.
+
+| Project (canonical name) | Latest agenda | Accumulated funding through 2023-01-01 |
+|---|---|---|
+| Marie Canyon Green Streets | rid_0007 (2022-11-10) | $6,997,000 |
+| PCH Median Improvements Project | rid_0007 | $2,042,000 |
+| PCH Signal Synchronization System Improvements Project | rid_0007 | $2,585,000 |
+| PCH at Trancas Canyon Road Right Turn Lane | rid_0007 | $6,994,000 |
+| Civic Center Water Treatment Facility Phase 2 | rid_0007 | $4,239,000 |
+| Permanent Skate Park | rid_0007 | $694,000 |
+| Michael Landon Center Roof Replacement Project | rid_0007 | $6,753,000 |
+| Westward Beach Road Repair Project (incl. Westward Beach Road Improvements Project) | rid_0007 | $1,781,000 |
+| 2022 Annual Street Maintenance | rid_0007 | $2,762,000 |
+
+How I got there:
+
+- **Report dates:** I checked each agenda's header date against its title line and the dates in its body, and they agree. Three agendas are after 2023-01-01 (rid_0001, rid_0004, rid_0014) and were excluded, which leaves 16 reports.
+- **Type and status:** These come from the section headings in each agenda (for example, ""Capital Improvement Projects (Design)""). I took each project's latest in-scope appearance by meeting date, not by report number, since the numbers are out of order.
+- **Entity resolution:** The two Westward Beach Road names are one project. The Improvements project was withdrawn in December 2021 and its scope was reissued as the Repair project. The result holds whether or not they are merged, since the Repair project is the latest appearance either way.
+- **Funding:** Funding names were grouped by project and summed for grants dated on or before 2023-01-01. The ""discussion"" and ""recommended_action"" entries were treated as noise.
+
+Two cases where the answer depends on interpretation:
+
+- **Permanent Skate Park** is the closest to the threshold at $694,000. It stays above $500,000 because the $1.131M total includes grants made after the cutoff, which I excluded.
+- **2022 Annual Street Maintenance** is treated as its own project. Even if it were merged with the earlier ""2021"" and ""unlabeled"" annual maintenance funding, it would still qualify.
+
+I excluded projects whose latest in-scope status is different, such as Bluffs Park Shade Structure (Construction), Civic Center Stormwater Diversion Structure (Completed), and Malibu Park Drainage Improvements (Construction)."
+claude-haiku-5-5,civic_unstructured,10,1,description+hints,completed,scored,True,253.40601687133312,29,29,5,0,2280599,2123067,56018,0.21091817999999998,"**Answer: 0.69**
+
+- Completed total: $13,805,000
+- Not-started total: $19,903,000
+- Ratio: 13,805,000 / 19,903,000 = 0.6936, which rounds to **0.69**
+
+**How I got there**
+
+- I decoded the 19 agendas from the BSON dump and parsed each one's section headers (Design, Construction, Completed, Not Started) and project titles.
+- I checked each agenda's stated meeting date against its own text. One agenda, rid_0010, is headed October 27, 2021, but its text refers to a January 20, 2022 meeting as already held and a January 24, 2022 council date as upcoming, so I dated it January 2022. Its placement does not change the result as long as it falls in January or February 2022.
+- Funding rows were kept if `grant_time` fell between 2021-09-01 and 2022-09-01 inclusive (172 rows). `discussion` and `recommended_action` are treated as noise and excluded.
+- For each funding row, a project's status is the section it appears under in the latest agenda dated on or before the grant date. Rows with no agenda mention before the grant date are excluded. Design and Construction rows count toward neither total.
+- I grouped renamed projects together (for example, the `_fema`, `_caloes` and `_caljpia` suffix variants, and the 2021/2022 annual street maintenance series), using name similarity.
+
+**Judgment calls that affect the number**
+
+- **Guardrail projects kept separate.** rid_0010 lists ""Guardrail Replacement Citywide (FEMA Project)"" under Design and ""Citywide Guardrail Replacement"" under Completed. The hint says two names in the same agenda are distinct projects, so I kept them apart. Merging them would give 0.77 instead.
+- **2021 and 2022 annual street maintenance treated as one project.** Splitting them would drop about $2.7M from completed and give roughly 0.56."
+claude-haiku-5-5,civic_unstructured,2,1,description+hints,completed,scored,False,89.90122313983738,17,17,3,0,339122,292149,18814,0.018199165000000003,"**Answer: the Guardrail Replacement Citywide project (Woolsey Fire FEMA guardrail work), with accumulated funding of $33,417,000.**
+
+How I got there:
+
+- **Reports dated on or before 2023-01-01:** I excluded rid_0001 (Sept 2023), rid_0004 (June 2023), and rid_0014 (March 2023). The other 16 agendas are dated 2021–2022, and their in-text dates agree.
+- **Status:** Each project's status comes from the section heading it sits under. For each project I took its most recent report on or before the cutoff. Corral Canyon Road Bridge Repairs is listed as ""Design"" in the latest report (rid_0019), so it is out.
+- **Entity resolution:** The guardrail project appears in the funding table as `guardrail_replacement_citywide`, `guardrail_replacement_citywide_fema_project`, and `guardrail_replacement_citywide_fema_caloes_project`. These are the same project under different names. Its last agenda mention (rid_0015, Dec 2021) lists it as ""Completed"". All 24 grants for these names are dated on or before 2021-11-23, so all count toward the total.
+- **Runners-up:** Corral Canyon Culvert Repairs about $13.46M, Birdview Avenue Improvements about $12.68M, Storm Drain Trash Screens $11.49M. Civic Center Way, Civic Center Stormwater Diversion, Malibu Park Storm Drain Repairs, the 2021 Annual Street Maintenance, and Dume Drive speed humps are all lower.
+
+One judgment call: the agendas list ""Citywide Guardrail Replacement"" and ""Guardrail Replacement Citywide (FEMA Project)"" separately in the same agenda (rid_0010), so I treated them as distinct projects. That keeps `citywide_guardrail_replacement` ($2,295,000) out of the total. If it were merged in, the total would be $35,712,000, but the project would still be the same."
+claude-haiku-5-5,civic_unstructured,3,1,description+hints,completed,scored,False,323.77834356576204,21,21,3,0,814140,720121,41212,0.039558435,"**Answer: Municipal Fund and Public-Private Partnership.**
+
+| Funding source | Projects funded on/before 2022-08-01 | Completed | Share |
+|---|---|---|---|
+| Municipal Fund | 26 | 8 | 30.8% |
+| Public-Private Partnership | 31 | 8 | 25.8% |
+
+County Grant is closest to the cutoff without qualifying, at 7 of 29 (24.1%). The other five sources are between 20.7% and 22.6%.
+
+**How I got there**
+
+- **Completed projects:** A project counts as completed if its most recent agenda on or before 2022-08-01 lists it under a ""Completed"" heading. Nine projects meet this:
+  - Civic Center Stormwater Diversion Structure
+  - Civic Center Way Improvements
+  - 2021 Annual Street Maintenance
+  - Malibu Park Drainage Improvements
+  - Guardrail Replacement Citywide
+  - Corral Canyon Culvert Repairs
+  - Birdview Avenue Improvements
+  - Storm Drain Trash Screens
+  - Dume Drive and Fernhill Drive Speed Humps
+- **Entity resolution:** The 99 funding names collapse to about 70 projects. Suffix variants such as `_fema_project` and `_caloes_project` are merged, and ""discussion"" and ""recommended_action"" are treated as noise.
+- **Dates:** Agenda dates were checked against the text. The only check that mattered was rid_0011, which is dated July 27, 2022 and refers to an August 4 deadline in the future tense, so it stays in scope. It does not change any completion status.
+
+**Judgment calls that affect the result**
+
+- **Corral Canyon Road Bridge Repairs** is listed under ""Design"" in the March 2022 agenda, so I counted it as not completed. If it were counted as completed, County Grant, Emergency Relief Fund, Federal Grant, Private Donation and Public-Private Partnership would all qualify, and Municipal Bond and State Grant would still fall just short.
+- **2021 vs. 2022 Annual Street Maintenance** are treated as separate projects. Merging them would change the denominators and could change the outcome.
+- **Storm Drain Trash Screens vs. Phase Two** are treated as separate projects.
+
+I did not change any source data. My working scripts and extracted agenda text are in `work/tmp/`."
+claude-haiku-5-5,civic_unstructured,4,1,description+hints,completed,scored,True,380.6298122238368,29,29,3,0,1685122,1568066,60387,0.13374535,"**Answer: 0.33**
+
+Capital total is $20,066,000 and disaster total is $59,995,000, so 20,066,000 / 59,995,000 = 0.3345, which rounds to 0.33.
+
+How I got there:
+
+- **Report dates:** I cross-checked each agenda's stated meeting date against its text. The one exception is the agenda stamped 10-27-21 that refers to the December 13, 2021 and January 20, 2022 meetings as past events. I treated it as dated late January 2022.
+- **Project type:** Each agenda's section heading gives the type (""Capital Improvement Projects (...)"" or ""Disaster Projects (...)""). For each grant, I used the project's latest agenda dated on or before the grant date.
+- **Entity resolution:** I merged aliases such as the ""_fema_project"" and ""_caloes_project"" variants. I also merged Westward Beach Road Improvements with Westward Beach Road Repair, because the 2022 Repair entry explicitly refers back to the same project. Two names, ""discussion"" and ""recommended_action"", are noise and were excluded.
+- **Type changes:** Malibu Road Slope Repairs changed from capital to disaster in August 2021. Malibu Park Drainage Improvements changed from capital to disaster in January 2022. Each grant was classified using the type in effect on its own date.
+
+**Main caveat:** 35 in-window records (about $31.8M) are for projects that do not appear in any agenda until after their grant date. Michael Landon Center, Point Dume Walkway, City Traffic Signals Backup Power, and Kanan Dume Biofilter are examples. Under the stated rule these have no defined type, so I excluded them. If instead each one is assigned its project's earliest agenda type, the ratio becomes 0.66. I went with exclusion because the question defines type strictly by a prior report."
+claude-haiku-5-5,civic_unstructured,5,1,description+hints,completed,scored,False,349.1710944119841,27,27,3,0,1108289,984723,51836,0.10157582000000001,"**Answer: $4,279,266.67** (average in-window funding across 15 projects with a status change; total $64,189,000).
+
+This rests on several judgment calls, so here is how I got there.
+
+**Status and window**
+- I used the stated meeting dates, which agree with each agenda's ""Date prepared"" and in-text dates. The 2021-06-01 to 2023-01-01 window covers 11 agendas (rid_0002, 0006, 0007, 0009, 0010, 0011, 0013, 0015, 0016, 0017, 0019).
+- Status comes from the section heading each project sits under.
+- The agendas also use a ""Construction"" heading, which the hint doesn't list. I treated it as ""design"" to match the hint's three statuses. Counting it as a separate status instead gives $4,238,882.35 across 17 projects, so this choice matters.
+
+**Projects with a status change (15)**
+Civic Center Stormwater Diversion Structure, Bluffs Park Shade Structure, PCH at Trancas Canyon Road Right Turn Lane, Civic Center Way Improvements, 2021 Annual Street Maintenance, Birdview Avenue Improvements, Storm Drain Master Plan (FEMA), Guardrail Replacement Citywide (FEMA), Corral Canyon Road Bridge Repairs, Corral Canyon Culvert Repairs, Clover Heights Storm Drain, Latigo Canyon Road Culvert Repairs, Encinal Canyon Road Drainage Improvements, Malibu Road Slope Repairs, Westward Beach Road Shoulder Repairs.
+
+**Entity resolution**
+- Funding names that differ only by agency suffix (`_fema_project`, `_caloes_project`, `_fema_caloes_project`) were merged with their base project.
+- Later renamings that continue the same funding timeline were merged. Encinal Canyon Road Repairs and Clover Heights Storm Drainage Improvements are examples.
+- ""Citywide Guardrail Replacement"" was kept separate from ""Guardrail Replacement Citywide (FEMA)"", because both appear in the same agenda (rid_0010). That project's status never changes, so it is excluded.
+- `discussion` and `recommended_action` were treated as noise and never matched to a project."
+claude-haiku-5-5,civic_unstructured,6,1,description+hints,completed,scored,False,333.9739920804277,27,27,3,0,1262206,1157759,46101,0.07217883500000001,"**Answer: 2023, with $61,179,000 in capital project funding.**
+
+Capital projects received more funding in 2023 than in any other year. The 2022 total was $41,714,000 and 2021 was $21,467,000. No funding records in the data fall in 2020 with a prior report, so 2020 has no capital total.
+
+How I got there:
+- **Agendas:** I decoded the 19 BSON agendas and used each report's meeting date. The header, ""Date prepared"" and ""Meeting date"" agree everywhere except rid_0010. Its text describes the January 20, 2022 meeting as already held and the January 24, 2022 meeting as upcoming, so I treated it as about January 21, 2022. Moving it to October 2021 or January 24 does not change any total.
+- **Entity resolution:** I grouped funding names that differ only by agency suffixes (`_fema_project`, `_caloes_project`, `_caljpia_project`, and combinations) and matched them to agenda titles. I excluded the two noise names, `discussion` and `recommended_action`.
+- **Type:** For each funding record, I took the section of the most recent report on or before its grant date. Records whose project appears in no such report (391 of 746) are left out, since their type is undefined.
+- **Mixed sections:** Reports rid_0001 and rid_0004 list projects under ""Capital Improvement and Disaster Recovery Projects"", which doesn't say whether they are capital or disaster. I used each project's type from its most recent non-mixed listing. In rid_0014, several of these projects appear under capital. Only Outdoor Warning Sirens resolves to disaster. Its 2023 records ($538,000) are excluded.
+
+The 2023 figure depends on how the mixed-section projects are classified. Counting all of them as capital gives $61,717,000. Treating renamed disaster projects as disaster (for example, Broad Beach and Point Dume) gives $59,944,000. Counting only the non-mixed reports gives $55,533,000. The year does not change under any of these choices."
+claude-haiku-5-5,civic_unstructured,7,1,description+hints,completed,scored,False,266.2584969215095,20,20,2,0,762971,673804,31018,0.033391815,"**Answer: no projects qualify.** The list is empty.
+
+The disaster-and-not-started condition fails for every candidate, so funding never decides the outcome.
+
+**How I got there**
+
+- **Agenda scope:** I used the 15 agendas dated on or before 2022-11-01. I excluded rid_0001, 0004, 0007 and 0014 because their stated and textual dates fall in late 2022 or 2023. The dates I checked against the agenda text are internally consistent, apart from rid_0010. Its text places it after mid-December 2021, not its stated Oct 27, 2021, but it stays a Design-status report either way, so the result doesn't change.
+- **Type and status:** Each agenda groups projects under headings such as ""Disaster Projects (Not Started)"". I read each project's label from its heading in each agenda.
+- **Disaster and not-started reports:** Eleven in-scope agendas list disaster projects as not started (rid_0002, 0003, 0005, 0006, 0008, 0009, 0012, 0013, 0015, 0017, 0018). The seven projects they cover are Clover Heights Storm Drain, Latigo Canyon Road Culvert Repairs, Encinal Canyon Road Drainage Improvements, Malibu Road Slope Repairs (CalOES), Westward Beach Road Shoulder Repairs, Storm Drain Master Plan, and Outdoor Warning Sirens.
+- **Latest report per project:** For each of those seven, a later in-scope agenda lists the project as Design, so none has a most recent report that is both disaster and not started. The most recent in-scope agendas (rid_0011, Jul 27, 2022, and rid_0016, Jun 22, 2022) contain no disaster-not-started section at all.
+
+**Funding check:** Cumulative funding through 2022-11-01 for these candidates is well above $1,000,000 (for example, Clover Heights Storm Drain at $10.6M and Westward Beach Road Shoulder Repairs at $7.7M). They are excluded only by status."
+claude-haiku-5-5,civic_unstructured,8,1,description+hints,completed,scored,True,199.81408921815455,17,17,1,0,348263,305181,15688,0.01628016,"The project is **City Hall Roof Replacement**, with accumulated funding of **$1,340,000** as of 2022-06-01.
+
+Only two projects qualify: City Hall Roof Replacement ($1,340,000) and Bluffs Park Workout Station ($6,003,000). Both were last reported under ""Capital Improvement Projects (Construction)"" in agendas from mid-2021, and neither appears in any later agenda before the cutoff. City Hall Roof is the lower of the two.
+
+- **Eligibility:** I used each agenda's stated meeting date to decide which fall on or before 2022-06-01. The one date I found to be wrong is agenda rid_0010, which is stated as October 2021 but refers to January 2022 events. It doesn't mention either qualifying project, so the result is unaffected.
+- **Funding:** the 5 City Hall Roof records dated on or before 2022-06-01 sum to $1,340,000. The latest is dated 2021-05-04. The Bluffs Park Workout Station records total $6,003,000 on the same basis."
+claude-haiku-5-5,civic_unstructured,9,1,description+hints,completed,scored,True,315.8362359907478,28,28,1,0,1071978,975696,45045,0.04431316,"No funding source meets the criterion: none has more than 55% of its projects classified as disaster as of 2022-11-01.
+
+| Funding source | Projects funded by 2022-11-01 | Disaster | Share disaster |
+|---|---|---|---|
+| Municipal Fund | 28 | 15 | 53.6% |
+| Federal Grant | 29 | 15 | 51.7% |
+| Private Donation | 33 | 17 | 51.5% |
+| Emergency Relief Fund | 33 | 17 | 51.5% (53.1% excluding one project with no report) |
+| Public-Private Partnership | 33 | 17 | 51.5% (53.1% excluding one project with no report) |
+| Municipal Bond | 34 | 15 | 44.1% |
+| County Grant | 29 | 12 | 41.4% |
+| State Grant | 30 | 12 | 40.0% |
+
+**How I got there**
+
+- **Reports in scope:** 15 agendas are dated on or before 2022-11-01. I excluded rid_0007 (meeting 2022-11-10) and the three 2023 agendas. rid_0010 is stated as 2021-10-27, but its text treats the Dec 13, 2021 and Jan 20, 2022 meetings as past events, so I dated it to about late January 2022.
+- **Project type:** taken from the agenda section the project appears in at its most recent in-scope report. The in-scope agendas have no mixed ""Capital and Disaster"" sections, so every project had a clear type.
+- **Entity resolution:** I grouped the 99 funding names into canonical projects by name and agenda description. The ""noise"" names `discussion` and `recommended_action` were excluded.
+- **Unresolved projects:** about 15 projects appear only in out-of-scope agendas, so I could not assign them a type. Counting them as non-disaster or leaving them out gives the same result.
+
+The result is sensitive to the grouping decisions. Municipal Fund is the closest at 15 of 28; one more disaster classification would put it above 55%. The main judgment calls were merging the ""Malibu Park Drainage"" and ""Malibu Park Storm Drain Repairs"" names, and treating ""Malibu Road Slope Repairs"" as disaster because its latest report labels it that way."
+claude-haiku-5-5,crmarenapro,1,1,description+hints,completed,scored,True,33.438696740195155,9,9,1,0,154718,129617,5340,0.007103245,"**Answer: Authority, Timeline**
+
+The lead is not qualified on the latest discussion. The one voice call for this lead (2023-10-21, Ava Sullivan with Ali Hussein) shows the following.
+
+- **Budget: met.** Ali asked about pricing for four units. Four PulseSim Pro units at $500 each come to $2,000, which Ava said is below the $2,261 budget, and Ali replied ""That fits really well.""
+- **Need: met.** Ali said ""We want to enhance our simulation capabilities, and the PulseSim Pro seems like a great fit.""
+- **Authority: not met.** Ali said ""I'll need to consult with the finance team here since I don't have the final say.""
+- **Timeline: not met.** Ali said ""We do have a tight timeline for installation."" Ava replied that installations usually finish ""within a day,"" but the knowledge article ""TechPulse Solution Volume-Based Installation Timeline Policy"" sets installation by volume: 1 unit takes 1 day, 5 units take 3 days, 15 take 7 days, and 25 take 14 days. Four units is not a listed tier, and the closest tier (5 units) is 3 days, so the one-day promise is not supported by policy. The lead's tight timeline is therefore unconfirmed.
+
+Timeline is the less certain of the two. The lead never gave a specific deadline, so the call rests on the rep's one-day claim conflicting with the published policy. If you count only explicitly stated objections, Authority alone is the clear failure."
+claude-haiku-5-5,crmarenapro,10,1,description+hints,completed,scored,True,28.725326878018677,9,9,2,0,147466,124191,5393,0.006847235,005Wt000003NDqDIAW
+claude-haiku-5-5,crmarenapro,11,1,description+hints,completed,scored,True,14.810754613019526,6,6,0,0,49414,41217,2462,0.002667395,01tWt000006hV8LIAU
+claude-haiku-5-5,crmarenapro,12,1,description+hints,completed,scored,False,23.51769573520869,8,8,1,0,82195,70797,4260,0.004262220000000001,"**005Wt000003NJgAIAW**
+
+This is Priya Choudhury's User Id. Across the three agents with April 2023 opportunities that have matched contracts, she had the shortest average cycle, 49 days from opportunity creation to contract company-signed date. The other two averaged 168 days (`005Wt000003NEa3IAG`) and 186 days (`005Wt000003NISMIA4`).
+
+Her average rests on a single opportunity, so the margin is based on one deal each. I stripped leading `#` and surrounding whitespace before joining, and I matched Opportunity.ContractID__c to Contract.Id and grouped by Opportunity.OwnerId. The User table stores her Id without the `#` prefix."
+claude-haiku-5-5,crmarenapro,13,1,description+hints,completed,scored,False,26.976360739208758,6,6,0,0,69238,55445,5367,0.0049616750000000005,"**005Wt000003NHw5IAG**
+
+This is the order owner (`Order.OwnerId`) with the highest total of Quantity × UnitPrice across orders whose linked contract has a CompanySignedDate between 2022-06-25 and 2022-11-25 (roughly the past five months from 2022-11-25). Total for this agent: about 96,136.
+
+Two choices shaped this answer:
+- **Join path:** `Order` has no direct link to `Opportunity` or `Contract`, so I joined on account (`Order.AccountId` to the contract's AccountId). Orders were included when the account had a contract signed in the window.
+- **Agent definition:** I credited the order's owner rather than the opportunity's owner. Opportunity-owner attribution gives a different top agent (`005Wt000003NBp4IAG`), so this choice matters.
+
+I normalised IDs by stripping leading `#` and surrounding whitespace before joining. The returned Id is the clean form; the User table stores it as `#005Wt000003NHw5IAG`, which is the same record."
+claude-haiku-5-5,crmarenapro,2,1,description+hints,completed,scored,False,34.84681783616543,11,11,2,0,157468,132502,5690,0.00729012,"The quote violates the ""Mandatory Bundles for Quotes"" article. The Id is `ka0Wt000000Ens5IAC`.
+
+**Why:** The quote includes PulseSim Pro, which the article says must be quoted with CircuitMaster Analyzer and VeriSim Express. Neither of those products appears on the quote, which has four lines: DesignWave Automation, EcoPCB Creator, PulseSim Pro, and CircuitSync Pro.
+
+**Discounts were checked and are not the problem.** The Volume-Based Discounts article allows 5% over $5, 10% over $10, and 15% over $20. Every quoted line is at or below its tier. The 15% line on EcoPCB Creator is the maximum allowed.
+
+**Setup was not checked.** The installation timeline policy depends on unit volume, but the quote has no installation or timeline field, so I could not test it.
+
+**Caveat:** The quote's status is ""Needs Review,"" and the bundle rule is the only violation I found.
+
+ka0Wt000000Ens5IAC"
+claude-haiku-5-5,crmarenapro,3,1,description+hints,completed,scored,True,133.06514203827828,5,5,1,0,36883,26261,2285,0.00273256,"**Negotiation**
+
+The current stage, ""Discovery"", does not match the work on this opportunity. The open activities are late-stage:
+
+- **Call transcripts:** The first call (Nov 2021) was an introduction and needs assessment, which fits Discovery. The January 2022 call confirmed a product demo, which is still early-stage work.
+- **Open tasks:** ""Prepare tailored proposal"" (in progress), ""Follow up on proposal ... negotiate terms"", ""Hold negotiation meeting ... finalize pricing"", and ""Prepare contract for approval"" (due on the close date, 2022-02-20).
+- **Probability:** 85%, which is consistent with a deal in negotiation rather than discovery.
+
+Most of the outstanding work is negotiating terms and pricing and preparing the contract, so Negotiation is the best fit. ""Quote"" is the closest alternative, since a proposal is in progress, but the negotiation and contract tasks are further along."
+claude-haiku-5-5,crmarenapro,4,1,description+hints,completed,scored,True,221.06742713041604,12,12,2,0,169219,152245,6539,0.006913,"**None.** No month stands out. Over the past 10 months (about June 2020 to March 2021), SecureAnalytics Pro had only 6 cases spread across four months: September 2020 (1), November 2020 (2), January 2021 (1), and March 2021 (1). November has the most, but 2 versus 1 is not a significant spike. If you need a single month name anyway, it would be November, but the honest answer to the question is no.
+
+Cases were linked to the product through `Case.OrderItemId__c` → `OrderItem.Product2Id`, with `#` prefixes and whitespace stripped before joining. The support database is only available as a SQL dump, so I loaded it into a temporary SQLite copy to run the query."
+claude-haiku-5-5,crmarenapro,5,1,description+hints,completed,scored,True,20.21709445118904,6,6,0,0,67059,53611,3529,0.00398121,"**a03Wt00000JqnHwIAJ**
+
+The five-month window runs from 2022-08-16 to 2023-01-16. Two cases for this product fall in that window, and both are tagged with this issue ID. The next most recent case is dated 2023-01-17, which is after today's date, so I excluded it.
+
+I linked cases to the product through their order items: `Case.OrderItemId__c` → `OrderItem.Product2Id`, after stripping leading `#` and trailing whitespace. Of the 153 cases, 30 link to this product across all dates."
+claude-haiku-5-5,crmarenapro,6,1,description+hints,completed,scored,True,22.564964012242854,9,9,0,0,98932,80588,4009,0.005102880000000001,"Line 4 is the violation: CollabDesign Studio is capped at 25 units per order, and the quote orders 35. The rule is in the ""Product Quantity Limits"" article.
+
+ka0Wt000000EnwvIAC
+
+The quote's fourth line item (QuoteLineItem `0QLWt0000022oAvOAI`) orders 35 units of CollabDesign Studio. The ""Product Quantity Limits"" article caps that product at 25 units per order. The article's Id is stored with a leading `#` in the source data (`#ka0Wt000000EnwvIAC`), and I've returned the form without it."
+claude-haiku-5-5,crmarenapro,7,1,description+hints,completed,scored,False,45.59351629111916,15,15,0,0,279346,245355,8269,0.010836075000000002,ka0Wt000000EpSUIA0
+claude-haiku-5-5,crmarenapro,8,1,description+hints,completed,scored,True,114.36105631384999,12,12,2,0,209745,184958,9338,0.009616255000000002,"The fewest-transfer count is a tie, so I'll state that clearly. The answer below is the lowest Id among the tied agents.
+
+**Answer: `005Wt000003NBcAIAW`** (Sanjay Thakur), but this is a tie-break, not a unique minimum.
+
+- **Transfers:** I found 12 reassignments in the support history (`Owner Assignment` rows with a previous owner). Only one falls in the last 4 quarters: case `500Wt00000DDZtLIAX` moved from `005Wt000003NIliIAG` to `005Wt000003NGjuIAG` on 2022-05-15. The result is the same whether the window is rolling (2022-04-10 to 2023-04-10) or calendar Q2 2022 to Q1 2023.
+- **Agents:** 32 agents owned cases created in that window. `005Wt000003NIliIAG` has 1 transfer out, and the other 31 have 0.
+- **Tie:** 31 agents tie at zero transfers. I returned the smallest Id among them, `005Wt000003NBcAIAW`, which exists in `core_crm.User`.
+
+The support data is a Postgres dump, but no Postgres server was running, so I loaded `support.sql` into a scratch SQLite file in the work directory's `tmp` folder to run the queries. I normalized IDs by stripping the leading `#` and trimming whitespace."
+claude-haiku-5-5,crmarenapro,9,1,description+hints,completed,scored,True,212.18062924407423,9,9,2,0,108615,93360,4362,0.005020925,"**MI**
+
+I computed average days from case creation to close, grouped by the account's shipping state, for cases closed in the six quarters before 2022-10-26. MI came out fastest in both window choices I tried (from 2021-04-01 and from 2021-07-01). It rests on a single closed case, so the margin is thin."
+claude-haiku-5-5,cve,1,1,description+hints,completed,scored,False,714.9782924037427,56,56,3,0,5078850,4888850,98150,0.41288773999999995,"**Answer: 1** — CVE-2023-46604 (Apache ActiveMQ). This is a heuristic result, not a clean join. The noisy IDs could not be decoded reliably in bulk, so I checked the candidates one by one.
+
+**How I got there**
+
+1. **KEV side.** Each `kev_entries` row has a clean NVD URL in `notes`, which gave me 1,583 true CVE IDs. Thirty-nine KEV entries have a vendor that resolves to Apache (via `kev_vendor_aliases`). Of the KEV CVEs with 2022–2024 IDs, only four are plausibly 2023-published Apache products: CVE-2023-46604, CVE-2023-44487, CVE-2023-27524 and CVE-2023-33246.
+2. **CPE side.** Apache is `vnd` alias `ASF` → `apache` in `vendor_aliases`. The truthy flags are `T, y, yes, affected, vulnerable, V, true, 1`. That leaves 1,131 Apache-vulnerable rows.
+3. **Candidate checks:**
+   - **CVE-2023-46604**: a row `link-lcabm=>doc:khg~14%MChsp46_23_604_20ckj` has criteria `cpe:2.3:a:ASF:activemq_legacy_openwire_module` with flag `true`. The number and year are split and reordered (46 + 604, 20 + 23). In vulns_db, `join-ipebk|ctx:kjjrv3@CBlpl202-46604:dockmh%leaf-gngf` reads as 2023 (rotated year `3`+`202`) and is published 2023-09-27.
+   - **CVE-2023-44487**: several Apache rows match (Tomcat 11.0.0, APISIX). I could not find a 2023-published vulns row for it under any decoding I tried, so it is excluded.
+   - **CVE-2023-27524** (Superset) and **CVE-2023-33246** (RocketMQ): no Apache-vulnerable CPE row found, so they are excluded.
+
+**Caveats**
+
+- The chunk and OCR decoding has roughly 44% recall on the KEV truth set, so an unmatched true row could be missing. The answer rests on the candidate checks above.
+- If CVE-2023-44487 has a 2023 row in vulns_db that my decoding missed, the count would be 2.
+- The vulns row for CVE-2023-46604 is decoded from a rotated-year pattern. Its month differs from the real NVD date, so I did not treat the date as authoritative.
+- I did not run a full-table decode of vulns_db, so I cannot rule out other 2023 KEV CVEs with Apache CPE rows that my matchers missed.
+
+My scratch scripts are in `work/tmp/`. I made no changes to the databases."
+claude-haiku-5-5,cve,10,1,description+hints,completed,scored,False,740.1390015790239,38,38,4,0,1768435,1673565,54529,0.055856900000000015,"**Answer: 2** (Office and Win32k), with caveats below. The count rests on a heuristic that I could not fully validate.
+
+**What I did**
+
+- **KEV side:** The live Postgres connection hung, so I loaded `kev.sql` into a local SQLite copy. Four `vendor_project` surface forms resolve to `microsoft` (`microsoft`, `Microsoft Corp`, `Microsoft Corporation`, `MSFT`), covering 369 rows.
+- **CVE key:** The noisy `cve_ref` values were not reliable, but every KEV row's `notes` contains exactly one clean NVD CVE URL. I used that as the target CVE for each row, giving 369 distinct CVEs.
+- **Score side:** I matched each target against `vulns.db.cvss_metadata.cve_id`. A match requires the 4-digit year, or the 2-digit year directly followed by the number with no digits in between, and then the number. I took the score as the first numeric token of `score_text`.
+- **Products:** I split `products_csv` on commas and counted case-insensitively.
+
+**Qualifying CVEs (score ≥ 9.0)**
+
+| CVE | Product | Score | Matched noisy key |
+|---|---|---|---|
+| CVE-2023-23397 | Office | 9.8 | `cve@MEsu4-2023-23397` |
+| CVE-2018-8589 | Win32k | 9.8 | `ri6071-188589` |
+
+**Caveats**
+
+- Only about 24 of the 369 Microsoft CVEs appear in vulns_db at all, and many of those are matched only through noisy fragments.
+- The result is sensitive to the matching rule. Looser rules that accept 2-digit years followed by digits, or any year match, give 8 products. Those extra hits are mostly decoy CVEs that share the number but have a different year (e.g., ""2024-1147"" matching CVE-2020-1147), so I rejected them.
+- The Postgres connection was never used. The answer comes from the local dump, which should match the live database but I did not verify that."
+claude-haiku-5-5,cve,2,1,description+hints,completed,scored,True,330.940473549068,34,34,1,0,1962458,1855235,52027,0.084226385,"**Answer: `fortinet`** — but this is a low-confidence answer. I could not verify it from the databases, so it rests mainly on CVSS scores from my own knowledge of NVD.
+
+**What I could establish from the data**
+- KEV has 317 CVEs flagged `known_ransomware_use = 'Known'`. I recovered each one's canonical CVE ID from the NVD URL in `notes`, since the `cve_ref` values are heavily obfuscated.
+- Vendors were resolved through `kev_vendor_aliases`, and every surface form mapped cleanly. Microsoft has 103 CVEs, and 26 vendors have at least 3.
+- `vulns_db` only covers CVEs published in 2023–2024, so most KEV CVEs have no CVSS row there. Noisy `cve_id` values also make joins unreliable. Only about 24 CVEs matched a score, and several of those matches were false positives.
+
+**Why this doesn't settle it**
+- The database gives no verifiable CRITICAL count for any vendor. Clean matches are too sparse.
+- The description taglines look like a severity encoding: ""Impact band: red-zone"", ""Risk-level: 4-of-4"", and ""Threat tier: T4"" each form a four-level scale whose top tier is the natural CRITICAL. But I could not reliably join those descriptions to the KEV CVEs, so I did not use them.
+
+**Estimate from NVD CVSS v3 scores (≥ 9.0), from memory**
+- Fortinet: about 11–12 of its 13 Known CVEs (e.g., CVE-2018-13379, CVE-2022-42475, CVE-2024-21762).
+- Ivanti: about 9 of 12.
+- Microsoft: about 8 of 103.
+
+The margin over Ivanti is modest, and both scores and KEV membership are from memory, not from the databases. If the answer is limited to 2023–2024 CVEs, Fortinet and Ivanti appear tied at about 4 each. I'd treat this as a best guess rather than a confirmed result."
+claude-haiku-5-5,cve,3,1,description+hints,completed,scored,False,443.76168535556644,31,31,2,0,1449033,1362618,58715,0.053783905,"**Estimated answer: about 1,258 KEV entries**, but this is an estimate rather than an exact join. I could not reliably decode the noisy CVE keys in `vulns_db`, so the figure rests on the CVE year.
+
+**Why the year is the best available signal**
+- Every `published` value in `vulns_db.cves` falls in 2023 or 2024 (32,514 and 42,685 rows). The 75,199 rows look like a complete 2023–2024 slice of NVD.
+- Well-known older CVEs such as CVE-2021-44228, CVE-2017-0144 and CVE-2019-0708 have no real records in the vulns keys.
+- CVE IDs from 2025 and 2026 have no detectable matches at all.
+
+**Breakdown of the 1,583 KEV entries by the year in each entry's CVE (taken from the NVD link in `notes`, which is clean for every row)**
+
+| CVE year | KEV entries | Treated as in vulns_db? |
+|---|---|---|
+| 2023 | 163 | Yes |
+| 2024 | 162 | Yes |
+| 2025 | 180 | No |
+| 2026 | 43 | No |
+| 2022 and earlier | 1,035 | No |
+
+That gives 180 + 43 + 1,035 = **1,258** entries with no matching vulns record.
+
+**Caveats**
+- The count is by CVE-ID year, not by actual NVD publication year. In the clean rows of `vulns_db`, about 13% of 2023-ID CVEs were published in 2024. A similar mismatch likely affects 2024-ID CVEs published in 2025 (which would be absent, so the true count could be higher) and 2022-ID CVEs published in 2023 (which would be present, so lower). These effects roughly offset, but the figure could still move by a few dozen.
+- I could not validate presence key by key. Permissive matching recovers only about 12% of 2023–2024 KEV CVEs, versus about 0–2% for other years, so the key encodings aren't fully decodable with the time I could spend.
+
+To get an exact number, the noisy `cve_id` values in `vulns_db` (and the equivalent keys in `cpe_db` and `descriptions_db`) would need a complete decoder. Scratch files are in `work/scratch/`."
+claude-haiku-5-5,cve,4,1,description+hints,completed,scored,False,581.9654146609828,38,38,1,0,1984657,1888781,67461,0.06460081000000001,"**Best-supported answer: `microsoft`, but low confidence.** I could not reliably reconstruct the CVE join keys, so this result rests on a small, high-precision subset of the data.
+
+**What I did**
+- **KEV side (kev_db, live Postgres):** The `cve_ref` values are heavily obfuscated, but every row's `notes` field contains a clean `CVE-YYYY-NNNN` URL. I used that as the CVE ID, giving 1,579 distinct KEV CVEs. All 420 `vendor_project` surface forms resolve through `kev_vendor_aliases`.
+- **Vulnerability flag:** I normalized `vulnerable_flag` into truthy and falsy tokens (for example `affected`, `vulnerable`, `1`, `yes` count as vulnerable).
+- **CVSS:** I took the first numeric token of `score_text`, so `10.0` is kept.
+- **Matching:** I joined the noisy IDs in vulns.db, cpe.duckdb and descriptions to KEV by recovering the `YYYY` + sequence digits after mapping OCR-like letters to digits.
+
+**Why the result is weak**
+- Exact-substring matching recovers only about 18% of KEV CVEs in vulns.db and CPE matches. Recall was about 10% at high precision (around 99%).
+- Under that strict rule, only 69 KEV CVEs have both a vulnerable CPE configuration and a CVSS score. Microsoft is the only vendor with at least 10 of them: 14 CVEs, 1 with CVSS ≥ 9.0, a share of 0.071. No other vendor reaches 10.
+- A looser fuzzy matcher reaches more CVEs but gives many false matches. Under it, palo alto networks reaches 6/12 (0.50), ahead of ivanti and adobe. Because the looser matcher is unreliable, I don't rely on that ordering.
+
+The answer would likely change if the noisy IDs were fully decoded. The intermediate files are in `tmp/` (`kev.pkl`, `v.pkl`, `cm.pkl`, `strict_final.py`)."
+claude-haiku-5-5,cve,5,1,description+hints,completed,scored,False,294.1823565075174,32,32,1,0,2100107,1976963,53331,0.13496830999999998,"**Answer: 1.** The only Tomcat version recorded for a KEV-listed CVE is 11.0.0.
+
+- **The one KEV CVE that affects Tomcat is CVE-2023-44487** (HTTP/2 Rapid Reset, KEV vendor ""ietf""). Its CPE matches are all `ASF`/`tomcat` (vendor alias → `apache`) criteria for version 11.0.0, with vulnerable flags `yes`, `true`, `T`, `y`, `vulnerable`, all truthy.
+- **The version strings are `11.0.0`, `11,0,0`, `v11_0_0`, and `build-011000000`**, which all normalize to 11.0.0. No `*` or null version_text rows appear for this CVE, and the range columns are empty.
+- **The five KEV entries labeled ""Tomcat"" do not match the CPE list.** CVE-2025-24813, CVE-2020-1938, CVE-2017-12615, CVE-2017-12617, and CVE-2016-8735 have no Tomcat CPE rows in `cpe_db`, after checking decimal, hex, and digit-only forms of their IDs.
+
+Every key in the CPE and KEV databases is noisy, with no clean IDs and no exact overlap between databases. I matched CVEs by decoding these keys (digit runs, OCR-style letter swaps, hex with year-minus-1970 codes). That decoding is inferred from patterns, not from a documented scheme, so treat the result as well-supported rather than certain."
+claude-haiku-5-5,cve,6,1,description+hints,completed,scored,False,333.51853488292545,33,33,1,0,1725533,1618143,54093,0.06966721999999997,"I could not produce a reliable exact count. The best I can support is **8 CVEs, as a lower bound**, not a complete answer.
+
+**Verified CVEs (no English description, Spanish-only, and in KEV):**
+
+1. CVE-2023-5631 (Roundcube Webmail XSS)
+2. CVE-2023-20109 (Cisco IOS/IOS XE GET VPN)
+3. CVE-2023-34048 (VMware vCenter DCERPC out-of-bounds write)
+4. CVE-2023-46604 (Apache ActiveMQ deserialization)
+5. CVE-2024-1709 (ConnectWise ScreenConnect auth bypass)
+6. CVE-2024-20481 (Cisco ASA/FTD RAVPN denial of service)
+7. CVE-2024-30040 (Microsoft Windows MSHTML security feature bypass)
+8. CVE-2024-39717 (Versa Director file upload)
+
+Each was linked by a KEV note URL that appears in that one document's references, and/or by a Spanish description that names the KEV product. Several also have the CVE id or fragment in the Mongo key.
+
+**Why this is not the full answer:**
+
+- **The Mongo join keys are not decodable with confidence.** Only about 1% contain a literal CVE id. The rest mix in junk tokens, reversed digits, base-36 and hex fragments, and OCR-style letter substitutions. Number-only matching produced over 1,000 candidate pairs, almost all false positives. Year-and-number proximity recovered only 224 of 1,517 labelled KEV ids.
+- **Shared advisory URLs produce false links.** Zimbra, Apple, Arm and Oracle advisories link many KEV entries to the same documents. I excluded these because the Spanish text does not identify a specific CVE. CVE-2024-37079 was also excluded because its document actually describes CVE-2024-37081.
+- **Unresolved candidates.** A cluster of Zimbra entries (for example CVE-2025-27915 and CVE-2024-45519) might be genuine but could not be confirmed, so they are not in the count.
+
+The count of 8 is therefore very likely an undercount. Recovering the rest would need a complete decoder for the key encodings. The `vulns_db` and `cpe_db` sources were not needed for this query."
+claude-haiku-5-5,cve,7,1,description+hints,completed,scored,False,1162.9289256772026,46,46,6,0,2588385,2494367,61709,0.06754802,"**linux:linux_kernel**
+
+This is an estimate rather than an exact count. The CVE IDs in all three sources are heavily obfuscated, and I could only decode them approximately.
+
+- **Decoding:** I matched each noisy key to KEV CVE IDs by checking whether the CVE's year and sequence digits appear in order in the key's digit stream, allowing OCR-style letter substitutions and reversed fragments. I only accepted a match when it was unambiguous.
+- **Filters:** Candidates were limited to KEV CVEs with the same canonical vendor and a matching product from `products_csv`. Vendors came from `vendor_aliases`, and `vulnerable_flag` was normalized to the truthy tokens (T, y, yes, affected, vulnerable, V, true, 1).
+- **Counts:** linux:linux_kernel came out at 2,847 matched rows across 23 KEV CVEs. Next were juniper:junos (1,729) and microsoft:windows_server_2012 (1,437). Product names were lowercased with spaces turned into underscores, so ""Linux Kernel"" and ""linux_kernel"" were merged.
+- **Sensitivity:** I varied the allowed gap between digit fragments. The gap-8 run gave 1,380 for linux_kernel vs 1,071 for windows_server_2012 and 1,060 for junos. The gap-16 run gave 4,225 vs 2,331 for junos. linux_kernel was first in every variant, but the margin over the runner-up ranged from about 1.3x to 1.8x.
+
+The ranking is consistent across the variants I tried, but I could not check the decoder against ground truth on the CPE side. Treat the answer as likely rather than verified."
+claude-haiku-5-5,cve,8,1,description+hints,completed,scored,False,315.5123703936115,32,32,1,0,1984516,1871984,59221,0.1272814,"I could not determine a reliable count for this query. The best I can offer is a lower bound of about 162, and the true answer is very likely higher.
+
+**Why it's not solvable exactly with what I built**
+
+- The three tables don't share clean CVE keys. Only about 1–2% of `vulns_db`, `cpe_db`, and MongoDB keys contain a plain `CVE-YYYY-NNNN`. The KEV keys are also obfuscated.
+- The KEV side is fully recoverable: every row's `notes` field contains an NVD URL with the clean CVE ID. That gives 1,587 distinct KEV CVE IDs (from 1,583 rows; some rows list two or three CVEs, so this is slightly ambiguous).
+- The other databases need decoding. From the labeled KEV keys, I identified several transforms: `off`=+37 year offset, `tri` ≈ 3×year+2, reversed years and numbers, OCR letter substitutions, split numbers, and random decoy tokens (`b36…`, `hexmix…`). None of these is a complete codec, and I could not find a general decoder.
+- My best matcher recovers only about 29% of labeled KEV keys, with about 85% precision. Each of the three conditions is matched at roughly that recall, so the intersection is badly undercounted.
+
+**What the pipeline produced (lower bound, not the answer)**
+
+| Condition | KEV CVEs matched |
+|---|---|
+| Microsoft vulnerable CPE match | 255 |
+| Present in `vulns_db.cves` | 665 |
+| CVSS ≥ 7.0 (first numeric token of `score_text`) | 455 |
+| All three | **162** |
+
+Because the matcher is only about 85% precise and covers a minority of rows, the 162 cannot be treated as an exact figure.
+
+**To get the exact number**, the next step is a complete decoder for the `cve_id` / `cve_ref` / `cve_documents.cve` encodings, validated against the KEV notes. That would make all three joins exact. I wrote the working files (labels, matchers, pipeline, and KEV key dump) into `work/tmp/`. No database was modified."
+claude-haiku-5-5,cve,9,1,description+hints,completed,scored,True,949.1164739252999,29,29,6,0,865414,805687,33239,0.032140695000000004,"I could not get a reliable count. The join key decoding doesn't hold up, so I'm not giving a number.
+
+**What I established**
+- **KEV side:** `kev.sql` loads cleanly into a scratch SQLite copy (`work/tmp/kev.db`), giving 1,583 entries and 1,583 distinct CVEs. Every entry's notes contain a plain NVD URL with the true CVE ID (e.g. `CVE-2025-32432`), so the KEV set is recoverable exactly.
+- **vulns side:** `cves` has 75,199 rows with 75,199 distinct raw `cve_id` strings. Duplicates only show up after decoding, and most IDs are heavily obfuscated (infix junk, OCR-like substitutions, dotted or reordered digits, shifted ""offset"" numbers). Only about 2,000 rows contain a clean `CVE-YYYY-NNNN`.
+
+**Why the matching doesn't work**
+- On the clean-format rows, there are 8 multi-row CVEs, 2 with conflicting attack vectors. None of those 8 appear in KEV.
+- For the noisy rows, I matched each KEV CVE by its number and year digits, with OCR-style character mapping. Real KEV numbers produced 45 CVEs with conflicting attack vectors. Shifted fake numbers produced 42–52 under the same rule. The match carries no signal, so its output can't be used.
+
+**What would be needed**
+A decoder that reverses the noise templates (the infix markers, the `dot`/`ri`/`off`/`yr` year encodings, and reordered pieces), validated against the 1,098 clean-format CVEs. Once `cves.cve_id` normalizes to canonical IDs, the final step is a join with the 1,583 KEV CVEs, grouped by CVE, keeping groups with more than one row and more than one distinct `cvss3_attack_vector`. I didn't need the cpe_db, descriptions_db, or cvss_metadata tables for this query."
+claude-haiku-5-5,googlelocal,1,1,description+hints,completed,scored,True,138.3390464214608,8,8,1,0,66024,54917,3112,0.0034931449999999996,"The top 5 Los Angeles businesses by average review rating are:
+
+| Rank | Business | gmap_id | Avg rating | Reviews |
+|---|---|---|---|---|
+| 1 | Widows Peak Salon | gmap_40 | 4.857 | 35 |
+| 2 | City Textile | gmap_44 | 4.500 | 6 |
+| 3 | Nobel Textile Co | gmap_38 | 4.286 | 7 |
+| 4 | San Soo Dang | gmap_41 | 4.278 | 18 |
+| 5 | Nova Fabrics | gmap_43 | 3.333 | 6 |
+
+Los Angeles was identified from the business `description` text (""...in Los Angeles, CA...""), so the filter is only as good as that wording. Seven businesses matched. The two lowest-rated (Beads and More at 3.222 and Ace Jewelry & Loan at 3.286) fall outside the top 5, and Nova Fabrics (3.333) is only slightly ahead of Ace Jewelry & Loan (3.286). Several of the averages rest on only 6–7 reviews, so the ranking below the top spot is not very stable."
+claude-haiku-5-5,googlelocal,2,1,description+hints,completed,scored,False,17.4057179633528,7,7,0,0,55900,47531,2515,0.0027784850000000002,"Three massage businesses have an average rating of at least 4.0:
+
+| Business | gmap_id | Average rating | Reviews in sample |
+|---|---|---|---|
+| Elite Massage | gmap_25 | 5.00 | 1 |
+| Angel-A Massage | gmap_22 | 4.33 | 6 |
+| Aurora Massage | gmap_20 | 4.18 | 56 |
+
+I identified massage businesses by the word ""massage"" in the name or description, which matched seven businesses. The other four fall below 4.0: Orient Massage 3.93, SUSY massage 3.88, Good Massage 3.88, and Happy Spa & Massage 2.13.
+
+J B Oriental Inc (gmap_32, average 4.17) is excluded because its description mentions ""therapies"" and ""body treatments"" but never ""massage"". If you count it as a massage business, it would qualify too.
+
+Elite Massage's 5.00 rests on a single review, so it is the least reliable figure."
+claude-haiku-5-5,googlelocal,3,1,description+hints,completed,scored,False,30.70964046008885,8,8,1,0,65267,52450,5682,0.004967175000000001,"Five businesses are tied at an average rating of 5.0, and they are exactly the top five by the cutoff. I'll list them with their weekday hours and review counts.
+
+**Top 5 businesses open after 6:00 PM on at least one weekday, by average rating**
+
+All five have an average rating of 5.0. Their order is a tie-break I chose: review count, highest first.
+
+| # | Business | Avg rating | Reviews | Weekday hours (Mon–Fri) | Late weekday(s) |
+|---|---|---|---|---|---|
+| 1 | Taba Rug Gallery | 5.0 | 18 | 10AM–7PM daily | Mon–Fri close 7PM |
+| 2 | Beauty Divine Artistry | 5.0 | 8 | 9AM–8PM Mon–Fri | Mon–Fri close 8PM |
+| 3 | Mariscos el poblano | 5.0 | 3 | Mon 9AM–3:30AM; Tue–Fri 8AM–3:30PM | Mon (closes 3:30AM the next day); Thu is listed as open 24 hours |
+| 4 | White Barn Candle Co | 5.0 | 2 | 10AM–9PM Mon–Fri | Mon–Fri close 9PM |
+| 5 | TACOS LA CABANA | 5.0 | 2 | Mon and Fri 5–11PM | Mon and Fri close 11PM |
+
+Excluding businesses with no review records or no hours data, the next-ranked business is Paradise tattoo at 4.96 average (378 reviews, open until 10PM Mon–Thu and until 12AM Fri). The 5.0 averages for businesses with only 2–3 reviews are based on very little data.
+
+Method: I averaged the ratings per `gmap_id` from the SQLite review table, then joined them to the Postgres `hours` column. A business qualified if any Monday–Friday range closed after 18:00, including ranges that run past midnight. ""Closed"" days were excluded, and ""Open 24 hours"" counted as open late."
+claude-haiku-5-5,googlelocal,4,1,description+hints,completed,scored,True,135.86533766426146,5,5,1,0,42566,34059,2391,0.0025991150000000004,"The top 3 businesses by 2019 reviews rated 4.5 or higher are:
+
+1. **Encino Dermatology & Laser: Alex Khadavi MD**: 19 reviews
+2. **The Boochyard @ Local Roots**: 17 reviews
+3. **Aurora Massage**: 14 reviews
+
+Ratings are whole numbers from 1 to 5, so ""4.5 or higher"" means a rating of 5. Across all businesses, 238 five-star reviews were from 2019.
+
+The review timestamps come in three formats, and I matched the year 2019 in each. The business names come from the Postgres `business_description` table, joined on `gmap_id`. Every review's `gmap_id` matched a business."
+claude-haiku-5-5,imdb,1,1,description+hints,completed,scored,True,576.4957804651931,22,22,5,0,403004,374839,14051,0.014293315000000001,"**Dirt Merchant** is the alphabetically first qualifying title, and its type is **movie** (kind_id 1).
+
+Only three titles pass every filter: Dirt Merchant (1999), The Analysts (2003), and The Big Mope (2007). Dirt Merchant sorts first.
+
+How I applied each condition in movies_db:
+
+- **Type:** kind_id in (1 movie, 3 tv movie, 4 video movie, 6 video game).
+- **Production year:** after 1990 (`production_year > 1990`).
+- **Keyword:** at least one row in movie_keyword.
+- **US company:** linked through movie_companies to a company_name with country_code `[us]`.
+- **US internet release:** a 'release dates' row with an info value starting `USA:` and the note `(internet)`, with the year between 1990 and 2009.
+- **Complete and verified cast:** a complete_cast row with status_id 4 (`complete+verified`). I did not also filter on subject_id, so any subject qualifies.
+
+The IDs in this database are prefixed strings, so I normalized them to their numeric part before joining. I did not use the people_database, since none of these conditions require it."
+claude-haiku-5-5,imdb,10,1,description+hints,completed,scored,False,328.61992305517197,14,14,2,0,236016,214289,11661,0.010688465,"**Answer:** the alphabetically first cast member is **Abell, Alistair** and the alphabetically first title is **AVPR: Aliens vs Predator - Requiem**.
+
+These two values are not from the same movie. Abell, Alistair's qualifying credit is in *Freddy vs. Jason* (as ""Officer Goodman""), and the first title belongs to a different qualifying movie.
+
+How I got there:
+
+- **movies_database (PostgreSQL):** I kept titles with kind `movie`, `production_year > 2000`, at least one of the ten keywords, and a `complete_cast` status whose kind contains ""complete"". That left 119 titles.
+- **people_database (SQLite):** I kept cast credits on those titles whose character name is not null and contains ""man"" or ""Man"". I matched case-sensitively, because SQLite's `LIKE` would also match ""MAN"". That gave 545 credits across 106 movies and 540 distinct people.
+- **Identifiers:** I normalized all IDs by keeping only the digits and converting to an integer, as the hint describes. The keyword, cast, and completeness checks were all applied to the same movie ID.
+
+Both minima use plain ASCII ordering, which matches the Postgres database's `C` collation. A case-insensitive sort would instead give ""Along the Way"" as the first title."
+claude-haiku-5-5,imdb,2,1,description+hints,completed,scored,True,60.25520669296384,8,8,1,0,93868,79774,6222,0.00566999,"The alphabetically first pseudonym is **`""A.J.""`** (quote characters are part of the stored value), and the alphabetically first title is **#1 Cheerleader Camp**.
+
+I took ""writers with a registered pseudonym"" to mean people with an `aka_name` row who have a writer credit (`role_id` 4) in `cast_info`. ""Titles associated with a US company"" means titles linked through `movie_companies` to a `company_name` with `country_code = '[us]'`. The title is restricted to those US-linked titles that the matching writers are credited on, which gave 43,408 writers and 420,511 matching credits.
+
+Ordering used Python's default string comparison (code-point order), which matches SQLite's default. A Postgres locale collation could order punctuation differently, but both answers begin with ordinary characters, so the result should not change."
+claude-haiku-5-5,imdb,3,1,description+hints,completed,scored,True,240.94131329003721,12,12,2,0,187026,165903,9728,0.009162705,"**Answer:** the alphabetically first actress is **Aaron, Caroline**, and the alphabetically first title is **$9.99**.
+
+Those two values come from different rows. Caroline Aaron's first title is *Spang Ho: Something Fishy*, while *$9.99* is credited to Leeanna Walsman. The query asks for each minimum separately, so I report them that way.
+
+**How I got there:**
+- **People DB (SQLite):** I kept cast credits where the note is `(voice)`, `(voice) (uncredited)`, `(voice: Japanese version)` or `(voice: English version)`, the role is actress, and the person's gender is `f`. I also required a registered alias in `aka_name` and a named character.
+- **Movies DB (Postgres):** I kept titles with `production_year > 2000`, a company whose `country_code` is `[us]`, and an `info_type` of ""release dates"".
+- **Join:** I matched the two sides on the numeric ID after stripping the prefixes and leading zeros, as the hint describes.
+
+That leaves 27,586 actress–title rows across 7,635 titles.
+
+**Caveat:** I used the four voice note values you listed as exact matches. Notes like `(voice) (archive footage)` or `(voice: French version)` are excluded. A broader match could change the minima."
+claude-haiku-5-5,imdb,4,1,description+hints,completed,scored,True,68.86741229146719,10,10,2,0,114591,101215,6644,0.00600555,"The alphabetically first name is **Z'Dar, Robert**.
+
+I filtered to movies tagged `character-name-in-title` that have at least one company, then matched credited people whose name starts with 'Z'. That left 498 people. Sorting by plain string order puts ""Z'Dar, Robert"" first, because the apostrophe sorts before letters. If a locale-aware collation ignores punctuation, the first result would instead be ""Zabala, Zeny"".
+
+How I got there:
+- **Keyword match:** `character-name-in-title` matched 4,224 movies. Of those, 3,611 have at least one `movie_companies` row.
+- **Company condition:** the schema has no person-to-company link, so I applied ""associated with at least one company"" at the movie level: the person's credited movie has a company.
+- **ID joins:** I extracted the numeric part of each encoded ID (e.g. `kwd....117` → 117, `nm01721618` → 1721618) before joining across the two databases.
+- **Name format:** names are stored as ""Last, First"", so the answer is shown in that form."
+claude-haiku-5-5,imdb,5,1,description+hints,completed,scored,True,92.38207938801497,13,13,4,0,159001,143463,8595,0.00767363,"**Answer:**
+- **Company name:** `""O"" Films`
+- **Rating value:** `1.0`
+- **Title:** `#54 Meets #47`
+
+**How I got it:** I queried the `movies_db` PostgreSQL database directly. The filters were:
+- `kind_type.kind = 'movie'`, so TV movies, video movies and other types are excluded.
+- A rating row in `movie_info_idx`, using the `rating` info type.
+- A link in `movie_companies` to a company with `company_type = 'production companies'` and `country_code = '[us]'`.
+- Joins on IDs with the prefixes and leading zeros stripped, as the hint describes.
+
+""Release date"" was ambiguous, so I ran both readings:
+- `title.production_year` is not null: 87,293 matching rows, same minimums.
+- A `release dates` row exists in `movie_info`: 80,901 matching rows, same minimums.
+
+The minimums are the same under either reading and under C (byte) collation. The `""O"" Films` result comes from the leading quote character sorting first."
+claude-haiku-5-5,imdb,6,1,description+hints,completed,scored,False,248.83684422355145,19,19,1,0,405833,370812,15706,0.015937745000000003,"**Answer:**
+- **Character name:** Lola
+- **Actress name:** Jolie, Angelina
+- **Title:** Shark Tale
+
+Only one credit satisfies every condition, so each ""alphabetically first"" value comes from that single row. The credit is Angelina Jolie's voice role as Lola in *Shark Tale* (2004), note `(voice)`.
+
+**How the filters were applied**
+- **Film:** kind ""movie"", production year 2000–2010, keyword `computer-animation`.
+- **Release:** a Japan or USA release date in 2000–2009.
+- **Company:** at least one company with country code `[us]`.
+- **Cast:** `complete_cast` status ""complete+verified"" on the cast subject.
+- **Only two films passed these filters:** *Shark Tale* and *Chicken Little* (2005).
+- **Voice credits:** notes exactly `(voice)`, `(voice) (uncredited)`, `(voice: Japanese version)` or `(voice: English version)`. The two films have no Japanese or English version notes.
+- **Actress:** gender ""f"", with a registered alias, a named character, and trivia on record.
+
+**Caveat on ""contains 'An'"":** I matched it case-sensitively, as written. A case-insensitive match would add two more credits: Abby Mallard (Cusack, Joan, *Chicken Little*) and Missy (Elliott, Missy 'Misdemeanor', *Shark Tale*). The first alphabetical character would then be ""Abby Mallard"", and the actress and title would be Cusack, Joan and *Chicken Little*."
+claude-haiku-5-5,imdb,7,1,description+hints,completed,scored,True,223.4476139722392,13,13,1,0,185525,166913,10556,0.00927288,"**Answer:** the alphabetically first pseudonym is **""!!!, Toy""** and the alphabetically first title is **""& Teller""**.
+
+Both are byte-order (Python string) minimums. A database using a locale-aware collation could order punctuation differently and pick another name, but these are the plain alphabetical minimums.
+
+How I got there:
+
+- **Keyword:** I took the movies tagged `character-name-in-title`. The keyword ID is stored with varying zero-padding, so I matched on the numeric part.
+- **US company:** I kept movies with at least one company whose `country_code` is `[us]`, in any role. That leaves 24,646 movies. I read ""associated with a US company"" as the movie's company, since people have no company in this schema.
+- **People:** I took the 322,169 people credited on those movies (747,526 credit rows) and joined them to `aka_name` to get 227,167 pseudonym rows.
+- **Title:** the minimum title over the (person, movie) pairs where the person has a pseudonym is the same as the minimum over all 24,646 matched movies, which is ""& Teller""."
+claude-haiku-5-5,imdb,8,1,description+hints,completed,scored,True,169.32331858295947,9,9,1,0,124740,108264,7792,0.007037589999999999,"**Answer:**
+
+- **Alternate name:** `!!!, Toy`
+- **Character name:** `""Cockamamie's"" Salesgirl`
+- **Actress name:** `Aaron, Caroline`
+- **Title:** `$15,000.00 Error`
+
+I joined the two databases in Python, since the IDs are encoded differently on each side. The filters were:
+
+- **Female actresses:** `name.gender = 'f'`. Every matched credit also has role type ""actress"".
+- **Voice credits:** `cast_info.note` is exactly one of `(voice)`, `(voice) (uncredited)`, `(voice: Japanese version)` or `(voice: English version)`.
+- **Alternate name:** must belong to the same person as the credit (`aka_name.person_id` matches).
+- **Named character:** the credit links to a `char_name` row.
+- **US company:** the title has at least one `movie_companies` row whose `company_name.country_code` is `[us]`.
+
+That leaves 50,068 credits across 4,916 people. The alphabetical minimum is taken over all of them, and each of the four answers comes from a different row.
+
+The exact-match note filter is my reading of ""including general voice, uncredited voice, Japanese version, or English version"". Other variants such as `(voice: English version) (uncredited)` or `(voice) (as ...)` are excluded. The script is at `query_dataset/q8_final.py` in the work directory."
+claude-haiku-5-5,imdb,9,1,description+hints,completed,scored,False,184.93191428575665,7,7,1,0,107898,85683,8070,0.007668254999999999,"**Answer:**
+- Genre: **Horror**
+- Vote count: **101188**
+- Writer name: **Agnew, Jim**
+- Title: **2001 Maniacs**
+
+These are the alphabetical minimums over 404 joined rows (186 distinct movies) that satisfy every condition.
+
+**How I got there**
+- **Genre and votes:** genre is `movie_info` with info type ""genres"" (ID 3), restricted to the exact values 'Horror' and 'Thriller'. Vote count is `movie_info_idx` with info type ""votes"" (ID 100).
+- **Keywords:** the seven keywords resolve to IDs 870, 382, 875, 872, 865, 460, 137.
+- **Company:** every company whose name contains ""Lionsgate"" (10 company rows, 5 distinct names including Lionsgate Home Entertainment, Lionsgate Productions, and Lionsgate Television).
+- **Writers:** `cast_info` rows with role ""writer"" (ID 4) for people whose `name.gender` is 'm'.
+- **IDs:** all identifiers were normalized to their digit-only integer values on both sides before joining, since the prefixes and padding vary (e.g. `INFT~~~3`, `NM###1`, `ROLE^^4`).
+
+**Things to be aware of**
+- The database only has one writing role, ""writer"". ""Head writer"", ""written by"", ""story"", and ""story editor"" don't exist in `role_type`, so the filter reduces to ""writer"".
+- I read ""a Lionsgate company"" as any company name containing ""Lionsgate"". If you meant only the exact name ""Lionsgate"", the results could change.
+- Vote counts are stored as text, so the ""alphabetically first"" vote count is a string comparison. That's why 101188 is the minimum rather than a numeric value.
+
+The script is at `work/tmp/solve.py`."
+claude-haiku-5-5,krama,1,1,description+hints,completed,scored,True,349.63420078437775,17,17,2,0,424334,379961,23668,0.021179285000000003,"**NWCC** (Northwest Interagency Coordination Center) accumulated the most human-caused wildfire acres from 2020 to 2023 among the ten regions with a GACC.
+
+I summed the human-caused acres from each region's latest-dated report in each year:
+
+| GACC | Region | Summed human-caused acres, 2020–2023 |
+|---|---|---|
+| **NWCC** | Northwest | **5,430,001** |
+| SACC | Southern Area | 2,532,277 |
+| SWCC | Southwest | 1,963,214 |
+| ONCC | Northern California | 1,332,265 |
+| RMCC | Rocky Mountains | 801,700 |
+| NRCC | Northern Rockies | 517,471 |
+| OSCC | Southern California | 492,829 |
+| GBCC | Great Basin | 466,401 |
+| EACC | Eastern Area | 255,815 |
+| AICC | Alaska | 142,832 |
+
+Northwest's total is mostly one value: 4,667,060 acres in its 2020 report (dated 2020-12-06). Its other years range from 163,580 to 365,742 acres.
+
+The source is the wildfire report lines in `domain_docs`. The parser extracted each line's region, date, and human-caused acre value, mapping regions to GACCs by their names in the `gacc_2025` descriptions. Western Great Basin and ""Total"" were excluded because they have no GACC. Lines with N/A values were skipped. Three same-date ties (Alaska 2021, Southern Area 2021, Rocky Mountains 2020) were resolved by taking the last record; whichever value is chosen, the ranking does not change."
+claude-haiku-5-5,krama,10,1,description+hints,completed,scored,True,181.6652317866683,20,20,1,0,812858,751431,14444,0.022413585,"**Answer: 0.000748** (mean BSTAR ≈ 7.475 × 10⁻⁴ over 10 TLE records)
+
+**Where the data came from**
+
+- **Storm period (NORAD 58214):** The space-track OMM records for 58214 are in the `domain_docs` MongoDB document `SATELLITE_ELEMENT_SET_8599`. Their epoch descriptions are quiet (benign, baseline, subdued) on May 1–3, then disturbed, elevated, severe or energetic-particle on May 10–13. I took the storm window as the span of the disturbed epochs: **2024-05-10 13:03:59 to 2024-05-13 14:27:30 UTC**.
+- **43180 TLE data:** The `TLE_43180` file in `domain_assets.db` holds 134 TLEs for May 2024. Ten of them fall inside the storm window.
+- **BSTAR decoding:** I read the BSTAR field (columns 54–61) and applied the compact notation from the hints (e.g. `20621-3` = 2.0621 × 10⁻⁴). The mean of the ten values is 0.000747513, which rounds to 0.000748.
+
+**Caveats**
+
+- The answer depends on how the storm window is defined. Using the same disturbed span but excluding the one 13:03 record at its start, or using a calendar window of May 10–13 instead, gives different means (0.000708 and 0.000825 respectively in my checks).
+- Two TLE epochs appear twice in the 43180 file. I kept both, since the question asks for the values as recorded; de-duplicating would change the mean."
+claude-haiku-5-5,krama,2,1,description+hints,completed,scored,True,2254.826878656633,61,61,8,0,6137888,5832183,94508,0.5097067249999999,"**Idaho** is the answer under my best reading of the data, but the margin is thin and depends on two judgment calls.
+
+**Method**
+
+- **Lightning counts:** The NIFC reports are in the Mongo `domain_docs` collection (34 documents). I parsed about 84k lines for the 10 GACC areas, pulled out lightning-caused wildfire counts (not acreage), and resolved dates in their varied formats. `Total` and `Western Great Basin` are not GACCs, so I excluded them.
+- **Latest report per year:** For each GACC and year 2014–2024, I took the record with the latest reported date. That gives 110 GACC-year values.
+- **GACC–state intersection:** The `gacc_2025` table has 10 GACC units, each with a main polygon plus fragments. I tested touch-inclusive intersection (ST_Intersects-style) against county polygons, grouped by state.
+- **Sum:** For each state, I summed the GACC totals for every GACC that intersects it.
+
+**Result (2014–2024 totals, mmdd reading of ambiguous dates)**
+
+| State | GACCs intersecting | Total |
+|---|---|---|
+| **Idaho** | GBCC, NRCC, NWCC, RMCC | **40,728** |
+| Colorado | GBCC, RMCC, SACC, SWCC | 38,832 |
+| California / Nevada | GBCC, NWCC, ONCC, OSCC, SWCC | 36,237 |
+
+**Caveats**
+
+- **Ambiguous dates:** About 40% of numeric dates like `1004/2016` are ambiguous between day-first and month-first, and the source mixes both orders at random. Reading them day-first gives Idaho 40,012 vs Colorado 39,667. Excluding ambiguous records entirely flips the winner to Colorado (41,890 vs Idaho 41,755).
+- **Idaho's membership:** It rests on the RMCC polygon crossing a real Idaho county (Bear Lake) over several kilometres. Without RMCC, Idaho would drop to 31,708 and not win.
+- **Colorado's membership:** It rests on a sub-metre SACC sliver. A stricter positive-area rule would also drop Colorado.
+
+I'm fairly confident in Idaho under day-first or month-first readings and standard intersection semantics, but a different date convention or a stricter intersection rule could change it.
+
+**Idaho**"
+claude-haiku-5-5,krama,3,1,description+hints,completed,scored,True,172.28264103177935,22,22,2,0,703118,631594,22200,0.02635524,"**Answer: 12964.8727**
+
+This is the mean 2024 identity theft count across 55 MSAs with an interpolated 2023 population above one million. The total is 713,068 over 55 MSAs.
+
+**Method**
+
+- **Population:** The `metropolitan_statistics` HTML file in `domain_assets.db` is a Wikipedia table of the 387 US MSAs with 2024 estimates and 2020 census counts. For each MSA I computed 2023 population as census₂₀₂₀ + 0.75 × (estimate₂₀₂₄ − census₂₀₂₀). That gives 56 MSAs above one million once Puerto Rico's San Juan is included, 55 without it.
+- **Identity theft:** The MSA-level reports are in `domain_docs` (MongoDB). Each of the 56 large MSAs has exactly one line with a 2024 date. I read the identity theft count from each line and checked that fraud and identity counts stay in the same ratio as their per-100K rates, which confirms the right number was picked.
+- **Matching:** Names were matched on the city and state portion, with dashes normalized. Every large MSA matched a document line.
+
+**Judgment call on Puerto Rico**
+
+The population table places the six Puerto Rico MSAs in a separate table, and San Juan–Bayamón–Caguas (about 2.05 million) is the only one above one million. I excluded it because the query says ""US metropolitan statistical areas"" and the source describes the 387 MSAs of the United States separately. If you want it included, the average becomes **12751.9643** over 56 MSAs (its 2024 identity count is 1,042)."
+claude-haiku-5-5,krama,4,1,description+hints,completed,scored,False,547.3978436402977,28,28,3,0,1082250,1009525,27066,0.032717375,"**Answer: essentially zero. The population changed by roughly −600 people, which is within the rounding error of this data.**
+
+The MSA with the highest 2024 identity theft rate is **Miami-Fort Lauderdale-West Palm Beach, FL Metropolitan Statistical Area**, at 903 per 100K. Its 2020 and 2024 populations are not stated directly. I backed them out from the reported report counts and per-100K rates, using population = count ÷ rate × 100,000:
+
+| Year | Source line | Implied population (fraud pair) | Implied population (identity theft pair) |
+|---|---|---|---|
+| 2020 | ""Reported through 20200217… 122484 and 39,616 reports at 1 995 and 645 per 100K"" | 6,139,549 | 6,142,016 |
+| 2024 | ""As of September02, 2024… 171462 and 55 457 reports… 2 793 and 903 per 100K"" | 6,138,990 | 6,141,417 |
+
+Both pairs give a change of about −560 to −600 people. The rates are rounded to whole numbers, so each estimate is only good to roughly ±1,500 people. The honest reading is that the population was flat at about 6.14 million.
+
+**How I got there**
+- The `domain_docs` MongoDB dump is a BSON file, so I decoded it directly. The metro identity theft figures are scattered across about 4,000 sentences in 57 documents, in many date and number formats.
+- I paired each fraud count/rate with its identity theft count/rate. The two pairs share a count-to-rate ratio, which gives the implied population. Using the ratio that is consistent across each MSA's lines removed the spurious pairings. The Pottsville check came out at about 143K across all years, which matches its real-world population.
+- The highest 2024-dated identity theft rate is Miami's 903, well ahead of the next (690, Atlanta)."
+claude-haiku-5-5,krama,5,1,description+hints,completed,scored,True,283.7018757760525,17,17,4,0,476400,432787,18632,0.019094544999999997,"**Answer: 20.03 °C** (the exact mean is 20.025, which rounds half-up to 20.03).
+
+The beach with the most failing bacterial samples is **Kings (DCR) @ Eastern Ave.** It has 143 failing samples in 2012–2018 and 365 across all years, well ahead of the next beach, Tenean (DCR), with 97 in the period. Its four temperature readings from 2012–2018 are:
+
+| Date | Raw reading | °C |
+|---|---|---|
+| 2012/08/11 | 23.7 C | 23.7 |
+| Sep 19, 2012 | 19.8 celsius | 19.8 |
+| 10/04/2013 | 14.7 celsius | 14.7 |
+| September 25, 2017 | 71.42 °F | 21.9 |
+
+The mean is (23.7 + 19.8 + 14.7 + 21.9) / 4 = 20.025.
+
+Method:
+- **Bacterial records:** I found them in the domain_docs BSON dump as tab-separated listings of beach samples. I classed a sample as a failure when its result text used one of the 16 fail phrasings, such as ""exceeded the limit"" or ""constitutes a violation"". Phrasings like ""no violation recorded"" count as passes.
+- **Beach matching:** I joined each record to the temperature table on the numeric community and county codes plus the beach name, normalised to letters and digits only. All 319,911 bacterial records matched a beach in the temperature table.
+- **Units and dates:** I converted °F and K to °C and parsed mixed date formats to get each reading's year. Only the year matters for the 2012–2018 filter.
+
+Whether failure counts are restricted to 2012–2018 or taken over all years, the top beach is the same."
+claude-haiku-5-5,krama,6,1,description+hints,completed,scored,False,189.33802218735218,19,19,0,0,563506,515256,16067,0.01921626,"**Answer: 21.36%** (22 exceedances out of 103 samples).
+
+1. **Coldest beach:** Across the 7,031 temperature readings from 2008 to 2016, the lowest per-beach average water temperature belongs to **Ocean @ Squibnocket Beach** (community COM-062, county CTY-07, Chilmark, Dukes). Its two readings in the period are 50.54 °F (10.30 °C) and 10.8 °C, for a mean of 10.55 °C.
+
+2. **Bacterial samples:** I decoded the Mongo `files.bson` dump (1,651 documents) and found 221 Squibnocket sample records, all in tab-separated tables. Their community and county codes all normalize to 062 and 007, matching the temperature table. I took each sample's year from its varied date formats. 103 samples fall in 2008–2016 inclusive.
+
+3. **Exceedances:** A sample counts as an exceedance when its result says it exceeded the limit, failed to meet requirements, violated the standard, was non-compliant, or was recorded as a violation. Results that say they met requirements, were within limits, or had no violation do not count. 22 of the 103 samples are exceedances, so 22 / 103 × 100 = **21.36%**.
+
+The exceedance flag comes from the result wording in each record, not from a numeric threshold. I did not check the wording against numeric limits."
+claude-haiku-5-5,krama,7,1,description+hints,completed,scored,True,218.43931925389916,30,30,4,0,1094319,1034007,18600,0.02717747,"**Answer: 60.08**
+
+This is the average age of 12 patients. The result depends on two interpretive choices, described below.
+
+**How I got there**
+
+1. **Metadata sheet:** `UCEC_CPTAC3_meta_table_V2.1` is an xlsx blob in `domain_assets.db` (row 86). It has 153 patient rows, keyed by `idx` S001–S153, with an `Age` column.
+2. **CDK12 statements:** The MongoDB `domain_docs` collection holds 1,651 documents. CDK12 appears in 95 statements across them. Each statement is a list of patient IDs, a verb phrase, and a list of proteins, paired by position (""…respectively"").
+3. **ID join:** Document IDs such as `s-4541`, `GS.348`, or `S/14` canonicalize to a number, which I mapped to the sheet's `S###` index. The sheet has no other patient identifier that links to the documents.
+4. **Filtering:** I kept distinct patients in the sheet range (S001–S153) whose protein is CDK12. That gives 20 patients. Eight have `Age = NA` and were excluded, leaving 12 ages: 46, 38, 60, 73, 71, 59, 65, 67, 41, 63, 63, 75. Their sum is 721, and 721 / 12 = 60.083…, which rounds to 60.08.
+
+**Interpretation choices**
+
+- **Verb phrases:** I counted all four phrasings as ""hyperactivated"": ""were hyperactivated with"", ""showed elevated activity for"", ""had proteins"", and ""expressed"". They appear mixed within the same documents, which suggests paraphrases of one relation. If only the literal ""were hyperactivated with"" phrasing counts, the result is 56.33 (3 patients with ages). If you include only ""hyperactivated"" and ""showed elevated activity"", it is 56.00 (5 patients).
+- **ID mapping:** The document IDs canonicalize to S001–S153 by number. That is an inference, since no document links the two ID formats explicitly."
+claude-haiku-5-5,krama,8,1,description+hints,completed,scored,True,577.508051331155,25,25,3,0,678889,624567,15027,0.020548069999999998,"**Answer: PFN1**
+
+The oldest non-excluded Serous patient is S016 (C3L-00358, age 90), and the protein aligned with S016 is PFN1.
+
+1. **Metadata sheet:** The `UCEC_CPTAC3_meta_table_V2.1` sheet is in an Excel workbook stored as a blob in `domain_assets.db`. It has 153 patient rows. Fourteen are Serous; one of those (S043) has `Case_excluded = Yes`, and another (S104, a replication row) also has `Case_excluded = Yes` and no age, so both are dropped.
+2. **Oldest eligible patient:** Among the remaining 12 Serous cases, the highest age is 90, for S016 (Proteomics_Participant_ID C3L-00358).
+3. **Protein lookup:** The only place S016 appears in the document store is a `patients … respectively` record (group `g_247`) in the `domain_docs` BSON dump. That record lists 35 patients and 35 proteins. S016 is the 9th patient, and the 9th protein is **PFN1**.
+
+One caveat: that record's verb is ""expressed"", not ""hyperactivated"". Other records in the store use ""were hyperactivated with"", ""showed elevated activity for"", and ""had proteins"", so I read ""expressed"" as the same concept. S016 appears in no other record, so the answer rests on that single alignment."
+claude-haiku-5-5,krama,9,1,description+hints,completed,scored,True,151.7234008051455,23,23,0,0,983553,925173,12139,0.02261748,"**Answer: 2.4431**
+
+The month is October 2024, and the mean Kp for October 2024 from the OMNI2 low-resolution hourly data is 2.443145, which rounds to 2.4431.
+
+1. **Swarm-B density by month.** The MongoDB dump holds twelve monthly `SB_DNS_POD_2024_MM_v02` documents, which are the Delft thermosphere density series for Swarm-B. I took column 9 (density, kg/m³) from each. The monthly means were highest in October (1.3944×10⁻¹² kg/m³), just ahead of September (1.3795×10⁻¹²).
+
+2. **Kp for October.** The 2024 OMNI2 low-resolution hourly file has 8,784 rows, one per hour of the leap year. Kp is field 39, stored as ×10 codes (e.g. 33 = 3+), per the OMNI2 documentation. I averaged the 744 hours from day-of-year 275 to 305 and divided by 10."
+claude-haiku-5-5,music_brainz_20k,1,1,description+hints,completed,scored,False,136.28727660235018,4,4,1,0,32662,25679,1546,0.001902365,"Apple Music made **$601.44 USD** from ""Get Me Bodied"" in Canada.
+
+Four track records in `tracks.db` refer to this song: Beyoncé, ""Get Me Bodied"", on *Sexxxplicit R&B, Volume 25* (2007), with formatting differences in the year, artist spelling and title. Two of them (track_id 4233 and 12954) have Apple Music sales in Canada:
+
+| track_id | units_sold | revenue_usd |
+|---|---|---|
+| 4233 | 354 | 377.62 |
+| 12954 | 210 | 223.82 |
+| **Total** | **564** | **601.44** |
+
+The other two duplicates (10838 and 15158) have no Canadian Apple Music sales, so they add nothing."
+claude-haiku-5-5,music_brainz_20k,2,1,description+hints,completed,scored,True,140.7109783552587,7,7,1,0,61373,52484,2587,0.002929015,"**Amazon Music** earned the most USD revenue from ""Street Hype"" by Brucqe Maginnis, with **$1,108.99** across all countries.
+
+The tracks table has five records for this song, which I merged into one entity: IDs 7, 4122, 4628, 13758 and 14080. They differ only in spelling (""Brucqe""/""Bruce"", ""Sttreet"", ""StreetH ype""), year format (""2005"", ""'05"", ""05"") and length format. All share the album ""Groove City"" (or ""Groove City (2005)"").
+
+Revenue by store across those records:
+
+| Store | Revenue (USD) |
+|---|---|
+| Amazon Music | 1,108.99 |
+| Apple Music | 984.48 |
+| iTunes | 916.86 |
+| Google Play | 51.40 |
+
+Spotify has no sales for these tracks.
+
+Amazon Music still comes out on top if the least certain match (ID 7, ""Sttreet Hype"") is excluded: $682.23 versus $654.56 for iTunes."
+claude-haiku-5-5,music_brainz_20k,3,1,description+hints,completed,scored,True,115.02951328828931,9,9,1,0,81506,66818,6649,0.005828130000000001,"The song with the highest total revenue is **""Zo gaat het leven aan je voor"" by Syb van der Ploeg**, with about **$7,536.31** in USD revenue across all stores and countries (6,515 units sold).
+
+The sales table is keyed by `track_id`, and this song is spread across four duplicate track records in the tracks table. Summing sales across all four:
+
+| track_id | Title as stored | Revenue (USD) |
+|---|---|---|
+| 3024 | Zo gaat het leven aan je voor (Hillich fjoer \| Heilig vuur) | 1,754.68 |
+| 3435 | Zo gaat het leven aan je voor | 2,024.37 |
+| 12620 | Zo gaat het leven aan je voor - Hillich fjoer \| Heilig vuur | 2,377.59 |
+| 12854 | 006-Zo gaat het leven aan je voor | 1,379.67 |
+
+All four share the artist Syb van der Ploeg and the 2008 release year, and their album fields are variants of ""Hillich fjoer | Heilig vuur"". The duplicates differ only in title decoration (numbering prefixes, parenthetical album names) and in the length and language formats.
+
+Without entity resolution, the best single track record would be track_id 14719 (""Systemisch bled"") at about $2,523, so the merge changes the answer.
+
+I excluded one cluster: merging the ""Ludwig van Beethoven"" records on artist alone would have produced a larger total, but those records are different pieces and some have placeholder titles like ""n.a."", so they can't be treated as one song. I also left out groups whose titles are just numbers (e.g., ""004"") with no artist, since those aren't identifiable songs."
+claude-haiku-5-5,stockindex,1,1,description+hints,completed,scored,True,140.48732284270227,6,6,1,0,43018,35413,3321,0.002964855,"**Answer: the Shenzhen Component Index (399001.SZ)** has the highest average intraday volatility among Asian indices since 2020, at about 1.83% per day.
+
+| Rank | Index | Exchange | Avg (High−Low)/Open | Trading days |
+|---|---|---|---|---|
+| 1 | 399001.SZ | Shenzhen Stock Exchange | 0.01834 | 342 |
+| 2 | NSEI | National Stock Exchange of India | 0.01707 | 349 |
+| 3 | HSI | Hong Kong Stock Exchange | 0.01493 | 348 |
+| 4 | 000001.SS | Shanghai Stock Exchange | 0.01378 | 340 |
+| 5 | N225 | Tokyo Stock Exchange | 0.01343 | 344 |
+| 6 | TWII | Taiwan Stock Exchange | 0.01323 | 339 |
+
+Notes on the method and data:
+
+- **Region:** I treated the six indices above as Asian, based on the exchange location. The database has no Korean index, and I did not count the Swiss, South African, German, or Euronext indices as Asian.
+- **Dates:** The Date field mixes three text formats, which I parsed before filtering to 2020 onward. Every row parsed successfully.
+- **Volatility:** For each day I computed (High − Low) / Open, skipping rows with a non-positive Open, then averaged across days.
+- **Coverage caveat:** The data for these indices stops in mid-2021 (around May–June 2021), so ""since 2020"" means roughly January 2020 to mid-2021. The result reflects that window only.
+- **Margin:** The lead over NSEI is modest, about 0.0013 points of daily range."
+claude-haiku-5-5,stockindex,2,1,description+hints,completed,scored,True,142.55475504882634,7,7,3,0,65056,55899,3015,0.003210665,"Only the NASDAQ Composite (IXIC) had more up days than down days in 2018.
+
+**Answer: IXIC (NASDAQ Composite)**, with 131 up days versus 120 down days.
+
+The other two North American indices had more down days:
+
+| Index | Exchange | Up days | Down days | Flat days |
+|---|---|---|---|---|
+| IXIC | NASDAQ | 131 | 120 | 0 |
+| NYA | New York Stock Exchange | 125 | 126 | 0 |
+| GSPTSE | Toronto Stock Exchange | 115 | 135 | 1 |
+
+I counted a day as up when Close > Open and down when Close < Open. Each index has 251 distinct trading dates in 2018 and no null prices. The dates are stored in several text formats, but all include the year, so filtering on ""2018"" captured the full year."
+claude-haiku-5-5,stockindex,3,1,description+hints,completed,scored,True,174.05168418679386,11,11,3,0,127238,110634,7863,0.007112739999999999,"The top 5 are the Nasdaq Composite (US), Nifty 50 (India), Shenzhen Component (China), DAX (Germany), and Taiwan Weighted (Taiwan). Ranking by annualized return or total return gives the same five.
+
+| Rank | Index | Exchange / Country | Annualized return (IRR) | Total return on invested capital |
+|---|---|---|---|---|
+| 1 | IXIC (Nasdaq Composite) | NASDAQ, United States | 12.9% | +383% |
+| 2 | NSEI (Nifty 50) | National Stock Exchange of India, India | 11.7% | +136% |
+| 3 | 399001.SZ (Shenzhen Component) | Shenzhen Stock Exchange, China | 7.4% | +137% |
+| 4 | GDAXI (DAX) | Frankfurt Stock Exchange, Germany | 7.3% | +135% |
+| 5 | TWII (Taiwan Weighted) | Taiwan Stock Exchange, Taiwan | 7.2% | +130% |
+
+**Method**
+- Each month, I invested a fixed amount at the first trading day's close, starting January 2000, and ran through the common end date of 31 May 2021.
+- Returns are based on local-currency closing prices. Using USD-converted closes or adjusted closes gives the same ranking.
+- NSEI has data only from September 2007, so its 136% total return covers about 13.5 years rather than 21. Its annualized return is the fairer comparison, and it still ranks second. J203.JO (South Africa) has data only from 2012 and falls outside the top 5 on both measures.
+- Korea Exchange appears in the index-info table, but the trade database has no Korean index, so it could not be included."
+claude-haiku-5-5,stockmarket,1,1,description+hints,completed,scored,True,133.15047365799546,4,4,2,0,33533,26337,1210,0.0017675699999999998,"The maximum adjusted closing price for The RealReal, Inc. (ticker REAL) in 2020 was **$18.44**, reached on January 3, 2020.
+
+The ticker comes from the stockinfo database. The price data in the stocktrade database covers 2020-01-02 through 2020-04-01 (63 trading days), so this is the maximum over that available window, not the full calendar year."
+claude-haiku-5-5,stockmarket,2,1,description+hints,completed,scored,True,38.644645838066936,9,9,1,0,65209,56783,5068,0.00415453,"There are 31 NYSE Arca ETFs in the database whose Adj Close exceeded $200 at some point in 2015.
+
+| Ticker | Max Adj Close (2015) | | Ticker | Max Adj Close (2015) |
+|---|---|---|---|---|
+| BOIL | 382.20 | | LBJ | 998.11 |
+| BZQ | 462.78 | | MDY | 263.77 |
+| COM | 40,487.99 | | PTIN | 843.53 |
+| DUST | 1,923.28 | | RTL | 13,306.76 |
+| EDZ | 302.01 | | SDOW | 415.17 |
+| ERX | 645.16 | | SOXS | 3,886.62 |
+| FAZ | 288.54 | | SSG | 263.87 |
+| FXP | 206.00 | | TECS | 253.30 |
+| GFIN | 686.76 | | TZA | 272.63 |
+| GUSH | 78,699.22 | | UVXY | 81,500.00 |
+| HYUP | 4,329.75 | | VIXY | 491.00 |
+| JDST | 12,988.41 | | VPC | 2,250.14 |
+| JNUG | 451.07 | | XES | 278.55 |
+| JPN | 201.52 | | XOP | 208.74 |
+| LABD | 624.08 | | YANG | 347.35 |
+| LABU | 230.28 | | | |
+
+**Total: 31 ETFs**
+
+Method: I took the 1,435 securities with Listing Exchange = P and ETF = Y from stockinfo, then checked each one's 2015 rows in the DuckDB price table for a maximum Adj Close above 200. All 1,435 tables were present and queried without errors.
+
+**Data-quality caveat:** Many of these prices are implausible for ETFs. Raw Close values are just as extreme (for example, UVXY closes at 81,500 and COM at 42,000), so the problem is in the source prices, not only the adjustment. Several of the 31 may qualify only because of these bad values. The list follows the database as stored, but the price series for the extreme tickers should be checked against a reliable source before the list is used."
+claude-haiku-5-5,stockmarket,3,1,description+hints,completed,scored,True,146.92006255406886,5,5,1,0,47664,37573,3594,0.003433755,"Fifteen companies meet the criteria. Their average daily 2008 volumes are below.
+
+**Criteria used**
+- **Financially troubled:** Financial Status is deficient or delinquent, including the combined codes (D, E, G, H, J, K). In this data only D and H occur.
+- **NASDAQ-listed market:** Market Category is Q (Global Select), G (Global Market) or S (Capital Market).
+- **Trading volume in 2008:** the company's ticker has 2008 rows in the price database. Averages ignore null volumes, and no row-level filter was applied.
+
+| Symbol | Company | Status | Avg daily volume, 2008 |
+|---|---|---|---|
+| APEX | Apex Global Brands Inc. | Deficient | 23,781.42 |
+| BKYI | BIO-key International, Inc. | Deficient | 10,988.14 |
+| CBAT | CBAK Energy Technology, Inc. | Deficient | 86,223.32 |
+| CCCL | China Ceramics Co., Ltd. | Deficient | 4,366.80 |
+| CORV | Correvio Pharma Corp. | Deficient | 145,247.83 |
+| CPAH | CounterPath Corporation | Deficient | 375.49 |
+| DZSI | DASAN Zhone Solutions, Inc. | Deficient | 15,578.66 |
+| FTFT | Future FinTech Group Inc. | Deficient | 9.85 |
+| FTR | Frontier Communications Corporation | Deficient | 254,397.63 |
+| IDEX | Ideanomics, Inc. | Deficient | 10.28 |
+| OPTT | Ocean Power Technologies, Inc. | Deficient | 254.15 |
+| PEIX | Pacific Ethanol, Inc. | Deficient | 10,706.72 |
+| SES | Synthesis Energy Systems, Inc. | Deficient and delinquent | 2,390.51 |
+| SNSS | Sunesis Pharmaceuticals, Inc. | Deficient | 781.82 |
+| SYPR | Sypris Solutions, Inc. | Deficient | 36,836.36 |
+
+Company names were taken from the start of each Company Description, so they may differ slightly from the legal name. FTFT has one null-volume day in 2008, which was excluded from its average.
+
+Twelve other troubled NASDAQ-market symbols had no 2008 rows in the price database, so they are not listed: AGMH, AMTX, BIOC, FAMI, ISDS, MCEP, NXTD, RBZ, SPI, VTIQW, and two others from the status list (ISDS and RBZ are ETF and ADR-type entries, but they were also excluded for lack of 2008 data)."
+claude-haiku-5-5,stockmarket,4,1,description+hints,completed,scored,False,150.0194847388193,8,8,4,0,75466,65140,4208,0.00404565,"The top five are the same under both ranking approaches (by up-day count, or by up-minus-down margin), so the set is stable even though the order differs slightly.
+
+**Top 5 NYSE non-ETF stocks with more up days than down days in 2017:**
+
+1. **HDFC Bank Limited** (HDB): 146 up, 102 down
+2. **Albany International Corporation** (AIN): 143 up, 101 down
+3. **Getty Realty Corporation** (GTY): 143 up, 104 down
+4. **Mettler-Toledo International, Inc.** (MTD): 143 up, 108 down
+5. **Pfizer, Inc.** (PFE): 141 up, 105 down
+
+Method: I took stocks with Listing Exchange = 'N' and ETF = 'N' (234 symbols, all with price tables). For each, I counted 2017 trading days where Close > Open (up) and Close < Open (down). 131 of them had more up days than down days.
+
+Fifth place was tied at 141 up days between Pfizer and Ameriprise (AMP, 105 down). I broke the tie by the larger up-minus-down margin, which puts Pfizer (+36) ahead of Ameriprise (+31). If the ranking were by margin alone, the same five companies would appear, with Pfizer ahead of Mettler-Toledo."
+claude-haiku-5-5,stockmarket,5,1,description+hints,completed,scored,True,136.89330137800425,5,5,1,0,36368,29432,2429,0.00237547,"The top five Capital Market companies by 2019 days with an intraday range above 20% of the low are:
+
+1. **Synthesis Energy Systems, Inc.** (SES): 51 days
+2. **TD Holdings, Inc.** (GLG): 42 days
+3. **TMSR Holding Company Limited** (TMSR): 40 days
+4. **Verb Technology Company, Inc.** (VERB): 38 days
+5. **Sunesis Pharmaceuticals, Inc.** (SNSS): 32 days
+
+I counted days where (High − Low) > 0.2 × Low, using 2019 trading dates, across the 86 companies flagged as NASDAQ Capital Market (Market Category ""S""). The 5th and 6th places are clearly separated (32 vs. 23), so there is no tie at the cutoff. The company names are taken from the start of each ""Company Description"" field."
+claude-haiku-5-5,usaspending,1,1,description+hints,completed,scored,False,158.1508481539786,34,34,5,0,858414,809303,28773,0.028616605,"**Answer: 71 DoD awards have an explicitly stated amount above $1,000,000.** That is a floor, not a full count. Most DoD awards in this database don't state an exact amount, so the true total can't be determined from the data.
+
+- **Scope:** I counted contracts whose `awarding_agency` maps to Department of Defense through the alias table. That covers 6,750 awards.
+- **Joining:** `contracts` and `contract_amounts` join exactly after stripping separators and uppercasing the ID, so no fuzzy matching was needed. Each award is counted once.
+- **Amounts with exact values:** 337 DoD awards have a numeric amount in one of the parseable formats. 71 of them are above $1M. Three awards have two conflicting exact rows, but all of those are below $1M, so the count doesn't depend on which row is primary.
+- **Amounts without exact values:** 6,413 DoD awards have only prose in `amount_text`, such as ""a modest five-figure engagement"" or ""seven-figure investment"". The `_OLD` superseded rows described in the hints are not present in this database, so there was nothing to exclude.
+
+The prose can't give exact figures. Calibrating phrases against the 223 awards that have both prose and an exact value showed loose agreement (e.g. a ""six-figure"" description with a $1.78M exact amount). A rough tier reading puts about 738 of the prose-only awards in the above-$1M range, with about 76 more ambiguous and 455 unclassifiable. That suggests the true count is likely in the hundreds, but I wouldn't treat any estimate as the answer.
+
+I also tried recovering per-award amounts from `recipients_db`. Recipient totals don't match the award amounts; the mismatches follow clean ratios (4/3, 2/3, 1/2), so I did not use them."
+claude-haiku-5-5,usaspending,10,1,description+hints,completed,scored,True,60.34341069869697,14,14,1,0,240867,214780,11712,0.011263925,"**Answer: 141** contracts.
+
+The top 10 recipients by contract count (grouped by normalised recipient UEI) hold 4,161 contracts. Of those, 141 have a superseded amount entry.
+
+How I got there:
+
+- **Superseded entries:** The `_OLD` suffix described in the hints does not appear anywhere in this data. Instead, 345 award_ids have two rows in `contract_amounts`, which is about 3.5% of the 9,921 contracts and matches the hint's rate. I treated an award with a second amount row as having a superseded entry.
+- **Joining:** Award_ids match exactly between `contracts` and `contract_amounts`, so no fuzzy matching was needed there.
+- **Recipients:** Stripping the `uei:` prefix and `-uei` suffix, uppercasing, and mapping the OCR confusables onto digits gives a clean one-to-one match between the 3,317 contract UEIs and the 3,317 recipient rows. The `n_contracts` values in `recipients.db` agree with the counts from `contracts`.
+- **Top 10:** The cutoff is clean. The 10th and 9th place both have 39 contracts, and 11th has 38.
+
+The answer depends on grouping by UEI. If I instead merged recipients by normalised name, as the hints suggest for multi-UEI entities, the count is 142. That grouping has a three-way tie at 39 contracts for the last slots, so the top 10 is ambiguous there. I reported the UEI-level figure because it has no tie at the cutoff."
+claude-haiku-5-5,usaspending,2,1,description+hints,completed,scored,True,215.72757609002292,35,35,6,0,1330174,1255337,41999,0.042905645,"I could not get an exact count from this data. The best estimate is about **75** California contract awards over $1,000,000, with a plausible range of 49 to 89.
+
+**Why it isn't exact**
+
+- **Exact (45):** 205 California awards went to recipients with a single contract. For those, the recipient's total is the award amount (matches the numeric amounts to display rounding). Of those, 45 are over $1M.
+- **Estimated (about 30):** 250 California awards belong to 66 multi-contract recipients. Their amounts are only prose in `contract_amounts` (for example ""six-figure"" or ""seven-figure""), not exact values. The recipient totals are sums across several awards, so they can't be split per award. Mongo descriptions contain no amounts either.
+  - Prose magnitude words were reliable on the 2,300+ awards where I could check them against exact totals: ""five/six-figure"" and similar were always ≤$1M, and ""eight/nine-figure"", ""low-to-mid millions"" and ""tens of millions"" were >$1M. Words like ""seven-figure"" were mostly right, but negations (""without crossing into seven-figure"") caused misses.
+  - Counting ""seven-figure"", ""millions"" and higher bands gives 26 to 28 awards over $1M. About 46 awards had no usable magnitude word; roughly 12% of such awards were over $1M in the calibration set, which adds about 5.
+  - Recipient totals cap how many awards in each group can exceed $1M; applying that cap gives 26 (vs 28 uncapped).
+- **Hard bounds:** 49 (only the certain cases) to 89 (every ambiguous award counted as >$1M).
+
+**How the join works**
+
+- Award IDs: the canonical ID is the stripped, uppercased `award_id`, which matches `contract_amounts` exactly. About 345 awards have a second, superseded amount row (the `_OLD` suffix is already stripped). For those pairs, the prose row is the primary amount about 97% of the time, so I used it.
+- UEIs: stripping the `uei:`/`-uei` prefixes and separators, with the OCR folding applied to both sides, matched all 3,317 recipients exactly.
+- State: California is `CA`, `Calif`, `Calif.`, or `California`; 455 contracts map to California recipients.
+
+**Caveat:** the figure depends on prose-based estimates for about 250 awards, so treat ""about 75"" as an estimate, not an exact count. An exact answer needs the numeric amounts for the multi-contract awards, which this dataset does not contain.
+
+I left scratch files (a pickled copy of the data and helper scripts) in `work/tmp/`. Nothing in the source databases was modified."
+claude-haiku-5-5,usaspending,3,1,description+hints,completed,scored,True,44.569546062499285,13,13,3,0,171693,150198,8334,0.008355254999999999,"**601** distinct recipient UEIs are associated with contracts in NAICS sector 33.
+
+- **Sector assignment:** I took the first two digits of `naics_code` after stripping the `naics-` prefix and any separators. That gives 874 contract rows in sector 33. The NAICS codes had no letter substitutions, so no OCR repair was needed.
+- **UEI normalization:** I removed the `uei:` prefix and `-uei` suffix, uppercased, and folded the OCR confusables (0/O, 1/I, 5/S, 2/Z, 6/G, 8/B) into one key. Every sector-33 UEI was 12 characters after cleanup. Folding gave the same 601 keys as a plain uppercase comparison, so the OCR mapping did not merge any distinct UEIs.
+
+I counted from `contracts_db` only, since the question asks about contracts. I did not check the counts against `recipients_db`. The Postgres helper and cached data are in `work/tmp/`."
+claude-haiku-5-5,usaspending,4,1,description+hints,completed,scored,False,159.59224049653858,22,22,3,0,698024,642717,27840,0.027259344999999997,"**Best estimate: Department of Homeland Security**, but treat this as low-confidence. The amount data doesn't support an exact answer.
+
+**Why the answer is uncertain**
+
+- **Most amounts aren't numbers.** Of 10,266 `contract_amounts` rows, only 522 hold an exact dollar figure. The rest are prose such as ""a modest five-figure investment"" or ""low-to-mid millions"". Some of these give a band, and about 1 in 5 give no magnitude at all (""a substantial investment"").
+- **The ranking depends on how vague prose is treated.** If vague rows count as under $1M, Homeland Security leads (31.2% vs. Veterans Affairs at 25.3%). If they count as over $1M, Veterans Affairs edges ahead (42.3% vs. 42.0%) and the Department of the Interior tops the list.
+- **Restricting to exact numbers doesn't settle it.** Only 2 of Environmental Protection Agency's 16 contracts have exact figures, so the numeric-only ranking is driven by tiny samples.
+
+**Method**
+
+1. **Contracts → amounts.** Award ids were normalized (strip separators, uppercase, undo OCR confusions). Canonical ids were taken from `generated_internal_id`, since they are cleaner. About 1,300 amount rows still match two or more contracts that differ only by OCR-confusable characters (e.g. B vs 8), so they were left out.
+2. **Agencies.** `awarding_agency` was mapped to canonical names via `agency_aliases`. There are 22 agencies with at least 10 contracts.
+3. **Amount classification.** Exact numbers were compared to $1,000,000 directly. Prose was classified by its magnitude band: seven-figure, millions, and tens of millions count as over $1M; five/six-figure, thousands, and ""under a million"" count as under.
+4. **Result (explicit bands only).** Homeland Security: 86 of 246 classifiable contracts (35.0%). Veterans Affairs was next at 30.5%.
+
+The `_OLD` superseded-amount rows described in the hints don't appear in this copy of the data, and about 345 award ids have duplicate amount entries that I couldn't resolve to a primary amount."
+claude-haiku-5-5,usaspending,5,1,description+hints,completed,scored,False,500.13301898073405,33,33,3,0,890289,840672,25801,0.027507595000000003,"**Answer: 5 distinct 2-digit NAICS sectors (23, 33, 54, 56, 62)**, based on the 20 contracts whose award amount is stated exactly in `contract_amounts`. Most awards don't have an exact amount, so this count is a lower bound on what the full data might show.
+
+**How I got it**
+- I loaded the Postgres dump (`contracts.sql`) into an in-memory SQLite database. The `award_id` values match exactly between `contracts` and `contract_amounts` for all 9,921 awards, so no fuzzy resolution was needed. I didn't query the live Postgres server.
+- I normalized each `naics_code` by stripping the `naics-` prefix and separators and mapping OCR letters to digits. Every code normalized to 6 digits, and the sectors match the `naics_sectors` reference table in `agencies.duckdb`.
+- I parsed the exact amount formats present (plain numbers, `$x,xxx.xx`, `x USD`, `xK`, `xM`). Then I kept awards with an exact amount ≥ $10,000,000 and counted distinct sectors.
+
+**Caveat on coverage**
+- Only 517 of 9,921 awards have an exact numeric amount in `contract_amounts`. The other ~9,400 rows are prose such as ""eight-figure commitment"" or ""low-to-mid millions"", which don't give an exact figure.
+- The prose is also unreliable. For example, one award has an exact value of 1.1M but is described as ""six-figure"", and another with an exact value of 8.6M is labeled ""eight-figure"".
+- If I used the prose magnitude bands that clearly mean ≥ $10M (""eight-figure"", ""nine-figure"", ""ten-figure"", ""tens of millions"") as well, the count rises to 11 sectors. That figure is a rough estimate, not a verified result. I reported the exact-value answer because it is the only one the data supports directly.
+
+The analysis script is at `tmp/analyze.py` in the working directory."
+claude-haiku-5-5,usaspending,6,1,description+hints,completed,scored,False,70.24507434014231,15,15,4,0,196603,171102,10460,0.010127845,"**57** distinct recipients (canonical names) are each associated with more than one UEI.
+
+I grouped the 3,317 rows by normalized name and counted the groups with more than one normalized UEI. Two normalizations were applied:
+
+- **UEIs:** stripped the `uei:` prefix and `-uei` suffix, uppercased, and folded the OCR-confusable characters to one form. This kept all 3,317 UEIs distinct, so nothing was wrongly merged.
+- **Names:** uppercased, removed punctuation, and dropped trailing corporate suffixes (Inc, LLC, Corp, Co, Ltd, and so on). Examples of what this merges: ""LOCKHEED MARTIN CORP."" with ""Lockheed Martin Corporation"", and ""AIRGAS USA, L.L.C"" with ""AIRGAS USA LLC."".
+
+A looser key that also drops a leading ""THE"" and all spaces produces the same 57 groups, so the result doesn't depend on how strict the name matching is. The largest groups are RAYTHEON (8 UEIs), NORTHROP GRUMMAN SYSTEMS (8), LOCKHEED MARTIN (8) and THE BOEING (7).
+
+The `recipients.db` in the work directory is a 0-byte file, so I ran the analysis on the populated copy the `query_dataset` symlink points to (`/home/minhyeok/dab-reproduction/query_usaspending/query_dataset/recipients.db`)."
+claude-haiku-5-5,usaspending,7,1,description+hints,completed,scored,True,215.36739763617516,21,21,1,0,522663,482744,18085,0.018858714999999998,"**Answer: sector 23** (Construction), but this is a fragile result. Sectors 23 and 33 tie at 7 contracts each, so the smaller code wins the tie.
+
+**How I got there**
+
+- **Join:** `contracts` and `contract_amounts` share identical award_id surface forms in Postgres, so an exact join covers all 9,921 contracts. I did not need the fuzzy matching the hints describe.
+- **NAICS:** I stripped the `naics-` prefix and hyphens, mapped the OCR letters back to digits, and took the first two digits. Every code normalized cleanly to a valid 6-digit code.
+- **Amounts:** I parsed plain numbers, comma and USD forms, K/M suffixes, and sum-of-parts expressions. Only 517 contracts have such an exact amount. Twenty of them are ≥$10M, split 7 for sector 23 and 7 for sector 33; the next sector is 56 with 3.
+
+**Caveat: most amounts are not exact**
+
+- 9,401 contracts have only prose in `contract_amounts`, such as ""eight-figure"" or ""low-to-mid millions"". MongoDB holds only descriptions, with no amounts, so there is no other source for these.
+- If I count prose that unambiguously indicates ≥$10M (""eight-figure"", ""nine-figure"", ""tens of millions"", and similar), sector 54 leads with 60, ahead of 23 with 58 and 33 with 56. Some of that prose is also misleading, e.g. ""billion-dollar initiatives"" attached to a five-figure award.
+- I went with the exact-amount result because the question's tie-break clause fits it, and the prose is not an exact amount. If the intended amounts are the full underlying values, the answer could differ.
+
+Scratch scripts are in `work/scratch/` (`analyze.py`, `bands.py`)."
+claude-haiku-5-5,usaspending,8,1,description+hints,completed,scored,True,91.28486724663526,18,18,1,0,356682,319432,18186,0.01694262,"**Answer: 23 (best estimate; the true count could fall between 20 and 25).** The database does not contain exact dollar amounts for these awards, so the count rests on the magnitude language in the amount text.
+
+**How I got there**
+
+- **Lockheed Martin recipients:** Nine UEIs in `recipients_db` carry the Lockheed Martin name. After normalizing the prefix, suffix, case, and OCR character substitutions, all nine match `contracts.recipient_uei`. No other award's text mentions Lockheed under a different UEI.
+- **Department of Defense:** All 32 Lockheed awards in `contracts` have awarding agency (and funding agency) resolving to ""Department of Defense"" through `agency_aliases`.
+- **Award join:** Every `contracts.award_id` matches a `contract_amounts.award_id` after normalization. The `_OLD` suffix does not appear anywhere in this database, so there was nothing to exclude.
+- **Amounts:** None of the 32 Lockheed awards has a numeric `amount_text`. Each has a single prose sentence, such as ""eight-figure commitment"" or ""six-figure investment."" Only 522 of the 10,266 amount rows in the whole database are numeric, so this is a dataset-wide issue. The MongoDB descriptions contain no amounts either.
+
+**Classification of the 32 awards by stated magnitude**
+
+- **Clearly above $1M (20):** eight-, nine-, or ten-figure, or ""tens of millions.""
+- **Above $1M by stated range (3):** ""seven-figure,"" ""low-to-mid millions,"" and ""single-digit million."" These are most likely above $1M, but the exact figures aren't given.
+- **No magnitude given (2):** FA861123F0012 (""robust, though not uncommon"") and n0001924f1057 (""substantial sum""). I excluded these from the count.
+- **Clearly at or below $1M (7):** six-figure, ""high five-figure to low six-figure,"" ""small office supply,"" and ""upper six figures.""
+
+If the two undetermined awards are counted, the total would be 25. If the three range-based awards are dropped, it would be 20.
+
+The working scripts are in `scratch/` inside the work directory."
+claude-haiku-5-5,usaspending,9,1,description+hints,completed,scored,False,104.14284407068044,22,22,1,0,418681,387469,19011,0.017280590000000002,"I can't give you an exact count from this data. My best figure is **55**, with 692 contracts unresolved.
+
+**Why the count can't be exact:** Of the 984 contracts with no English description, `contract_amounts` gives an exact dollar figure for only 43 of them. For the other 941, the only amount row is prose such as ""six-figure range"" or ""low-to-mid millions"", which doesn't give a dollar value. The prose also isn't reliable for the $1M threshold: ""six-figure"" awards include some above $1.8M.
+
+**How I got 55:**
+- **6 confirmed:** these 43 contracts have a numeric amount above $1,000,000 in `contract_amounts`.
+- **49 inferred:** 249 of the prose-only contracts belong to recipients with exactly one contract. For those, the recipient's `total_amount_text` equals that contract's amount. I checked this proxy against the 155 single-contract awards that also have a numeric amount, and it classifies the >$1M threshold correctly 150 times (97%).
+- **692 unresolved:** the remaining prose-only contracts belong to recipients with several contracts. Their recipient totals can't be split back to individual contracts.
+
+**Other checks:**
+- The award IDs match exactly across Postgres and MongoDB (9,921 each), so no fuzzy matching was needed for this data.
+- There are no `_OLD` rows in `contract_amounts`, so nothing needed to be excluded.
+- Recipient UEIs normalize to a one-to-one match with contracts, and per-recipient contract counts agree with `n_contracts`.
+
+If you can get the full amount for the 941 prose-only contracts, from the source USAspending data or a corrected `contract_amounts` table, the exact answer is a simple count and I can run it."
+claude-haiku-5-5,yelp,1,1,description+hints,completed,scored,True,19.599768506363034,7,7,1,0,39548,32772,2737,0.0025428200000000003,"The average rating across Indianapolis businesses is **about 3.55** (3.547 over 117 reviews).
+
+- **Location:** Eight businesses in the `business` collection have ""Indianapolis, IN"" in their description. This was matched by text search, since the description is the only location field.
+- **Ratings:** I joined those eight to the `review` table in DuckDB, mapping `businessid_N` to `businessref_N`. Four of them have only 3–6 reviews each, so the figure is noisy.
+- **Alternative reading:** If each business counts equally rather than each review, the average of the eight per-business averages is about 3.50."
+claude-haiku-5-5,yelp,2,1,description+hints,completed,scored,True,28.29378554597497,7,7,0,0,43479,35837,3217,0.00292172,"Pennsylvania has the most reviews, with 662 in the review table, and its average rating across those reviews is about 3.70.
+
+| State | Reviews | Businesses | Avg rating |
+|---|---|---|---|
+| **PA** | **662** | 27 | **3.70** |
+| FL | 406 | 23 | 3.03 |
+| MO | 213 | 9 | 3.91 |
+| IN | 176 | 12 | 3.47 |
+
+Method:
+- **State:** taken from the state abbreviation in each business's `description` (e.g., ""Goleta, CA""). The business collection has no state field.
+- **Reviews and ratings:** counted and averaged from the DuckDB `review` table, joined to states via `business_ref` ↔ `business_id`. Every review matched a business with a parsed state.
+- **Average rating:** a mean over individual reviews, not over businesses. A per-business average would give a different figure.
+- **Excluded:** ""AB"" (Alberta, Canada) appears in the data but isn't a U.S. state, so I left it out."
+claude-haiku-5-5,yelp,3,1,description+hints,completed,scored,True,31.458778659813106,11,11,1,0,89117,77095,4913,0.0047296000000000005,"**Answer: 35** businesses that received reviews in 2018 offered business parking or bike parking.
+
+How I got there:
+
+- **Reviews in 2018:** The `review` table has 211 reviews dated 2018, covering 67 distinct `business_ref` values. The dates come in three formats, which I parsed to get the year. The `tip` table isn't needed because the question is about reviews.
+- **Business lookup:** I mapped each `businessref_N` to `businessid_N` and looked up those 67 businesses in MongoDB. All 67 were found in the `business` collection.
+- **Parking test:** A business counted if either of these held:
+  - `BusinessParking` is a dict with at least one flag set to True (garage, street, lot, valet, or validated).
+  - `BikeParking` is `'True'`.
+
+One caveat: the 2018 reviews only reach 67 businesses in the 100-business MongoDB collection, so the count depends on that mapping. I queried the databases through the read-only connections in `connections.json` and `db_config.yaml`, and did not modify any data."
+claude-haiku-5-5,yelp,4,1,description+hints,completed,scored,True,73.29150861222297,12,12,2,0,196801,165883,16224,0.013634880000000002,"**Restaurants** has the most businesses that accept credit cards: 27 of the 75 credit-card businesses. Its average rating is **about 3.63**, computed as the mean of all 778 reviews of those 27 businesses.
+
+If you instead average each business's own mean rating, the result is 3.43. I used the review-level mean because the business records carry no star rating of their own.
+
+Method:
+- **Credit card filter:** `attributes.BusinessAcceptsCreditCards = 'True'` in the MongoDB `business` collection, which gives 75 businesses.
+- **Categories:** there is no structured category field, so I read each business's category list from its `description` text. I checked each list by hand, since a simple parser misread many of them. Because the lists are free text, a few borderline entries could differ.
+- **Ratings:** I joined to the DuckDB `review` table through the `businessid_` → `businessref_` mapping and averaged `rating`.
+
+Runner-up categories are Shopping (17 businesses) and Food (15). The Restaurants lead is clear."
+claude-haiku-5-5,yelp,5,1,description+hints,completed,scored,True,20.910060811787844,6,6,2,0,46765,37772,3206,0.003104445,"**Pennsylvania (PA)** has the most U.S. businesses offering WiFi: 8. Their average review rating is about **3.48** (281 reviews).
+
+Method:
+- **WiFi offered:** I counted a business as offering WiFi when its `attributes.WiFi` value was `free` or `paid`. Values of `no` or missing were excluded. This gave 22 businesses.
+- **State:** taken from the two-letter code in each business `description`.
+- **Rating:** the average of the individual review ratings for those businesses, joined from the DuckDB `review` table via the `businessid_` → `businessref_` prefix mapping. The business collection has no rating field, so this is the only rating source.
+- **Excluded:** one business in ""AB"" (Alberta, Canada) is not a U.S. state.
+
+Per-state results for the U.S. states:
+
+| State | WiFi businesses | Reviews | Avg rating |
+|---|---|---|---|
+| PA | 8 | 281 | 3.48 |
+| FL | 5 | 148 | 3.59 |
+| MO | 2 | 51 | 4.12 |
+| IN | 2 | 62 | 3.03 |
+| LA | 1 | 45 | 4.91 |
+| IL | 1 | 7 | 2.86 |
+| NV | 1 | 37 | 4.00 |
+| ID | 1 | 36 | 4.44 |"
+claude-haiku-5-5,yelp,6,1,description+hints,completed,scored,True,24.446275836788118,7,7,2,0,59864,50852,3683,0.00347607,"The business with the highest average rating in that window is **Coffee House Too Cafe**, with an average of 4.375 across 16 reviews from January 1 to June 30, 2016.
+
+Its category is **Restaurants**. The business description lists its services as ""Restaurants, Breakfast & Brunch, American (New), Cafes"", so Restaurants is the primary category and Cafes is the closest sub-category. The data has no single explicit category field, so the answer depends on which of these labels you treat as the category.
+
+How I got there:
+- **Ratings:** I took the review ratings from the DuckDB `review` table and kept only reviews dated 2016-01-01 through 2016-06-30.
+- **Dates:** The review dates are stored in three string formats, which I parsed separately.
+- **Threshold:** I kept only businesses with at least 5 reviews in that window. 52 businesses had reviews in the window, and the next-highest qualifying business was Orangetheory Fitness Carrollwood at 4.0 across 7 reviews.
+- **Name lookup:** I matched each `businessref_N` to `businessid_N` in MongoDB to get the name and description."
+claude-haiku-5-5,yelp,7,1,description+hints,completed,scored,True,70.0358713734895,14,14,3,0,280462,238556,13324,0.01428501,"**Top 5 business categories by review count (users registered in 2016, reviews dated 2016 onward):**
+
+| Rank | Category | Reviews |
+|---|---|---|
+| 1 | Restaurants | 58 |
+| 2 | Food | 38 |
+| 3 | American (New) | 24 |
+| 4 | Shopping | 20 |
+| 5 | Breakfast & Brunch | 19 |
+
+The next category, Local Services, has 17, so the top 5 is not tied at the cutoff.
+
+**How I got there**
+
+- **Users:** 168 of the 1,999 users have a `yelping_since` year of 2016.
+- **Reviews:** Those users wrote 150 reviews dated on or after 2016-01-01, across 62 businesses. I read ""since 2016"" as review date ≥ 2016-01-01.
+- **Categories:** The business collection has no categories field. I extracted them from the free-text `description`, then fixed a few parses by hand. Each review counts once per distinct category of its business, so a business with several categories adds its review count to each of them.
+
+**Caveats**
+
+- Category extraction is the main source of uncertainty. Descriptions phrase categories in many different ways, so I checked the parsed lists for the 62 relevant businesses by eye, but a small parsing error could shift the counts.
+- Dates use three string formats, and I parsed all of them. The 2016-registration filter and the review cutoff both depend on that parsing.
+
+Note that the sandbox failed to start from the working directory (a broken `.mcp.json` mount), so I ran the queries from the dataset directory."

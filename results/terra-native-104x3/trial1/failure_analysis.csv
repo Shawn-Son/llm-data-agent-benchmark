@@ -1,0 +1,148 @@
+dataset,query,category,official_reason,answer,command_errors,trace,semantic_root_cause,review_evidence
+DEPS_DEV_V1,1,infrastructure,Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2,,0,runs/DEPS_DEV_V1/query1/events.jsonl,Not yet manually reviewed,
+GITHUB_REPOS,1,answer_mismatch,No value in LLM output rounds to 0.33,"15 of 101 non-Python repositories’ `README.md` files include “copyright” information: **14.85%**.
+
+This uses repositories with available language metadata and excludes any whose language description mentions Python.",0,runs/GITHUB_REPOS/query1/events.jsonl,Not yet manually reviewed,
+GITHUB_REPOS,4,answer_mismatch,Could not match: 'tensorflow/tensorflow',"1. torvalds/linux  
+2. apple/swift  
+3. twbs/bootstrap  
+4. Microsoft/vscode  
+5. facebook/react",1,runs/GITHUB_REPOS/query4/events.jsonl,Not yet manually reviewed,
+PANCANCER_ATLAS,1,answer_mismatch,Missing histology type: 9382/3,"Average `log10(normalized_count + 1)` for valid LGG IGF2 expression records:
+
+| Histology type | Patients | Average |
+|---|---:|---:|
+| Astrocytoma | 10 | 2.5713 |
+| Oligoastrocytoma | 5 | 2.7136 |
+| Oligodendroglioma | 8 | 2.6825 |",2,runs/PANCANCER_ATLAS/query1/events.jsonl,Not yet manually reviewed,
+PATENTS,2,answer_mismatch,"Name fuzzy match failed for 'BAKING; EDIBLE DOUGHS' (best match: 'sgrantedjulydecemb', distance=13)","For Germany patents granted July–December 2019, the level-4 CPC areas and their peak filing EMA (α = 0.1) are:
+
+| CPC group | Full title | Best year | Peak EMA |
+|---|---|---:|---:|
+| A61 | MEDICAL OR VETERINARY SCIENCE; HYGIENE | 2016 | 2 |
+| B23 | MACHINE TOOLS; METAL-WORKING NOT OTHERWISE PROVIDED FOR | 2015 | 1 |
+| B29 | WORKING OF PLASTICS; WORKING OF SUBSTANCES IN A PLASTIC STATE IN GENERAL | 2007 | 1 |
+| B41 | PRINTING; LINING MACHINES; TYPEWRITERS; STAMPS | 2007 | 1 |
+| B60 | VEHICLES IN GENERAL | 2009 | 1 |
+| E02 | HYDRAULIC ENGINEERING; FOUNDATIONS; SOIL SHIFTING | 2012 | 1 |
+| E05 | LOCKS; KEYS; WINDOW OR DOOR FITTINGS; SAFES | 2012 | 1 |
+| F02 | COMBUSTION ENGINES; HOT-GAS OR COMBUSTION-PRODUCT ENGINE PLANTS | 2010 | 1 |
+| F16 | ENGINEERING ELEMENTS AND UNITS; GENERAL MEASURES FOR PRODUCING AND MAINTAINING EFFECTIVE FUNCTIONING OF MACHINES OR INSTALLATIONS; THERMAL INSULATION IN GENERAL | 2009 | 1 |
+| F23 | COMBUSTION APPARATUS; COMBUSTION PROCESSES | 2018 | 1 |
+| F24 | HEATING; RANGES; VENTILATING | 2018 | 1 |
+| F41 | WEAPONS | 2012 | 1 |
+| G01 | MEASURING; TESTING | 2008 | 1 |
+| G02 | OPTICS | 2016 | 1 |
+| G08 | SIGNALLING | 2017 | 1 |
+| H01 | ELECTRIC ELEMENTS | 2013 | 1 |
+| H02 | GENERATION; CONVERSION OR DISTRIBUTION OF ELECTRIC POWER | 2009 | 1 |
+| H03 | ELECTRONIC CIRCUITRY | 2015 | 1 |
+| H04 | ELECTRIC COMMUNICATION TECHNIQUE | 2015 | 2 |
+
+I used only primary CPC assignments, deduplicated each patent within a group, and included zero-filing years between each group’s first and last filing year. Ties were resolved to the earliest year.",1,runs/PATENTS/query2/events.jsonl,Not yet manually reviewed,
+agnews,2,answer_mismatch,"Ground truth '0.14414414414414414' (tol=0.0001) not found in LLM output: Amy Jones authored 111 articles total. Of these, 20 are Science/Technology.
+
+Fraction: **20/111** (approximately **18.0%**).","Amy Jones authored 111 articles total. Of these, 20 are Science/Technology.
+
+Fraction: **20/111** (approximately **18.0%**).",0,runs/agnews/query2/events.jsonl,Not yet manually reviewed,
+agnews,3,answer_mismatch,"Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: There were 3,716 business articles published in Europe from 2010–2020. Across 11 years, the average was **337.82 business articles per year**.","There were 3,716 business articles published in Europe from 2010–2020. Across 11 years, the average was **337.82 business articles per year**.",0,runs/agnews/query3/events.jsonl,Not yet manually reviewed,
+agnews,4,answer_mismatch,Ground truth 'Africa' not found in LLM output: Europe published the largest number of World-category articles in 2015.,Europe published the largest number of World-category articles in 2015.,1,runs/agnews/query4/events.jsonl,Not yet manually reviewed,
+civic_unstructured,10,answer_mismatch,"Ground truth '0.69' (tol=0.01) not found in LLM output: 0.39
+
+Completed total: $12,795,000; not-started total: $33,175,000.","0.39
+
+Completed total: $12,795,000; not-started total: $33,175,000.",1,runs/civic_unstructured/query10/events.jsonl,Not yet manually reviewed,
+civic_unstructured,2,answer_mismatch,"Missing in LLM output: project name 'Corral Canyon Culvert Repairs', amount '13460000'","**Citywide Guardrail Replacement (FEMA/CalOES Project)** has the highest accumulated funding: **$35,712,000 USD**.
+
+Its latest applicable agenda report (March 23, 2022) lists it as completed. I resolved and summed its four funding-name variants through 2023-01-01:
+
+- `citywide_guardrail_replacement`: $2,295,000
+- `guardrail_replacement_citywide`: $8,823,000
+- `..._fema_project`: $12,519,000
+- `..._fema_caloes_project`: $12,075,000",0,runs/civic_unstructured/query2/events.jsonl,Not yet manually reviewed,
+civic_unstructured,3,answer_mismatch,"Ground truth is empty, but output lists funding source(s): ['Municipal Fund']","- Municipal Fund — 7 of 28 distinct resolved projects completed (25.0%)
+
+I used the internally stated report dates; the latest eligible agenda report is dated July 27, 2022.",0,runs/civic_unstructured/query3/events.jsonl,Not yet manually reviewed,
+civic_unstructured,4,answer_mismatch,Ground truth '0.34' (tol=0.01) not found in LLM output: 0.66,0.66,0,runs/civic_unstructured/query4/events.jsonl,Not yet manually reviewed,
+civic_unstructured,5,answer_mismatch,"Ground truth '4401352.94' (tol=0.1) not found in LLM output: Average total funding per qualifying project: **$3,476,181.82**.
+
+This is based on 11 projects with documented status changes, totaling $38,238,000 in grants during the period. I consolidated clear name variants such as the Malibu Park/Birdview, Broad Beach, Clover Heights, Encinal Canyon, and Malibu Road projects.","Average total funding per qualifying project: **$3,476,181.82**.
+
+This is based on 11 projects with documented status changes, totaling $38,238,000 in grants during the period. I consolidated clear name variants such as the Malibu Park/Birdview, Broad Beach, Clover Heights, Encinal Canyon, and Malibu Road projects.",4,runs/civic_unstructured/query5/events.jsonl,Not yet manually reviewed,
+civic_unstructured,6,answer_mismatch,Missing in LLM output: amount '88615000',"Capital projects received their highest total funding in **2023**, totaling **$76,886,000 USD**.",2,runs/civic_unstructured/query6/events.jsonl,Not yet manually reviewed,
+civic_unstructured,9,answer_mismatch,Missing funding source(s) in LLM output: ['Public-Private Partnership'],"No funding source qualifies: none had more than 55% of its distinct funded civic projects classified as disaster projects in their latest report available by 2022-11-01.
+
+The closest were Federal Grant and Municipal Fund, each below the threshold (about 52%).",1,runs/civic_unstructured/query9/events.jsonl,Not yet manually reviewed,
+crmarenapro,12,answer_mismatch,"Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",005Wt000003NJgAIAW,2,runs/crmarenapro/query12/events.jsonl,Not yet manually reviewed,
+crmarenapro,3,answer_mismatch,"Found stages ['Quote'], but expected 'Negotiation'",Quote,0,runs/crmarenapro/query3/events.jsonl,Not yet manually reviewed,
+crmarenapro,7,answer_mismatch,"LLM output indicates no policy violation, but expected knowledge article ID",None,1,runs/crmarenapro/query7/events.jsonl,Not yet manually reviewed,
+cve,1,answer_mismatch,expected 4,"3 distinct CVEs.
+
+They are CVE-2023-27524 (Superset), CVE-2023-33246 (RocketMQ), and CVE-2023-46604 (ActiveMQ).",1,runs/cve/query1/events.jsonl,Not yet manually reviewed,
+cve,10,answer_mismatch,expected 5,**15** distinct Microsoft KEV products meet the CVSS v3 base-score threshold of 9.0 or higher.,4,runs/cve/query10/events.jsonl,Not yet manually reviewed,
+cve,2,answer_mismatch,expected 'fortinet',microsoft,1,runs/cve/query2/events.jsonl,Not yet manually reviewed,
+cve,3,answer_mismatch,expected 1262,35 KEV catalog entries reference a CVE with no matching NVD record in `vulns_db`.,1,runs/cve/query3/events.jsonl,Not yet manually reviewed,
+cve,4,answer_mismatch,expected 'ivanti',atlassian,6,runs/cve/query4/events.jsonl,Not yet manually reviewed,
+cve,5,answer_mismatch,expected 1,"**6** distinct affected version strings.
+
+Normalized unique values: `9.0.0`, `9.0.98`, `10.1.0`, `10.1.34`, `11.0.0`, and `11.0.2`. Wildcard version entries were excluded.",2,runs/cve/query5/events.jsonl,Not yet manually reviewed,
+cve,6,answer_mismatch,expected 13,75 distinct CVEs.,2,runs/cve/query6/events.jsonl,Not yet manually reviewed,
+cve,8,answer_mismatch,expected 58,244 distinct CVEs.,2,runs/cve/query8/events.jsonl,Not yet manually reviewed,
+cve,9,answer_mismatch,expected 8,17 distinct CVEs.,1,runs/cve/query9/events.jsonl,Not yet manually reviewed,
+googlelocal,3,answer_mismatch,"Missing hours [Thursday, Closed] for business: TACOS LA CABANA","All five tie for the highest average rating: 5.00. I broke the tie by review count.
+
+| Rank | Business | Weekday operating hours | Average rating |
+|---:|---|---|---:|
+| 1 | Taba Rug Gallery | Mon–Fri: 10 AM–7 PM | 5.00 (18 reviews) |
+| 2 | Beauty Divine Artistry | Mon–Fri: 9 AM–8 PM | 5.00 (8 reviews) |
+| 3 | Mariscos el poblano | Thu: 24 hours; Mon: 9 AM–3:30 AM | 5.00 (3 reviews) |
+| 4 | TACOS LA CABANA | Mon & Fri: 5–11 PM | 5.00 (2 reviews) |
+| 5 | White Barn Candle Co | Mon–Fri: 10 AM–9 PM | 5.00 (2 reviews) |
+
+I treated a business as qualifying when it closes later than 6 PM on at least one Monday–Friday, including 24-hour and overnight schedules.",2,runs/googlelocal/query3/events.jsonl,Not yet manually reviewed,
+imdb,2,answer_mismatch,Title '#1 Cheerleader Camp' not found in LLM output.,"The alphabetically first registered pseudonym is `""A.J.""`, and the alphabetically first qualifying title is `#`.",2,runs/imdb/query2/events.jsonl,Not yet manually reviewed,
+imdb,5,answer_mismatch,Rating '1.0' not found in LLM output.,"The result is:
+
+- Company: `""O"" Films`
+- Rating: `6.5`
+- Title: `Parking Ticket`",1,runs/imdb/query5/events.jsonl,Not yet manually reviewed,
+imdb,6,answer_mismatch,Character name 'Lola' not found in LLM output.,"- Character: **Abby Mallard**
+- Actress: **Andrews, Julie**
+- Title: **Chicken Little**",2,runs/imdb/query6/events.jsonl,Not yet manually reviewed,
+imdb,9,answer_mismatch,Vote count '1040' not found in LLM output.,"- Genre: Horror
+- Vote count: 101188
+- Writer: Agnew, Jim
+- Title: A Dangerous Method",6,runs/imdb/query9/events.jsonl,Not yet manually reviewed,
+krama,10,answer_mismatch,"Found numbers ['43180', '10', '13', '2024', '0.000708'], but expected 0.000748 (±5e-07)","The mean BSTAR drag coefficient for NORAD 43180 during the May 10–13, 2024 geomagnetic-storm period is **0.000708**.",2,runs/krama/query10/events.jsonl,Not yet manually reviewed,
+krama,3,answer_mismatch,"Found numbers ['12', '751.9643', '2023', '2023', '2020'], but expected 12964.8727 (±5e-05)","The average is **12,751.9643 reported identity thefts**.
+
+I linearly estimated 2023 population as:
+
+\[
+P_{2023}=P_{2020}+0.75(P_{2024}-P_{2020})
+\]
+
+This yielded 56 MSAs above one million that also appeared in the 2024 identity-theft data, with 714,110 identity-theft reports in total.",2,runs/krama/query3/events.jsonl,Not yet manually reviewed,
+krama,6,answer_mismatch,"Found numbers ['10.55', '2', '4', '93', '2008'], but expected 3.88 (±0.1)","Ocean @ Squibnocket Beach had the lowest average water temperature (10.55 °C across 2 readings).
+
+It had 4 bacterial violations among 93 samples from 2008–2016:
+
+\[
+(4 / 93) \times 100 = \mathbf{4.30\%}
+\]",1,runs/krama/query6/events.jsonl,Not yet manually reviewed,
+stockmarket,4,answer_mismatch,"Name not found within 5 edits: 'MFA Financial, Inc', closest: 'rnational, inc' (distance=8)","Ranked by number of 2017 up days, the top five were:
+
+1. HDFC Bank Limited — 146 up days, 102 down days  
+2. Albany International Corporation — 143 up days, 101 down days  
+3. Getty Realty Corporation — 143 up days, 104 down days  
+4. Mettler-Toledo International, Inc. — 143 up days, 108 down days  
+5. Pfizer, Inc. — 141 up days, 105 down days",2,runs/stockmarket/query4/events.jsonl,Not yet manually reviewed,
+usaspending,1,answer_mismatch,expected 898,"There are **909** distinct Department of Defense contract awards with award amounts greater than $1,000,000.",2,runs/usaspending/query1/events.jsonl,Not yet manually reviewed,
+usaspending,2,answer_mismatch,expected 75,71 contract awards.,5,runs/usaspending/query2/events.jsonl,Not yet manually reviewed,
+usaspending,5,answer_mismatch,expected 12,"**11** distinct 2-digit NAICS sectors are represented: 22, 23, 31, 32, 33, 48, 51, 54, 56, 62, and 81.",1,runs/usaspending/query5/events.jsonl,Not yet manually reviewed,
+usaspending,6,answer_mismatch,expected 56,57 distinct recipient entities are associated with more than one UEI.,0,runs/usaspending/query6/events.jsonl,Not yet manually reviewed,
+usaspending,8,answer_mismatch,expected 25,"**23** contract awards met the criteria: awarded by the Department of Defense to Lockheed Martin (Corp./Corporation variants) and exceeding $1,000,000.",1,runs/usaspending/query8/events.jsonl,Not yet manually reviewed,
+usaspending,9,answer_mismatch,expected 147,"138 contracts have no English-language description and an award amount greater than $1,000,000.",2,runs/usaspending/query9/events.jsonl,Not yet manually reviewed,
+yelp,2,answer_mismatch,No occurrence of 3.7 near PA/Pennsylvania.,"Missouri has the highest total number of business reviews: 2,243.
+
+The average review rating for businesses in Missouri is 3.91 out of 5 (832 rating points across 213 review records).",0,runs/yelp/query2/events.jsonl,Not yet manually reviewed,

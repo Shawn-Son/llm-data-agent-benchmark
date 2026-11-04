@@ -1,0 +1,614 @@
+{
+  "summary": {
+    "model": "claude-haiku-5-5",
+    "attempted": 104,
+    "expected": 104,
+    "datasets": 17,
+    "expected_datasets": 17,
+    "complete": true,
+    "dataset_macro_pass1": 0.600991165697048,
+    "pass5": null,
+    "scored": 104,
+    "correct": 63,
+    "unscored": 0,
+    "coverage_note": "Macro score is partial unless complete is true.",
+    "estimated_cost_usd": 4.31150334,
+    "cost_note": "Claude Code total_cost_usd: client-side estimate, not billing. Anthropic Console usage is authoritative.",
+    "question_micro_accuracy": 0.6057692307692307,
+    "input_tokens": 64052046,
+    "cached_input_tokens": 59351220,
+    "output_tokens": 2146405,
+    "tool_calls": 1686
+  },
+  "datasets": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "attempted": 2,
+      "scored": 2,
+      "correct": 0,
+      "accuracy": 0.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 3,
+      "accuracy": 0.75,
+      "unscored": 0
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 1,
+      "accuracy": 0.3333333333333333,
+      "unscored": 0
+    },
+    {
+      "dataset": "PATENTS",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 1,
+      "accuracy": 0.3333333333333333,
+      "unscored": 0
+    },
+    {
+      "dataset": "agnews",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 3,
+      "accuracy": 0.75,
+      "unscored": 0
+    },
+    {
+      "dataset": "bookreview",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "civic_unstructured",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "unscored": 0
+    },
+    {
+      "dataset": "crmarenapro",
+      "attempted": 13,
+      "scored": 13,
+      "correct": 10,
+      "accuracy": 0.7692307692307693,
+      "unscored": 0
+    },
+    {
+      "dataset": "cve",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "unscored": 0
+    },
+    {
+      "dataset": "googlelocal",
+      "attempted": 4,
+      "scored": 4,
+      "correct": 2,
+      "accuracy": 0.5,
+      "unscored": 0
+    },
+    {
+      "dataset": "imdb",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 9,
+      "accuracy": 0.9,
+      "unscored": 0
+    },
+    {
+      "dataset": "krama",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 8,
+      "accuracy": 0.8,
+      "unscored": 0
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 2,
+      "accuracy": 0.6666666666666666,
+      "unscored": 0
+    },
+    {
+      "dataset": "stockindex",
+      "attempted": 3,
+      "scored": 3,
+      "correct": 3,
+      "accuracy": 1.0,
+      "unscored": 0
+    },
+    {
+      "dataset": "stockmarket",
+      "attempted": 5,
+      "scored": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "unscored": 0
+    },
+    {
+      "dataset": "usaspending",
+      "attempted": 10,
+      "scored": 10,
+      "correct": 5,
+      "accuracy": 0.5,
+      "unscored": 0
+    },
+    {
+      "dataset": "yelp",
+      "attempted": 7,
+      "scored": 7,
+      "correct": 5,
+      "accuracy": 0.7142857142857143,
+      "unscored": 0
+    }
+  ],
+  "failures": [
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2",
+      "answer": "The top 5 NPM packages by GitHub stars, using each package's latest release, are:\n\n| Rank | Package | Latest version | Source repo | Stars |\n|---|---|---|---|---|\n| 1 | @dylanvann/svelte | 3.25.4 | sveltejs/svelte | 73,499 |\n| 2 | @dumc11/tailwindcss | 0.4.0 | tailwindcss/tailwindcss | 73,464 |\n| 3 | @dman777/shadow-dom-quill-temp | 1.0.0 | quilljs/quill | 42,407 |\n| 4 | @dynasty/styled-components | 3.2.1 | styled-components/styled-components | 39,660 |\n| 5 | @dothq/styled-components | 1.0.0 | styled-components/styled-components | 39,660 |\n\nRanks 4 and 5 are tied on stars. Both packages point to the same repo, so the list holds only four distinct repositories.\n\nMethod:\n- **Latest release:** For each NPM package name, I took the release (`IsRelease = true`) with the highest `Ordinal` in `VersionInfo`. For the five packages above, the highest `Ordinal` also has the latest `UpstreamPublishedAt`.\n- **Joins:** I matched `packageinfo` to `project_packageversion` on System, Name and Version, then matched `ProjectName` to `project_info` by the `owner/repo` string in `Project_Information`.\n- **Stars:** Star counts are parsed from the text in `Project_Information`.\n\nCaveat: `@dman777/shadow-dom-quill-temp` 1.0.0 is linked to two repos in `project_packageversion`: `quilljs/quill` and its own `dman777/shadow-dom-quill-temp`. Only `quilljs/quill` has a `project_info` record, so the 42,407 figure comes from that link. If the package's own repo were intended, it would have no star count and drop out of the top 5.",
+      "command_errors": 1,
+      "trace": "runs/DEPS_DEV_V1/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "DEPS_DEV_V1",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Missing project name: moment/moment",
+      "answer": "The top 5 MIT-licensed NPM projects with release versions, ranked by GitHub fork count:\n\n| Rank | Project | Forks |\n|---|---|---|\n| 1 | mui-org/material-ui | 30,522 |\n| 2 | semantic-org/semantic-ui | 4,955 |\n| 3 | react-native-elements/react-native-elements | 4,623 |\n| 4 | sveltejs/svelte | 4,091 |\n| 5 | tailwindcss/tailwindcss | 3,848 |\n\nI filtered `packageinfo` to NPM rows where `VersionInfo.IsRelease` is true, joined them to `project_packageversion` on System/Name/Version, and then to `project_info`. Projects were kept if their `Licenses` contained \"MIT\". The fork counts were parsed from the `Project_Information` text. The next project, tmpvar/jsdom, has 1,668 forks, so the top 5 are well separated from it.",
+      "command_errors": 1,
+      "trace": "runs/DEPS_DEV_V1/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "GITHUB_REPOS",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "No value in LLM output rounds to 0.33",
+      "answer": "About 12.3% (17 of 138) of the README.md files in non-Python repos include copyright information.\n\nThis is based on the sampled data in `repo_artifacts.db`, which has only 204 README.md rows, so treat the figure as a rough estimate rather than a precise rate.\n\n- **Non-Python definition:** a repo counts as non-Python if its `language_description` in the metadata database doesn't mention Python.\n- **Copyright definition:** a README counts if its content contains the word \"copyright\" (case-insensitive).\n- **Exclusions:** 22 README rows belong to repos with no entry in the `languages` table, so they were left out because their language is unknown. Among the 182 rows that do have a language entry, 138 are non-Python.\n- **Sensitivity:** also counting `(c)` and `\u00a9` as copyright notices raises the figure to 21 of 138, or about 15.2%.",
+      "command_errors": 2,
+      "trace": "runs/GITHUB_REPOS/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "Missing histology type: 9382/3",
+      "answer": "The LGG cohort has 23 patients with IGF2 expression, one tumor sample each. I'll report the averages.\n\n**Result: average log10(IGF2 normalized_count + 1) by LGG histology type**\n\n| Histology type | Patients (n) | Average log10(IGF2 + 1) |\n|---|---|---|\n| Astrocytoma | 10 | 2.5713 (2.571298) |\n| Oligoastrocytoma | 5 | 2.7136 (2.713571) |\n| Oligodendroglioma | 8 | 2.6825 (2.682458) |\n\n**How I got there**\n\n- **LGG cohort:** `clinical_info` has no cancer-type column, so I identified LGG patients by \"Brain lower grade glioma\" in `Patient_description`. That gave 513 patients, each with exactly one TCGA barcode in the text, which I extracted with a regex.\n- **Histology filter:** All 513 had one of three histology values (Astrocytoma, Oligodendroglioma, Oligoastrocytoma). None were bracketed or missing, so none were excluded by that rule.\n- **Expression:** I took IGF2 `normalized_count` from `RNASeq_Expression`, dropped nulls, and computed log10(count + 1). Only 23 of the 513 LGG patients have IGF2 data in the molecular database, and each contributes one tumor (TP) sample.\n\n**Caveat:** The result rests on 23 patients, so the per-group averages are noisy. The three values are close, so the data does not show a strong histology difference.",
+      "command_errors": 1,
+      "trace": "runs/PANCANCER_ATLAS/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "PANCANCER_ATLAS",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "No value in LLM output matches 305.12, 305.1, or 305",
+      "answer": "**Chi-square statistic: \u03c7\u00b2 \u2248 364.17, df = 4, p \u2248 1.5 \u00d7 10\u207b\u2077\u2077.** The association between histological type and CDH1 mutation status is very strong.\n\n| Histology | CDH1 mutated | CDH1 not mutated | Total |\n|---|---|---|---|\n| Infiltrating Ductal Carcinoma | 9 | 727 | 736 |\n| Infiltrating Lobular Carcinoma | 83 | 81 | 164 |\n| Other (specify) | 3 | 41 | 44 |\n| Mixed Histology | 4 | 23 | 27 |\n| Mucinous Carcinoma | 0 | 13 | 13 |\n| **Total** | **99** | **885** | **984** |\n\nMost of the signal comes from lobular carcinoma, which has 83 CDH1-mutated patients against roughly 16.5 expected, and ductal carcinoma, which has 9 against roughly 74 expected.\n\n**How the cohort was built**\n- **Female BRCA patients:** The clinical table has no gender or cancer-type column. I took rows whose `Patient_description` mentions \"Breast invasive carcinoma\" and \"FEMALE\", which gave 1,075 patients. Each description contains one TCGA barcode, and all 1,075 parsed.\n- **Mutation profiling:** I kept only patients present in `Mutation_Data`, which left 997 patients. Patients without mutation data were excluded rather than treated as CDH1-wild-type.\n- **Known histology:** I removed missing, `[Not Available]`, `[Discrepancy]` and `[Not Evaluated]` values.\n- **Reliable mutations:** A patient counts as CDH1-mutated if they have at least one CDH1 call with `FILTER = 'PASS'`.\n- **Marginal filter:** Three histology categories had totals of 10 or fewer and were dropped: Metaplastic Carcinoma (6), Medullary Carcinoma (6), and Infiltrating Carcinoma NOS (1). That leaves N = 984.\n\nThe p-value came from a fallback calculation because scipy is not installed here. The chi-square statistic itself is exact for this table.\n\nThe analysis script is at `work/chisq_analysis.py`.",
+      "command_errors": 1,
+      "trace": "runs/PANCANCER_ATLAS/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Name fuzzy match failed for 'BAKING; EDIBLE DOUGHS' (best match: 'hasinglefilinginth', distance=12)",
+      "answer": "The top two CPC technology areas for German patents granted in H2 2019 are **H04 (Electric communication technique)** and **A61 (Medical or veterinary science; hygiene)**, both with a maximum EMA of 2.0.\n\n| CPC group (level 4) | Full title | Max EMA | Best year |\n|---|---|---|---|\n| H04 | ELECTRIC COMMUNICATION TECHNIQUE | 2.0 | 2015 |\n| A61 | MEDICAL OR VETERINARY SCIENCE; HYGIENE | 2.0 | 2016 |\n\nBoth had two first-listed filings in a single year. Every other area peaks at 1.0 or lower, so these two lead clearly.\n\nThe full ranking has 25 areas. The next group, all at 1.0 with a single filing in their best year, is B41, F02, B23, B63, B60, F16, A21, F24, F23, H01, G01, B62, C09, B29, G02, E05, H02, H03, E02, F41 and G08.\n\nHow I got there:\n- **Patent set:** I took German patents (publication number starting `DE-`) with a grant date in July\u2013December 2019. That gave 34 patents.\n- **Classification:** I used only the `first = true` CPC entries, grouped at the 4-character class level and counted each patent once per class.\n- **Year:** The per-year counts use the filing year, since every selected patent was granted in 2019.\n- **EMA:** \u03b1 = 0.1, starting from the first year's count, and counting years with no filings as zero.\n- **Ties:** For best year I took the earliest year reaching the maximum.\n\nTwo interpretation choices could change the numbers. I read \"level 4\" as the class level, because that is what level 4 means in the CPC definitions table. I also read \"filings\" as filing year rather than grant year, because grant year is constant (2019) across the set.",
+      "command_errors": 2,
+      "trace": "runs/PATENTS/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "PATENTS",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "No match for: BLOOM ENERGY CORP + PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY",
+      "answer": "Four patents outside UC cite UC-assigned patents. Each row below pairs a citing assignee with the primary CPC subclass of its citing patent.\n\n| Citing assignee | Cited UC patent | Primary CPC subclass | Subclass title |\n|---|---|---|---|\n| CALIFORNIA INST OF TECHN | US-6237292-B1 | G01V | GEOPHYSICS; GRAVITATIONAL MEASUREMENTS; DETECTING MASSES OR OBJECTS; TAGS |\n| BLOOM ENERGY CORP | US-6767662-B2 | H01M | PROCESSES OR MEANS, e.g. BATTERIES, FOR THE DIRECT CONVERSION OF CHEMICAL ENERGY INTO ELECTRICAL ENERGY |\n| CRYSTAL IS INC | US-2010025717-A1 | C30B | SINGLE-CRYSTAL GROWTH; UNIDIRECTIONAL SOLIDIFICATION OF EUTECTIC MATERIAL OR UNIDIRECTIONAL DEMIXING OF EUTECTOID MATERIAL; REFINING BY ZONE-MELTING OF MATERIAL; PRODUCTION OF A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; SINGLE CRYSTALS OR HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; AFTER-TREATMENT OF SINGLE CRYSTALS OR A HOMOGENEOUS POLYCRYSTALLINE MATERIAL WITH DEFINED STRUCTURE; APPARATUS THEREFOR |\n| SCHOWALTER LEO J | US-2010025717-A1 | H01L | SEMICONDUCTOR DEVICES NOT COVERED BY CLASS H10 |\n\nNotes:\n- **Coverage:** I checked all 169 publication-database rows that mention UNIV CALIFORNIA against the citation lists of all ~135k rows. Only four citing patents matched, and a looser match on base publication numbers found no more.\n- **SCHOWALTER LEO J** is an individual's name in the source record, not a company. I included it because it is the recorded holder of the citing patent.\n- **US-6237292-B1** is recorded as held by \"UNIV CALIFORNIA AT SAN DIEGO\", a variant of the UC name. I kept it because it is a UC-affiliated patent. Excluding it would leave three citing assignees.\n- The CPC subclass for each citing patent is taken from its primary (`first = true`) codes: G01V1/01, H01M4/9066 and H01M8/2425, C30B11/003, C30B25/10 and C30B25/16, and H01L21/0262.",
+      "command_errors": 3,
+      "trace": "runs/PATENTS/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "agnews",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: **Answer: about 366 business articles per year** (4,031 \u00f7 11 \u2248 366.5).\n\nThe count comes from a keyword classifier, not a verified labeling, so treat the figure as an estimate.\n\n| Year | Business articles (Europe) |\n|---|---|\n| 2010 | 341 |\n| 2011 | 354 |\n| 2012 | 380 |\n| 2013 | 382 |\n| 2014 | 367 |\n| 2015 | 367 |\n| 2016 | 367 |\n| 2017 | 382 |\n| 2018 | 370 |\n| 2019 | 363 |\n| 2020 | 358 |\n\n**Method**\n- The metadata SQLite database gives 14,860 European articles dated 2010\u20132020 (region = \"Europe\", publication_date from 2010-01-01 through 2020-12-31).\n- I fetched each article's title and description from MongoDB by `article_id`. All 14,860 matched.\n- I assigned each article to one of the four categories by counting business, sports, science/tech, and world keywords in its title and description. The highest count wins, with ties resolved in favor of Business. Articles with no keyword hits were labeled World.\n- Result: World 5,033, Business 4,031, Sports 3,248, Sci/Tech 2,548.\n\n**Accuracy caveat:** I spot-checked a random sample of 30 articles. Most labels looked right, but some sports stories with only player or team names (e.g., \"Astros ready for some good home cookin'\") were missed and fell into World. Some business stories without business keywords could also be missed. The annual counts are therefore approximate, and the true business average could differ by a few percent.",
+      "answer": "**Answer: about 366 business articles per year** (4,031 \u00f7 11 \u2248 366.5).\n\nThe count comes from a keyword classifier, not a verified labeling, so treat the figure as an estimate.\n\n| Year | Business articles (Europe) |\n|---|---|\n| 2010 | 341 |\n| 2011 | 354 |\n| 2012 | 380 |\n| 2013 | 382 |\n| 2014 | 367 |\n| 2015 | 367 |\n| 2016 | 367 |\n| 2017 | 382 |\n| 2018 | 370 |\n| 2019 | 363 |\n| 2020 | 358 |\n\n**Method**\n- The metadata SQLite database gives 14,860 European articles dated 2010\u20132020 (region = \"Europe\", publication_date from 2010-01-01 through 2020-12-31).\n- I fetched each article's title and description from MongoDB by `article_id`. All 14,860 matched.\n- I assigned each article to one of the four categories by counting business, sports, science/tech, and world keywords in its title and description. The highest count wins, with ties resolved in favor of Business. Articles with no keyword hits were labeled World.\n- Result: World 5,033, Business 4,031, Sports 3,248, Sci/Tech 2,548.\n\n**Accuracy caveat:** I spot-checked a random sample of 30 articles. Most labels looked right, but some sports stories with only player or team names (e.g., \"Astros ready for some good home cookin'\") were missed and fell into World. Some business stories without business keywords could also be missed. The annual counts are therefore approximate, and the true business average could differ by a few percent.",
+      "command_errors": 3,
+      "trace": "runs/agnews/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 10,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '0.69' (tol=0.01) not found in LLM output: **Answer: 0.56**\n\nCompleted total is $11,140,000 and not-started total is $19,903,000, so 11,140,000 / 19,903,000 = 0.5597, which rounds to 0.56.\n\nHow I got there:\n\n- **Date fix:** The agenda rid_0010 is stated as Oct 27, 2021, but its text describes the Jan 20, 2022 meeting as already held and the Jan 24, 2022 council date as upcoming. I treated it as a late-January 2022 report. This is the one judgment call that moves the answer. If the stated Oct 27, 2021 date is kept, the $1,629,000 grant of 2022-01-20 to Corral Canyon Road Bridge Repairs becomes \"design\" and the ratio drops to about 0.48.\n- **Status:** For each grant, I used the most recent agenda on or before the grant date that lists the project. \"Design\" and \"Construction\" are both treated as not completed and not not-started, so they are excluded.\n- **Entity resolution:** Funding name variants (FEMA, CalOES, CalJPIA suffixes, renamed titles such as Clover Heights, Broad Beach, and Malibu Road Slope) were merged. Projects listed separately in the same agenda were kept distinct, for example Malibu Park Drainage Improvements vs. Malibu Park Storm Drain Repairs, and the two Guardrail Replacement entries in rid_0010.\n- **Noise:** No window records have noise names such as \"discussion\" or \"recommended_action\".\n\nI checked the status of each project by reading the agenda section headings, not with an automated parser, so a misread title could shift the totals.",
+      "answer": "**Answer: 0.56**\n\nCompleted total is $11,140,000 and not-started total is $19,903,000, so 11,140,000 / 19,903,000 = 0.5597, which rounds to 0.56.\n\nHow I got there:\n\n- **Date fix:** The agenda rid_0010 is stated as Oct 27, 2021, but its text describes the Jan 20, 2022 meeting as already held and the Jan 24, 2022 council date as upcoming. I treated it as a late-January 2022 report. This is the one judgment call that moves the answer. If the stated Oct 27, 2021 date is kept, the $1,629,000 grant of 2022-01-20 to Corral Canyon Road Bridge Repairs becomes \"design\" and the ratio drops to about 0.48.\n- **Status:** For each grant, I used the most recent agenda on or before the grant date that lists the project. \"Design\" and \"Construction\" are both treated as not completed and not not-started, so they are excluded.\n- **Entity resolution:** Funding name variants (FEMA, CalOES, CalJPIA suffixes, renamed titles such as Clover Heights, Broad Beach, and Malibu Road Slope) were merged. Projects listed separately in the same agenda were kept distinct, for example Malibu Park Drainage Improvements vs. Malibu Park Storm Drain Repairs, and the two Guardrail Replacement entries in rid_0010.\n- **Noise:** No window records have noise names such as \"discussion\" or \"recommended_action\".\n\nI checked the status of each project by reading the agenda section headings, not with an automated parser, so a misread title could shift the totals.",
+      "command_errors": 4,
+      "trace": "runs/civic_unstructured/query10/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Missing in LLM output: amount '13460000'",
+      "answer": "**Guardrail Replacement Citywide** has the highest accumulated funding among completed projects, at **$33,417,000** in grants on or before 2023-01-01.\n\n**How I got there**\n\n- **Status and reports:** Status comes from the section headings in each agenda (Design / Completed / Not Started). I kept the 16 agendas dated on or before 2023-01-01 and checked each stated meeting date against the text, which agreed. For each project I used the latest agenda that mentions it.\n- **Entity resolution:** The funding table has suffix variants of the same project, such as `guardrail_replacement_citywide`, `..._fema_project` and `..._fema_caloes_project`. I merged these, since they match the agenda title \"Guardrail Replacement Citywide (FEMA/CalOES Project)\" and its variants. Other names stayed separate, such as Civic Center Way Improvements and Civic Center Stormwater Diversion Structure.\n- **Status:** Guardrail's last mention before 2023 is the 2021-12-14 agenda, where it is listed under Completed. It doesn't appear in any later agenda.\n- **Funding:** The three name variants sum to $33,417,000, and all grants fall before 2023-01-01.\n\n**Runner-up checks**\n\n- Trancas Canyon Park Planting and Irrigation Repairs (about $30.2M) is in Design in its latest agenda, so it doesn't qualify.\n- Corral Canyon Road Bridge Repairs (about $15.8M) was Completed in December 2021 but returns to Design in the March 2022 agenda, so it doesn't qualify.\n- Corral Canyon Culvert Repairs (about $13.5M) is Completed in its latest agenda, but its total is lower.\n- Storm Drain Trash Screens (about $11.5M) is Completed, but its total is lower.",
+      "command_errors": 2,
+      "trace": "runs/civic_unstructured/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth is empty, but output lists funding source(s): ['Public-Private Partnership', 'Municipal Fund', 'Municipal Bond', 'Emergency Relief Fund', 'Private Donation', 'County Grant', 'State Grant', 'Federal Grant']",
+      "answer": "**Answer: no funding source qualifies once the agenda dates are corrected.** The result depends on one agenda date, so here is the reasoning and the alternative.\n\n**Result (as of 2022-08-01)**\n\n| Funding source | Completed / distinct projects funded by cutoff | Share |\n|---|---|---|\n| Municipal Fund | 6 / 26 | 23.1% |\n| Public-Private Partnership | 7 / 32 | 21.9% |\n| Private Donation | 6 / 30 | 20.0% |\n| Emergency Relief Fund | 6 / 32 | 18.8% |\n| Municipal Bond | 6 / 33 | 18.2% |\n| Federal Grant | 5 / 28 | 17.9% |\n| County Grant | 5 / 29 | 17.2% |\n| State Grant | 5 / 29 | 17.2% |\n\n**Why the date matters:** agenda rid_0010 is headed \"Meeting date: October 27, 2021\", but its text describes events as already past: a December 13, 2021 Council action and a joint commission meeting \"held on January 20, 2022\". Its own text also refers to a January 24, 2022 Council meeting as upcoming. So its real date is late January 2022, not October 2021. Using that date, rid_0010's entry for Guardrail Replacement Citywide is under the \"Design\" heading, which makes it the latest status for that project. That drops Guardrail from \"completed\", and both Municipal Fund and Public-Private Partnership fall below 25%.\n\n**Alternative:** if you trust the printed October 2021 date (or drop rid_0010 entirely), the answer is **Municipal Fund (7/26 = 26.9%)** and **Public-Private Partnership (8/32 = 25.0%, exactly at the threshold)**. I don't think the printed date is the right one, but if the threshold is meant to be inclusive, this is the other possible answer.\n\n**Method and main judgement calls**\n- Projects were identified by normalizing names across the funding table and the agendas. Suffix variants (e.g., \"_fema_project\", \"_caloes_project\") were merged. \"Noise\" names (`discussion`, `recommended_action`) were excluded.\n- Two names listed separately in the same agenda were kept as distinct projects. Examples are Malibu Park Drainage Improvements and Malibu Park Storm Drain Repairs, and Storm Drain Trash Screens and its Phase Two.\n- Annual Street Maintenance (2020\u201321) was merged with 2021 Annual Street Maintenance. The 2022 edition was kept separate.\n- Westward Beach Road Improvements Project was merged with Westward Beach Road Repair Project.\n- A project's status is taken from the latest agenda (on or before the cutoff) that lists it. Agendas list projects under \"Design\", \"Construction\", \"Not Started\", and \"Completed\" headings. Only \"Completed\" counts.",
+      "command_errors": 4,
+      "trace": "runs/civic_unstructured/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '0.34' (tol=0.01) not found in LLM output: **Answer: 0.31**\n\nCapital grants total $18,858,000 and disaster grants total $59,995,000, so the ratio is 18,858,000 / 59,995,000 \u2248 0.3143.\n\nMethod:\n- **Window:** I took the 179 funding records dated 2021-06-01 to 2022-06-01 and dropped the two noise names, \"discussion\" and \"recommended_action\".\n- **Entity resolution:** I matched funding names to agenda projects by name. Name variants (for example \"_fema_project\" or \"_caloes_project\" suffixes, and \"Trancas Playground Resurfacing\" vs \"Trancas Canyon Park Playground Resurfacing\") were merged. Names that differ by year or phase (2021 vs 2022 Annual Street Maintenance, Storm Drain Trash Screens vs Phase Two, Westward Beach Road Improvements vs Repair) were kept separate.\n- **Type per grant:** I read each project's type from the section heading it appears under in the agenda. For each grant, I used the latest agenda on or before the grant date that mentions the project.\n- **Date check:** The agenda rid_0010 is headed 10-27-21, but its text cites events from January 20, 2022 as already past. I tested both dates, and the result is unchanged.\n- **Type changes:** Malibu Road Slope Repairs was capital through mid-2021 and disaster afterward, and Malibu Park Drainage Improvements was capital until rid_0010 listed it under disaster. Both changes are handled by the date-based lookup.\n\nCaveat: 44 in-window grants, totaling $32.6M, have no agenda on or before their grant date that mentions their project, so their type cannot be determined. I excluded them, as the query's rule implies. If instead each were classified by the project's earliest later agenda, the ratio would be about 0.66. That is a different reading of the rule, not the one I applied.",
+      "answer": "**Answer: 0.31**\n\nCapital grants total $18,858,000 and disaster grants total $59,995,000, so the ratio is 18,858,000 / 59,995,000 \u2248 0.3143.\n\nMethod:\n- **Window:** I took the 179 funding records dated 2021-06-01 to 2022-06-01 and dropped the two noise names, \"discussion\" and \"recommended_action\".\n- **Entity resolution:** I matched funding names to agenda projects by name. Name variants (for example \"_fema_project\" or \"_caloes_project\" suffixes, and \"Trancas Playground Resurfacing\" vs \"Trancas Canyon Park Playground Resurfacing\") were merged. Names that differ by year or phase (2021 vs 2022 Annual Street Maintenance, Storm Drain Trash Screens vs Phase Two, Westward Beach Road Improvements vs Repair) were kept separate.\n- **Type per grant:** I read each project's type from the section heading it appears under in the agenda. For each grant, I used the latest agenda on or before the grant date that mentions the project.\n- **Date check:** The agenda rid_0010 is headed 10-27-21, but its text cites events from January 20, 2022 as already past. I tested both dates, and the result is unchanged.\n- **Type changes:** Malibu Road Slope Repairs was capital through mid-2021 and disaster afterward, and Malibu Park Drainage Improvements was capital until rid_0010 listed it under disaster. Both changes are handled by the date-based lookup.\n\nCaveat: 44 in-window grants, totaling $32.6M, have no agenda on or before their grant date that mentions their project, so their type cannot be determined. I excluded them, as the query's rule implies. If instead each were classified by the project's earliest later agenda, the ratio would be about 0.66. That is a different reading of the rule, not the one I applied.",
+      "command_errors": 4,
+      "trace": "runs/civic_unstructured/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '4401352.94' (tol=0.1) not found in LLM output: **Answer: $3,712,461.54** average in-window funding per project, across 13 projects.\n\n**How I got there**\n\n- **Reports in the window:** Using the agenda header dates, which agree with each agenda's own text, 11 of 19 reports fall between 2021-06-01 and 2023-01-01. Report 0010 is headed October 27, 2021, but its text places it around January 2022. It is in the window either way.\n- **Projects with a status change:** I tracked each project's section heading (Design, Construction, Not Started, Completed) across those 11 reports. Thirteen projects changed status. Four of those changes involve the Construction heading.\n- **Entity resolution:** I merged name variants that point to one project, such as the `_fema_project` and `_caloes_project` suffixes. I also linked renamed projects using the 2023 agendas. For example, Clover Heights Storm Drain became \"Clover Heights Storm Drainage Improvements\", and Malibu Park Drainage Improvements became \"Malibu Park Storm Drain Repairs\".\n- **Noise:** I excluded the funding names \"discussion\" and \"recommended_action\".\n- **Totals:** I summed grants dated 2021-06-01 through 2023-01-01 inclusive for each project's merged names. The total is $48,262,000 across 13 projects, and 48,262,000 / 13 = 3,712,461.54.\n\n**Judgment calls that affect the number**\n\n- **Construction treated as \"design.\"** The hint lists three statuses, so I mapped the Construction heading to \"design\". Under that mapping, Broad Beach Road Water Quality Infrastructure Repairs moves only between Design and Construction, so I excluded it. If Construction were its own status, Broad Beach would qualify and the average would change.\n- **Encinal Canyon Road merged with \"Encinal Canyon Road Repairs\".** This is the renamed form I inferred from the 2023 agendas. Leaving it out would give $3,682,230.77.\n- **Misplaced completed entries.** A few entries in reports 0010 and 0019 sit under the Design heading but describe completed work, so I treated them as completed.",
+      "answer": "**Answer: $3,712,461.54** average in-window funding per project, across 13 projects.\n\n**How I got there**\n\n- **Reports in the window:** Using the agenda header dates, which agree with each agenda's own text, 11 of 19 reports fall between 2021-06-01 and 2023-01-01. Report 0010 is headed October 27, 2021, but its text places it around January 2022. It is in the window either way.\n- **Projects with a status change:** I tracked each project's section heading (Design, Construction, Not Started, Completed) across those 11 reports. Thirteen projects changed status. Four of those changes involve the Construction heading.\n- **Entity resolution:** I merged name variants that point to one project, such as the `_fema_project` and `_caloes_project` suffixes. I also linked renamed projects using the 2023 agendas. For example, Clover Heights Storm Drain became \"Clover Heights Storm Drainage Improvements\", and Malibu Park Drainage Improvements became \"Malibu Park Storm Drain Repairs\".\n- **Noise:** I excluded the funding names \"discussion\" and \"recommended_action\".\n- **Totals:** I summed grants dated 2021-06-01 through 2023-01-01 inclusive for each project's merged names. The total is $48,262,000 across 13 projects, and 48,262,000 / 13 = 3,712,461.54.\n\n**Judgment calls that affect the number**\n\n- **Construction treated as \"design.\"** The hint lists three statuses, so I mapped the Construction heading to \"design\". Under that mapping, Broad Beach Road Water Quality Infrastructure Repairs moves only between Design and Construction, so I excluded it. If Construction were its own status, Broad Beach would qualify and the average would change.\n- **Encinal Canyon Road merged with \"Encinal Canyon Road Repairs\".** This is the renamed form I inferred from the 2023 agendas. Leaving it out would give $3,682,230.77.\n- **Misplaced completed entries.** A few entries in reports 0010 and 0019 sit under the Design heading but describe completed work, so I treated them as completed.",
+      "command_errors": 2,
+      "trace": "runs/civic_unstructured/query5/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "Missing in LLM output: amount '88615000'",
+      "answer": "**Answer: 2023, with $84,245,000 in capital-project funding.**\n\nEach funding record was typed by the latest agenda dated on or before its grant date that mentions the project. Only capital-typed records are summed, grouped by grant year.\n\n| Grant year | Capital total (USD) |\n|---|---|\n| **2023** | **84,245,000** |\n| 2022 | 54,568,000 |\n| 2021 | 21,467,000 |\n| 2020 | 0 (no agenda predates these grants) |\n\nSeveral judgment calls shaped this result:\n\n- **Misdated agenda:** rid_0010 is stated as October 27, 2021, but its text describes December 2021 and January 2022 meetings as past. I treated it as January 21, 2022.\n- **Mixed-heading agendas:** the June and September 2023 agendas use a combined \"Capital and Disaster Recovery\" heading. For those, I carried forward each project's last explicit type.\n- **Name variants:** I merged variants of the same project (e.g., the \"_fema_project\" and \"_caloes_project\" suffixes). I also merged renamed projects where one funding series ends just as another begins, such as Encinal Canyon Drainage into Encinal Canyon Repairs and Malibu Bluffs South Walkway into its Repairs series.\n- **Noise:** \"discussion\" and \"recommended_action\" were excluded.\n- **Unclassifiable records:** about 340 records have no earlier agenda mentioning their project, so they were left out.\n\nThe result depends on two of these choices, but 2023 stays on top under each:\n\n- **Malibu Bluffs roof:** I merged this with the Michael Landon Center roof, which is the same work at the same site. That contributes $23.07M to 2023. Without the merge, 2023 is about $61.2M, still ahead of 2022.\n- **Unclassifiable records:** if they are instead assigned the type of each project's earliest agenda mention, 2023 rises to about $106.6M.",
+      "command_errors": 3,
+      "trace": "runs/civic_unstructured/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 7,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth is empty, but output names project(s): ['Clover Heights Storm Drain', 'Encinal Canyon Road Drainage Improvements', 'Latigo Canyon Road Culvert Repairs', 'Malibu Road Slope Repairs', 'Outdoor Warning Sirens', 'Storm Drain Master Plan']",
+      "answer": "**Answer: no projects qualify.** No project's most recent report dated on or before 2022-11-01 records both type \"disaster\" and status \"not started\", so the $1,000,000 funding test never applies.\n\n**How I got there**\n\n- **Dates:** I checked each agenda's stated meeting date against the dates in its text. The agenda rid_0010 is stamped Oct 27, 2021, but it describes a Dec 13, 2021 Council action as past and a Jan 20, 2022 meeting as held. Its real date is about late January 2022, after rid_0015 (Dec 14, 2021). rid_0007 is dated Nov 10, 2022, so it falls outside the cutoff.\n- **Latest in-range agendas:** rid_0010 (~Jan 2022), rid_0019 (Mar 23, 2022), rid_0016 (Jun 22, 2022) and rid_0011 (Jul 27, 2022) contain no \"Disaster Projects (Not Started)\" section at all. Every disaster project listed in them is under Design, Construction or Completed.\n- **Projects that were not started earlier:** Clover Heights Storm Drain, Latigo Canyon Road Culvert Repairs, Encinal Canyon Road Drainage Improvements, Storm Drain Master Plan, Outdoor Warning Sirens, Malibu Road Slope Repairs and Westward Beach Road Shoulder Repairs all appear under \"Not Started\" in some earlier agendas. Each one later appears under Design, so none has \"not started\" as its most recent status.\n\nIf the misdated rid_0010 were taken at its stated Oct 27, 2021 date, the Latigo Culvert, Encinal Canyon and Malibu Road Slope projects would appear to have \"not started\" as their latest status. The corrected date rules them out. I did not run the funding totals for them, since they are excluded by the status test.",
+      "command_errors": 2,
+      "trace": "runs/civic_unstructured/query7/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "civic_unstructured",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "Missing funding source(s) in LLM output: ['Public-Private Partnership']",
+      "answer": "**No funding source meets the criterion.** No source has more than 55% of its funded projects classified as disaster as of 2022-11-01. The closest are Federal Grant at 15 of 29 projects (51.7%) and Private Donation at 17 of 33 (51.5%).\n\n**How I got there**\n\n- **Funding records:** I counted only grants dated on or before 2022-11-01. I treated \"discussion\" and \"recommended_action\" as noise, since they are not real projects.\n- **Reports:** Fifteen of the 19 agendas are dated on or before the cutoff. The other four (rid_0001, 0004, 0007, 0014) are dated after it, and their own text confirms that.\n- **Date correction:** rid_0010 is headed 10-27-21, but its text describes a January 20, 2022 meeting as past and a January 24, 2022 council date as upcoming. I placed it at about 2022-01-21. This changes the result for Malibu Park Drainage Improvements, which is Disaster in that report and would otherwise have been Capital.\n- **Type:** Each project's type comes from the section heading it sits under in the agenda (\"Disaster Projects\" or \"Capital Improvement Projects\") in its most recent eligible report.\n- **Entity resolution:** I merged funding-name variants that refer to the same project, such as the \"_fema_project\" and \"_caloes_project\" suffixes. I kept projects separate when they appear together in one agenda, per the hint. The Malibu Road Slope Repairs project changes from Capital to Disaster in August 2021, and I treated it as one project.\n\n**Sensitivity:** I tested the main judgment calls: using the stated date for rid_0010, excluding projects with no eligible report from the denominator, and counting any disaster mention instead of the latest one. None of these produces a source above 55%. Federal Grant would only pass with a merge of two projects that appear together in the same agenda, which the hint rules out.",
+      "command_errors": 0,
+      "trace": "runs/civic_unstructured/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 12,
+      "category": "answer_mismatch",
+      "official_reason": "Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",
+      "answer": "**005Wt000003NJgAIAW**\n\nThis agent's April 2023 opportunity had the shortest cycle, 49 days from opportunity creation to the contract's company-signed date. The other two agents with April 2023 opportunities had cycles of 168 and 186 days.\n\nI linked opportunities to contracts through `Opportunity.ContractID__c` \u2192 `Contract.Id`, after stripping leading `#` and trailing whitespace from IDs. Only three April 2023 opportunities had a linked contract, so each agent's average is a single deal.",
+      "command_errors": 1,
+      "trace": "runs/crmarenapro/query12/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 13,
+      "category": "answer_mismatch",
+      "official_reason": "Found agent IDs ['005Wt000003NHw5IAG', '005Wt000003NBp4IAG'], but expected '005Wt000003NIXCIA4'",
+      "answer": "**005Wt000003NHw5IAG**\n\nThis is the order owner (Natalia Ivanova in `core_crm.User`) with the highest total order value (about 69,783) for orders in the five months up to 2022-11-25.\n\nHow I got there:\n- **Window:** 2022-06-25 to 2022-11-25, applied to `Contract.CompanySignedDate`.\n- **Linkage:** Order \u2192 Opportunity on AccountId, then Opportunity \u2192 Contract on `ContractID__c`. Eligible opportunities came from contracts signed in the window.\n- **Amount:** Sum of Quantity \u00d7 UnitPrice over each order's line items.\n- **Agent:** `Order.OwnerId`, with each order counted once.\n- **Cleaning:** Leading `#` and surrounding whitespace were stripped from IDs before joining.\n\nThe main judgement call is the agent definition. If the agent were instead taken as the Opportunity owner, with orders counted once per matching opportunity, the top agent would be a different user (005Wt000003NBp4IAG). I used the order owner because the question asks about agents who achieved sales on orders.",
+      "command_errors": 0,
+      "trace": "runs/crmarenapro/query13/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "crmarenapro",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "Found knowledge article IDs ['ka0Wt000000Ens5IAC'], but expected 'ka0Wt000000Eq0MIAS'",
+      "answer": "The quote includes PulseSim Pro without its mandatory bundle partners, so the quote violates the \"Mandatory Bundles for Quotes\" article.\n\n**Answer: `ka0Wt000000Ens5IAC`**\n\nQuote 0Q0Wt000001WSDVKA4 (TechPulse-InnovateX Integration Quote) has four line items: DesignWave Automation (qty 5), EcoPCB Creator (qty 8), PulseSim Pro (qty 10), and CircuitSync Pro (qty 7).\n\nThe \"Mandatory Bundles for Quotes\" article says that purchasing PulseSim Pro requires CircuitMaster Analyzer and VeriSim Express in the same package. Neither product appears on the quote or on the linked opportunity's line items.\n\nI checked the other relevant policies and found no violation:\n- **Product Quantity Limits:** none of the four products has a quantity cap in the article, and all quantities are within the limits that do apply.\n- **Product Exclusion Constraints:** none of the listed incompatible product pairs appears together in the quote.\n- **Volume-Based Discounts:** the total is about $11,420, which qualifies for the 15% tier. The line discounts (5%, 15%, 10%, 5%) are at or below that tier, so none exceeds what policy allows.",
+      "command_errors": 0,
+      "trace": "runs/crmarenapro/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "expected 4",
+      "answer": "**Answer: 3**, with a caveat. I identified three CVEs with confidence, and a fourth (CVE-2023-33246) that I believe qualifies on the CPE side but could not find in `vulns_db`.\n\n**Matches (KEV \u2229 published 2023 \u2229 vulnerable Apache CPE):**\n\n| CVE | KEV product | Apache CPE evidence | `vulns_db` published |\n|---|---|---|---|\n| CVE-2023-27524 | Apache Superset | `ASF Superset`, base-36 token decoding to year 2023 and number 27524 | 2023-01-26 and 2023-04-24 (two rows) |\n| CVE-2023-44487 | HTTP/2 Rapid Reset (Tomcat keys) | `ASF Tomcat 11.0.0`, hex and clean-digit decodes | 2023-10-10 |\n| CVE-2023-46604 | Apache ActiveMQ | `ASF:activemq_legacy_openwire_module`, reordered `sp46_23_604_20` decodes to 2023 and 46604 | 2023-10-27 and three other 2023 rows |\n\n**Excluded or uncertain:**\n- **CVE-2023-33246 (RocketMQ):** the CPE key `\u2026b36mixxCB$949_6423300` is `affected` for `ASF:rocketmq`, and its digits reverse to contain 33246. However, I found no `vulns_db` row for it under any encoding I could decode. If such a row exists with a 2023 published date, the count becomes 4.\n- **CVE-2023-41265:** one CPE key decodes to it, but it is `ASF log4cxx`, which is implausible for a Qlik CVE, so I excluded it.\n- **Candidates without Apache CPE:** CVE-2023-0386, CVE-2023-38035, CVE-2023-3079, and CVE-2022-47966 were weak or absent matches and were excluded.\n\n**How I got there:**\n- The KEV CVE for each row came from the CVE URL in its `notes` field, which is clean for all 1,583 rows. The `cve_ref` values use many noise families and cannot be decoded reliably. I did not verify the notes-derived IDs against `cve_ref`.\n- Apache CPE rows: vendor resolved through `vendor_aliases` (`ASF` \u2192 `apache`), and vulnerable flags normalized to truthy/falsy sets. That gives 991 noisy keys.\n- I then matched those keys against KEV CVEs using family-specific decoders (base-36, hex, reordered pieces, reversed digits, and clean digit runs).\n\n**Caveats:**\n- About 900 of the 991 Apache keys did not decode under any family I implemented. There could be other KEV-2023 Apache CVEs in that set that I missed.\n- Some matches rely on heuristic decoding, not a verified decoder. The three confirmed CVEs are consistent with real-world NVD configurations and published dates, which supports them.\n- I did not modify any source database. Scratch files (a KEV copy, helper scripts, and match outputs) are in the work directory.",
+      "command_errors": 3,
+      "trace": "runs/cve/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 10,
+      "category": "answer_mismatch",
+      "official_reason": "expected 5",
+      "answer": "**Answer: 17, but treat it as a low-confidence estimate.** The KEV side is exact. The join to CVSS scores depends on heuristic decoding of noisy CVE IDs, and other reasonable matching rules gave anywhere from 2 to 32.\n\n**What I could verify**\n- KEV aliases resolving to `microsoft` are `MSFT`, `Microsoft Corp`, `Microsoft Corporation`, and `microsoft`. That gives 369 KEV rows, each with a clean CVE ID in its NVD URL in `notes`.\n- The `score_text` values all have a numeric first token, so the score extraction is exact.\n- The product split yields 66 distinct case-insensitive Microsoft products before filtering.\n\n**Where it breaks down**\n- The `cvss_metadata.cve_id` values embed the CVE number and year among noise digits, letters, and OCR-style substitutions (for example `CVEZ0Z4OOO9Z6`, `202E$...43468`). I could not find a decoder that recovers the CVE reliably.\n- Of the 369 KEV CVEs, about 187 have no candidate row under my best rule, so the true count could differ.\n\n**Method behind 17**\n- I normalized OCR-like letters to digits and required the CVE number to appear contiguously in the row's digits, with the year appearing before it in order.\n- Among rows matching a target CVE, I kept those with a score \u2265 9.0, then took the union of their split product names.\n- A fake-number baseline gave about a 1% false-positive rate per target. Real targets matched a high-score row about 12% of the time, so the signal is real but recall is unknown.\n\n**Products counted (17):** enhanced cryptographic provider, exchange server, graphics device interface (gdi), hyper-v remotefx, internet explorer, internet explorer and edge, malware protection engine, office, smbv1 server, smbv3, sql server, update notification manager, win32k, windows, winverifytrust function, word, xml core services.\n\nTo firm this up, the CVE-noise decoder needs to be validated against a known-clean subset.",
+      "command_errors": 4,
+      "trace": "runs/cve/query10/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "expected 1262",
+      "answer": "I could not determine this count reliably, so I'm not giving a number. The keys in vulns_db and KEV can't be decoded to clean CVE IDs with the methods I tried.\n\n**What I established**\n\n- **KEV:** 1,583 entries, all with a clean NVD link in `notes` (`nvd.nist.gov/vuln/detail/CVE-YYYY-NNNN\u2026`). I used those as the reference IDs, assuming each note matches its row's `cve_ref`. That gives 1,583 distinct CVEs.\n- **vulns_db (`cves`):** 75,199 rows, and none of the `cve_id` values is a clean CVE string. Of the 553 that contain a literal `CVE-YYYY-NNNN`, the tokens are garbled. None of those literal tokens matches a KEV CVE.\n- **Obfuscation:** Keys split the year and number with noise tokens and punctuation, interleave pieces (e.g. `20-85-19-06` for 2019-8506), and use OCR letters and offsets (e.g. `off2062` for 2025, a +37 offset). A decoder covering these families was out of reach in this session.\n\n**Why the matching doesn't settle it**\n\n- A digit-only matcher (year then number, with noise allowed between) recovers only about 29% of KEV IDs when run against their own keys.\n- The same matcher produces false positives for about 23% of random fake IDs.\n- Against vulns_db it flags 928 KEV IDs, which can't be separated into true matches and noise. A count derived from it would be unreliable.\n\n**Next steps for a defensible answer**\n\nBuild a full decoder for the noise families (interleaving, offsets, OCR, base encodings), validate it on the KEV keys where the true ID is known from `notes`, and then count KEV CVEs with no decoded vulns_db match. The same decoder would also need to handle `cpe_db` and `descriptions_db` if those are used later.\n\nI left scratch files under `work/tmp/scratch/` (a SQLite copy of the KEV dump and the matcher scripts). Nothing in `query_dataset/` was modified.",
+      "command_errors": 5,
+      "trace": "runs/cve/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "expected 'ivanti', declared answer was 'surface'",
+      "answer": "I could not produce a reliable answer, so I'm not naming a vendor. The query depends on joining four sources by CVE ID, and the IDs in the sources are too heavily obfuscated for me to decode them with confidence.\n\n**What I checked**\n\n- **Access:** All four sources are readable. `vulns.db` (SQLite), `cpe.duckdb` (DuckDB), and the `cve_kev` Postgres database over the local socket all connected. The Mongo `cve_documents` collection also connected, with 71,501 documents.\n- **Row counts:** `kev_entries` has 1,583 rows across 420 vendor surface forms. `cves` has 75,199 rows, `cvss_metadata` has 68,367, and `cpe_matches` has 585,165.\n- **Key joins:** `cvss_metadata.cve_id` matches `cves.cve_id` exactly for every row. CPE keys, KEV keys, and Mongo keys match nothing else exactly, so they all need decoding.\n\n**Why the join fails**\n\n- The keys wrap the ID in random tokens and inserted noise, such as `CVE_2014_1250LH$37430`, `CVE-2021-4CL20%F5046` (which is CVE-2021-45046), and `off2057.25449K!9jyH`.\n- Several encodings appear: reversed years (`rv3202` \u2192 2023), two-digit years (`yr25`, `ord24`), OCR letter substitutions (`ocrCVEZO\u2026`), base-36 and hex mixes, offset years (`off2061`), and fold/swap/win/tri/dot/mx/sp variants.\n- A digit-run parser recovers a candidate for only about 26 of the 1,583 KEV keys. Without most of the KEV IDs, I can't assemble the set of CVEs that are both in KEV and have a vulnerable CPE, so I can't apply the \u226510 CVE threshold or compute any share.\n\n**Files left behind**\n\n- `/home/minhyeok/dab-artifacts/haiku-claude-104x3/trial2/runs/cve/query4/work/tmp/q4/` contains my loader, a candidate-ID script, and a 79 MB pickle of the source tables. None of it is needed for the answer, and it can be deleted.\n\n**To finish, I would need one of these**\n\n1. A complete decoder for the noise families. This is the most work, but it's the only route that keeps the join fully within the data.\n2. A clean `cve_id` mapping for the KEV and CPE keys, or a note from whoever built the dataset on the intended encoding for each family.",
+      "command_errors": 1,
+      "trace": "runs/cve/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "expected 1",
+      "answer": "**Answer: 1.** The only distinct affected version is **11.0.0**. That answer rests on a narrow match: one KEV CVE, CVE-2023-44487, is linked to Tomcat in the CPE data.\n\n- **KEV Tomcat CVEs:** Five KEV entries name Tomcat: CVE-2025-24813, CVE-2016-8735, CVE-2017-12617, CVE-2017-12615, and CVE-2020-1938. I took the clean IDs from the `notes` URLs, since `cve_ref` is heavily obfuscated.\n- **CPE linkage:** None of those five has a Tomcat row in `cpe_matches` or `cpe_version_details`. Their CVE numbers don't appear in any Tomcat criteria row, even after trying OCR-style letter substitutions and reversal. Other KEV IDs passed the fuzzy filter only by coincidence, so I dropped them. CVE-2023-44487 (HTTP/2 Rapid Reset, KEV vendor \"ietf\") is the one KEV CVE with clear Tomcat evidence. Its raw IDs contain the literal year and number, for example `MM2023:44487`.\n- **Matches for CVE-2023-44487:** Five `cpe_matches` rows reference Tomcat 11.0.0 under the `ASF` alias, which resolves to `apache`. All five have affirmative `vulnerable_flag` values (yes, true, T, vulnerable).\n- **Version strings:** The matching `cpe_version_details` rows record `11.0.0`, `11,0,0`, and `build-011000000`. These are the same version under the encoding rule, and there are no wildcard or null version rows, so the count is 1.\n\nThe CVE linkage is the weak point. The noisy `cve_id` values were matched heuristically, so a missed encoding could add CVEs. The five product-named KEV entries are the main concern, since they would normally be expected to appear.",
+      "command_errors": 0,
+      "trace": "runs/cve/query5/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "expected 13",
+      "answer": "The answer is **10** distinct CVEs, but treat it as a lower bound. I could only verify matches for part of the candidate pool, so some qualifying CVEs may be missing.\n\n**The 10 CVEs** (each has a Spanish-only description in `descriptions_db` and a matching KEV entry):\n\n- CVE-2023-20109 (Cisco IOS / IOS XE GET VPN)\n- CVE-2023-26083 (Arm Mali GPU kernel driver, information disclosure)\n- CVE-2023-46604 (Apache ActiveMQ)\n- CVE-2023-48788 (Fortinet FortiClient EMS)\n- CVE-2023-5631 (Roundcube Webmail XSS)\n- CVE-2024-1709 (ConnectWise ScreenConnect)\n- CVE-2024-30040 (Windows MSHTML)\n- CVE-2024-32896 (Google Pixel)\n- CVE-2024-39717 (Versa Director)\n- CVE-2024-45195 (Apache OFBiz)\n\n**How I got there**\n\n- Only `kev_db` and `descriptions_db` matter for this question. I didn't use `vulns_db` or `cpe_db`.\n- KEV's `notes` field always includes an `nvd.nist.gov/vuln/detail/CVE-\u2026` URL. I used that as ground truth for each KEV row's CVE ID (1,583 distinct IDs).\n- Mongo's `cve` keys are too obfuscated to decode reliably. The keys use reordered digits, reversed runs, base36/hex fragments and OCR-style letter substitutions, and I could only partly model these. So I worked from the other direction.\n- 2,682 documents have Spanish descriptions and no English one. I matched these to KEV entries using three signals: a CVE ID in the document's reference URLs, a shared vendor advisory URL with the KEV notes, and a product name in the Spanish text. I then read each candidate's description against the KEV vulnerability name.\n- I dropped any candidate whose CVE also has an English-bearing document, since the question requires no English description at all. That removed CVE-2023-34048, CVE-2023-35081, CVE-2023-49103, CVE-2024-6670, CVE-2024-7965, CVE-2024-20481 and CVE-2024-28995. Each had an English text describing the same vulnerability.\n- I excluded ambiguous Apple and Mali advisory matches, where the Spanish text didn't clearly match the KEV entry.\n\n**Limits**\n\n- The Mongo decoding gap means some KEV CVEs with Spanish-only descriptions were probably missed, most likely Apple or Mali advisory entries whose descriptions share boilerplate.\n- The matching for each of the 10 relied on description and reference evidence, not on exact decoding of the noisy keys.",
+      "command_errors": 2,
+      "trace": "runs/cve/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 8,
+      "category": "answer_mismatch",
+      "official_reason": "expected 58",
+      "answer": "I can't give you a verified count. The query needs CVE IDs decoded from four noisy key sets, and I could only decode a minority of them reliably.\n\n**What I could establish**\n- **KEV side:** the 1,583 KEV rows have clean NVD URLs in `notes`, which I used as ground truth. They name 1,595 distinct CVE IDs, since a few notes cite more than one CVE. The noisy `cve_ref` is unusable on its own.\n- **Microsoft side:** the canonical `microsoft` vendor is reached through the alias `MSFT-Corp` in `cpe_db`. The criteria strings appear in several formats (`cpe:2.3:a:V:\u2026`, `V/product@ver`, `V product ver`), so the vendor token needs parsing in each form.\n- **Score side:** `cvss_metadata.cve_id` is byte-identical to the matching `cves.cve_id` (all 68,367 cvss keys appear in `cves`), but that doesn't help decode the ID.\n\n**Why I stopped**\nThe noisy IDs use many encodings, often combined within one string. I found at least these families: literal or OCR-substituted `CVE`, years as 2-digit or 4-digit, digits reversed (`rv5202`), zero-padded numbers, hex after `mix` (`hexmix4e4d` \u2192 20045), split and reordered pieces (`sp31_25_324_20` \u2192 2025-31324), and a `swap00D` leading-digit marker. I could not decode a full set of ID surface forms. Against the KEV ground truth, my best matcher recovered only about 35\u201340% of IDs, and loosening it to recover more produced thousands of false matches. A count built on that would be wrong by an unknown margin.\n\n**What's needed to finish**\n- The full generator grammar for the noisy keys, or a validated decoder that reaches near-complete recall on the KEV `cve_ref` values (where the truth is known).\n- Then the query is: KEV IDs \u2229 IDs with a `microsoft` criterion where `vulnerable_flag` is truthy \u2229 IDs with a `cvss_metadata` score \u2265 7.0 (first numeric token of `score_text`).\n\nI left my helper scripts and the C matcher in `work/tmp/`, which you can reuse as a starting point for the decoder.",
+      "command_errors": 3,
+      "trace": "runs/cve/query8/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "cve",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "expected 8",
+      "answer": "**Answer: 2 distinct CVEs** \u2014 CVE-2023-7101 and CVE-2024-3393. This is a best-effort result. Both the vulns IDs and the KEV references are heavily obfuscated, and I could not decode every surface form, so the true count could be somewhat higher.\n\n**The two CVEs**\n\n| CVE | Vulns rows | Conflicting `cvss3_attack_vector` | KEV |\n|---|---|---|---|\n| CVE-2023-7101 | 2 | LOCAL vs NETWORK | Yes |\n| CVE-2024-3393 | 2 | LOCAL vs NETWORK | Yes |\n\n**How I got there**\n\n- **KEV set:** `kev_entries.cve_ref` is fully noisy, but every row's `notes` field carries a clean `nvd.nist.gov/.../CVE-YYYY-NNNN` URL. I used those as the KEV CVE set, which gives 1,587 distinct IDs.\n- **Vulns IDs:** I extracted a year and number from each `cves.cve_id` by matching a 4-digit year (2000\u20132029), then up to 12 non-digit noise characters, then a 4\u20135 digit number. I grouped rows by the resulting CVE ID, then kept groups with more than one row and more than one distinct non-null attack vector.\n- **Intersection:** 126 multi-row conflicting groups exist across the whole table, and exactly two of them are in KEV.\n\n**Caveats**\n\n- Some surface forms I did not decode: reversed-year encodings (e.g. `rv6202` for 2026), base-36/hex fragments, and forms where the year and number are separated by more than 12 non-digit characters. Any CVE that only appears in those forms would be missed, so 2 is a likely undercount.\n- The 126-group figure includes some spurious groups from the loose pattern, but the KEV intersection was checked against the clean KEV set, so the 2 results are not an artifact of that.\n- I counted \"conflicting\" as more than one distinct non-null value. If a null attack vector should also count as a conflict, the answer could change.\n- I did not use `cvss_metadata`, `cpe_db`, or `descriptions_db`, since the question only needs the vulns table and KEV.",
+      "command_errors": 1,
+      "trace": "runs/cve/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "No score found after name: Elite Massage",
+      "answer": "Three of the seven massage businesses have an average rating of at least 4.0, based on the reviews in the review database:\n\n| Business | gmap_id | Average rating | Reviews |\n|---|---|---|---|\n| Elite Massage | gmap_25 | 5.00 | 1 |\n| Angel-A Massage | gmap_22 | 4.33 | 6 |\n| Aurora Massage | gmap_20 | 4.18 | 56 |\n\nThe other four fall below 4.0: Orient Massage (3.93), SUSY massage (3.88), Good Massage (3.88), and Happy Spa & Massage (2.13).\n\nI identified the massage businesses by searching the business descriptions and names for \"massage\". The MISC field has no massage category. Elite Massage's 5.00 comes from a single review, so it is less reliable than the others.",
+      "command_errors": 0,
+      "trace": "runs/googlelocal/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "googlelocal",
+      "query": 3,
+      "category": "answer_mismatch",
+      "official_reason": "Missing hours [Thursday, Closed] for business: TACOS LA CABANA",
+      "answer": "The top 5 are all tied at a 5.0 average rating, so no tie-break was needed.\n\n| # | Business | Weekday hours past 6 PM | Avg rating | Reviews used |\n|---|---|---|---|---|\n| 1 | Taba Rug Gallery | Mon\u2013Fri 10AM\u20137PM | 5.0 | 18 |\n| 2 | Beauty Divine Artistry | Mon, Thu, Fri, Tue, Wed 9AM\u20138PM | 5.0 | 8 |\n| 3 | White Barn Candle Co | Mon\u2013Fri 10AM\u20139PM | 5.0 | 2 |\n| 4 | TACOS LA CABANA | Mon and Fri 5\u201311PM | 5.0 | 2 |\n| 5 | Mariscos el poblano | Thu open 24 hours; Mon 9AM\u20133:30AM | 5.0 | 3 |\n\n**Method**\n- **Open after 6 PM on a weekday:** I checked the Monday\u2013Friday entries in each business's `hours` field and kept any business whose closing time is later than 6:00 PM. A closing time after midnight, or a 24-hour listing, also counts.\n- **Average rating:** the mean of `rating` across all review rows for that `gmap_id` in the review database. I did not use the `num_of_reviews` column.\n- **Caveat:** the review database holds only 2,000 reviews, so several of these averages rest on 2 or 3 reviews.\n\nHanford Auto Supply, Dr. Syverain Skincare Clinic, and San Soo Dang also average 5.0 or close to it, but they close at exactly 6 PM, so they are excluded.",
+      "command_errors": 2,
+      "trace": "runs/googlelocal/query3/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "imdb",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "Vote count '1040' not found in LLM output.",
+      "answer": "The alphabetically first values are the same under both readings of \"Lionsgate\":\n\n- **Genre:** Horror\n- **Vote count:** 101188\n- **Writer:** Agnew, Jim\n- **Title:** 2001 Maniacs\n\nI ran the query by joining the two databases in Python rather than in one SQL statement. Two judgment calls shaped the result:\n\n- **Writer roles:** `role_type` only contains a `writer` role (id 4). The other credit types (head writer, written by, story, story editor) don't exist in the data, so the writer filter uses `writer` alone.\n- **Lionsgate:** I matched the exact company name \"Lionsgate\" and also tried a broader \"contains Lionsgate\" match. Both gave the same answer, so the choice doesn't affect the result.\n\nVote count is stored as text, so \"first\" means first in string order. The minimum is 101188.",
+      "command_errors": 4,
+      "trace": "runs/imdb/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['2020', '2024', '267137', '2673376', '2020'], but expected 319655",
+      "answer": "The absolute population change for the Orlando-Kissimmee-Sanford, FL metro area from 2020 to 2024 is an increase of **267,137** people (2,673,376 in 2020 to 2,940,513 in 2024).\n\nThe identity-theft rate comes from the metro summary entries in the MongoDB `domain_docs` collection. The population figures come from a saved Wikipedia \"Metropolitan statistical area\" page in `domain_assets.db`, which reports the 2024 Census Bureau estimate and the 2020 census count.\n\nTwo caveats:\n\n- **\"The 2024 report\" is ambiguous.** No single document is titled as a 2024 report. The metro entries are spread across 57 documents with many different dates. I took it to mean entries dated 2024. Orlando's entry is dated 0708/2024 and reports 555 identity-theft reports per 100K, the highest rate among those entries. The next highest is Baton Rouge at 528 per 100K.\n- **Rate extraction was heuristic.** The entries use many phrasings, so I parsed the identity-theft rate with pattern matching. I checked the top candidates and the high values by reading the sentences, but I did not verify every entry.",
+      "command_errors": 1,
+      "trace": "runs/krama/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "krama",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "Found numbers ['21.36', '22', '103', '1.', '2008'], but expected 3.88 (\u00b10.1)",
+      "answer": "**Answer: 21.36%** (22 violations out of 103 samples)\n\n**1. Beach with the lowest average water temperature, 2008\u20132016:** Ocean @ Squibnocket Beach (Chilmark, Dukes; community COM-062, county CTY-07). Its two readings in the period are 50.54 \u00b0F (\u224810.30 \u00b0C, 2014-05-13) and 10.8 \u00b0C (2015-05-08), averaging 10.55 \u00b0C. The next-lowest beach averages about 12.5 \u00b0C. I converted all temperatures to \u00b0C, handling the F, C and K variants.\n\n**2. Bacterial samples for that beach, 2008\u20132016:** I found 221 Squibnocket records across the tabular bacterial-testing documents in domain_docs. Their community code (062) and county code (007) appear in several formats (e.g., `062_CM`, `C-062`, `SITE_062`, `LOC-062`; `007`, `COUNTY_007`, `DIST-007`), which I canonicalized. Sample dates came in many formats (ISO, month names, yyyymmdd, 12- and 14-digit timestamps, yy-mm-dd), and I took the year from each. Restricting to 2008 through 2016 inclusive leaves 103 samples.\n\n**3. Violations:** Each result uses one of 16 phrasings. Eight state a violation (\"failed to meet\", \"exceeded the limit\", \"exceeding acceptable limits\", \"constitutes a violation\", \"did not meet\", \"non-compliant\", \"surpassed the regulatory threshold\", \"violation recorded\"), and the other eight state compliance. Counting the violation phrasings gives 22 of 103.\n\n**Rate:** 22 / 103 \u00d7 100 = **21.36%**",
+      "command_errors": 0,
+      "trace": "runs/krama/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "music_brainz_20k",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "Ground truth '1059.46' not found in LLM output: Apple Music made **$601.44 USD** from \"Get Me Bodied\" by Beyonc\u00e9 in Canada.\n\nThis comes from two sales records, both under track IDs 4233 and 12954:\n\n- Track 4233 (\"Get Me Bodied (Sexxxplicit R&B, Volume 25)\"): 354 units, $377.62\n- Track 12954 (\"Get Me Bodied - Sexxxplicit R&B, Volume 25\"): 210 units, $223.82\n\nThe tracks table has four records for this song. Track IDs 10838 and 15158 are the same song with messier metadata, but they have no Canadian Apple Music sales, so they add nothing to the total. The total is 564 units.",
+      "answer": "Apple Music made **$601.44 USD** from \"Get Me Bodied\" by Beyonc\u00e9 in Canada.\n\nThis comes from two sales records, both under track IDs 4233 and 12954:\n\n- Track 4233 (\"Get Me Bodied (Sexxxplicit R&B, Volume 25)\"): 354 units, $377.62\n- Track 12954 (\"Get Me Bodied - Sexxxplicit R&B, Volume 25\"): 210 units, $223.82\n\nThe tracks table has four records for this song. Track IDs 10838 and 15158 are the same song with messier metadata, but they have no Canadian Apple Music sales, so they add nothing to the total. The total is 564 units.",
+      "command_errors": 1,
+      "trace": "runs/music_brainz_20k/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "stockmarket",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Name not found within 5 edits: 'Argo Group International Holdings, Ltd', closest: 'er-toledo international, inc.** (mtd' (distance=19)",
+      "answer": "Four stocks are clear, and the fifth place is a tie. Ranking the NYSE non-ETF stocks by number of 2017 up days (close > open):\n\n1. **HDFC Bank Limited** (HDB): 146 up days, 102 down days\n2. **Albany International Corporation** (AIN): 143 up, 101 down\n3. **Getty Realty Corporation** (GTY): 143 up, 104 down\n4. **Mettler-Toledo International, Inc.** (MTD): 143 up, 108 down\n5. **Ameriprise Financial, Inc.** (AMP) and **Pfizer, Inc.** (PFE): tied at 141 up days each (AMP 110 down, PFE 105 down)\n\nThe question doesn't say how to rank, so I used the up-day count. Ranking by net up days (up minus down) would give a different top 5, led by HDB (+44), AIN (+42), and DTQ (+41).\n\nI considered the 234 stocks with the NYSE listing code and ETF = N. Of these, 131 had more up days than down days in 2017.",
+      "command_errors": 2,
+      "trace": "runs/stockmarket/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 1,
+      "category": "answer_mismatch",
+      "official_reason": "expected 898",
+      "answer": "**I can't give an exact answer from this data. The verified count is 71, which is a lower bound.**\n\n- **Verified (exact numeric amounts): 71 DoD awards** have an amount above $1,000,000.\n- **Not verifiable:** 6,413 of the 6,750 DoD awards have no numeric amount. Their `contract_amounts` entry is only a qualitative sentence such as \"five-figure\" or \"seven-figure\". Keyword bucketing puts roughly 750 of them in the above-$1M range (seven-figure, eight-figure, \"tens of millions\", \"low-to-mid millions\", etc.), about 5,100 below it, and about 500 unclassifiable. If you accept the prose at face value, the total would be roughly 800, but that is an estimate, not a count.\n\n**How I got the 71**\n- **Agency:** I matched `contracts.awarding_agency` against `agency_aliases` (DoD, DOD, Dept of Defense, Defense Department, Department of Defense (DOD), Department of Defense). That gives 6,750 awards, which matches the `n_contracts` figure for Department of Defense in `agencies`.\n- **Amounts:** I joined to `contract_amounts` on `award_id`, which was exact-string because the surface forms matched. Each DoD award with a numeric amount has exactly one parseable value above $1M, or only values below it, so there was no conflict to resolve. The 3 DoD awards with two numeric entries are all under $1M either way.\n\n**Data issues to be aware of**\n- **Missing amounts:** the hints describe amounts in many exact formats, including word-form and sum-of-parts expressions. Those formats don't appear here. Only 517 of 9,921 awards have any numeric amount.\n- **Superseded entries:** the `_OLD` suffix doesn't appear in the data. Instead, 345 awards have two entries, usually one prose and one numeric. That pattern matches the ~3.5% superseded rate, but the primary entry can't be identified with confidence. This doesn't change the 71, since none of those pairs crosses $1M in a way that would be ambiguous.\n- **Prose vs. numeric pairs:** in a few pairs the prose and the number disagree (for example, \"eight-figure\" alongside \"8.6M\"), so the prose can't be treated as a reliable check on the numeric value.\n\nIf the question needs an exact figure, the source would need the true per-award amounts; the prose descriptions can't supply them. The scratch script is at `tmp/dod.py` in the work directory.",
+      "command_errors": 2,
+      "trace": "runs/usaspending/query1/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 2,
+      "category": "answer_mismatch",
+      "official_reason": "expected 75",
+      "answer": "I couldn't get an exact count from this data. My best estimate is **about 60** California contract awards over $1,000,000, but treat that as approximate, not a verified number.\n\n**Why it's not exact:** Only 522 of the 10,266 `contract_amounts` entries are real dollar figures. The rest are prose such as \"six-figure range\" or \"eight-figure investment\", which give a magnitude band rather than an amount. The bands also disagree with the exact numbers in roughly 4% of the cases where both exist (e.g. \"six-figure\" against $1.8M). Only 30 of the 455 California awards have an exact figure, so most of the count rests on the prose.\n\n**How I got the estimate:**\n- **Recipients in California:** 271 recipients, matched across the UEI surface-form variants. I counted the state values CA, Calif, Calif., and California. Recipients with a blank state (197) are excluded.\n- **Awards:** 455 contract rows belong to those recipients.\n- **Award_id join:** Stripping separators and case gives a clean one-to-one match with the amount table.\n- **Exact amounts over $1M:** 5 awards.\n- **Prose over $1M:** 55 awards (after removing 2 phrases that explicitly say \"below the seven-figure threshold\" or \"not soaring to the seven-figure scale\"). These are \"seven-figure\", \"eight-figure\", \"low-to-mid millions\", \"tens of millions\", and similar.\n- **Not determinable:** 76 awards have prose with no usable magnitude (e.g. \"substantial investment\"), so they can't be classified and are excluded. Some of them could exceed $1M.\n- **Below $1M:** about 290 prose-only awards read as \"six-figure\", \"five-figure\", \"hundreds of thousands\", etc.\n\n**Other caveats:**\n- The `_OLD` suffix doesn't appear anywhere in the data. Instead, 345 award_ids have two amount rows, and I couldn't reliably tell which is superseded. Only 24 California awards are affected, and I used the numeric entry in each case.\n- The result could be as high as about 136 if all 76 unknowns were over $1M, but most are probably below. A realistic range is roughly 60\u201370.\n\nI used `/home/minhyeok/dab-artifacts/haiku-claude-104x3/trial2/runs/usaspending/query2/work/scratch/` for the helper scripts.",
+      "command_errors": 5,
+      "trace": "runs/usaspending/query2/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 5,
+      "category": "answer_mismatch",
+      "official_reason": "expected 12",
+      "answer": "**Answer: 5 distinct 2-digit NAICS sectors** (23 Construction, 33 Manufacturing, 54 Professional/Technical Services, 56 Administrative/Support, and 62 Health Care).\n\nThis rests on the 20 contracts whose amount is an exact numeric value of at least $10M. Only about 5% of contracts have an exact amount, so treat the result as provisional.\n\n**Caveat on coverage:** Only 517 of the 9,921 contracts have an exact numeric amount in `contract_amounts`. The other 9,404 have only a prose sentence (e.g., \"six-figure\", \"eight-figure\"), which gives a range, not an exact value. I excluded those. The prose is vague, and some of it would add sectors such as 51, 81, 22, 31, 32, and 48 if read as \"eight-figure or higher.\" The `_OLD` superseded rows described in the hints are not present in this data, so no rows were dropped for that reason.\n\n**Method:**\n- **Join:** Contracts and amounts join one-to-one by lowercase alphanumeric award ID (9,921 keys each, no collisions). Folding OCR characters merged distinct IDs, so I did not use that.\n- **Amounts:** I parsed plain integers, comma and `$` formats, `USD` suffixes, K/M scaling, and sum-of-parts. No word-form amounts appear in this data. The 20 contracts at or above $10M are each unambiguous, and none of the five awards with two exact amounts is near the threshold.\n- **Sector:** I stripped the `naics-` prefix and dashes, applied the OCR folding, and took the first two digits. Those match the `sector` field in `naics_sectors`.",
+      "command_errors": 1,
+      "trace": "runs/usaspending/query5/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 6,
+      "category": "answer_mismatch",
+      "official_reason": "expected 56",
+      "answer": "**57** distinct recipients are each associated with more than one UEI.\n\nThe recipients table has 3,317 rows, and each row has a different UEI once surface-form noise is removed, so counting UEIs per row can't answer the question. I grouped rows into canonical recipients by normalized name instead, then counted groups with more than one distinct normalized UEI.\n\n- **UEI normalization:** stripped the `uei:` prefix and `-uei` suffix, uppercased, and folded OCR look-alikes (0/O, 1/I, 5/S, 2/Z, 6/G, 8/B).\n- **Name normalization:** lowercased, removed periods, commas and punctuation, dropped a leading \"the\", and removed corporate suffixes (Inc, LLC, Corp, Corporation, Company, Co, Ltd, LP and similar).\n- **Result:** 3,219 canonical names, 57 of which map to two or more UEIs. Examples include Lockheed Martin (8 UEIs), Northrop Grumman Systems (8), Raytheon (8) and Boeing (7).\n- **Robustness:** the count stayed at 57 with or without stripping \"the\" and with or without the extra \"group\" suffix.\n\nI read the database files directly from `/home/minhyeok/dab-reproduction/query_usaspending/query_dataset/recipients.db`, because the `query_dataset` symlink in the work directory is broken in this sandbox. I did not use contracts_db, agencies_db or descriptions_db, since the question only concerns the recipients table.",
+      "command_errors": 2,
+      "trace": "runs/usaspending/query6/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "usaspending",
+      "query": 9,
+      "category": "answer_mismatch",
+      "official_reason": "expected 147",
+      "answer": "I can't give an exact count from this data. My best estimate is about **150** contracts (plausible range roughly 140\u2013160). The exact part is 53; the rest is a probabilistic estimate.\n\n**What I did**\n\n- **Join:** Matched IDs across the three stores (Postgres, Mongo, and the recipient UEI links) using a normalized key that folds OCR-confusable characters. Every document and amount row resolved to exactly one contract, and each contract has exactly one description document.\n- **Descriptions:** 984 contracts have only a Spanish (`es`) description and no English one.\n- **Amounts:** Of those 984, 267 have an exact amount: a numeric `amount_text`, or the recipient's total when the recipient holds only that one contract. Of these, **53 exceed $1,000,000**.\n\n**The problem**\n\nThe remaining 717 contracts have only prose amount text, such as \"six-figure investment\" or \"eight-figure band\", with no digits. The `_OLD` markers the hints describe are not in the data. Prose tiers agree with exact values only most of the time (about 83%), so I used per-phrase calibration against exact values to estimate the probability each prose entry exceeds $1M.\n\nSumming those probabilities gives about 98 more, for a total of about **151**.\n\nExpect the true figure to be near 150, not exactly that. The uncertainty comes almost entirely from the 717 prose-only contracts, and tighter numbers would need the true per-contract amounts, which this data does not contain.\n\nScratch files are in `work/tmp/q9/`.",
+      "command_errors": 5,
+      "trace": "runs/usaspending/query9/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "yelp",
+      "query": 4,
+      "category": "answer_mismatch",
+      "official_reason": "Value '3.63' not found in LLM output.",
+      "answer": "**Answer: Restaurants** has the most businesses that accept credit cards (22). Its average rating is **about 3.47**, computed over the 615 reviews of those businesses.\n\n- **Credit card filter:** I used `attributes.BusinessAcceptsCreditCards = 'True'` from the business collection, which gives 75 of the 100 businesses. The other businesses are either `'False'` or missing.\n- **Category:** The business collection has no category field. I extracted categories from the `description` text, so the category counts depend on that parsing. Restaurants leads clearly: the next categories are Shopping (15), Food (11), and Home Services (8).\n- **Rating:** I joined reviews to businesses via `businessid_N` \u2194 `businessref_N`. Every business has reviews. The 3.47 is the average of all review ratings for those businesses. If you instead average each business's mean rating and then average those, the result is about 3.30.\n\nFor comparison, Shopping averages 3.70 and Food 3.70, but both have fewer card-accepting businesses than Restaurants.",
+      "command_errors": 5,
+      "trace": "runs/yelp/query4/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    },
+    {
+      "dataset": "yelp",
+      "query": 7,
+      "category": "answer_mismatch",
+      "official_reason": "Missing category: Breakfast & Brunch",
+      "answer": "The top 5 categories by total reviews from users who registered on Yelp in 2016, counting reviews dated 2016 or later:\n\n| Rank | Category | Reviews |\n|---|---|---|\n| 1 | Restaurants | 25 |\n| 2 | Food | 21 |\n| 3 | Shopping | 16 |\n| 4 | Local Services | 16 |\n| 5 | American (New) | 13 |\n\nMethod:\n- **Users:** 168 users have a `yelping_since` date in 2016.\n- **Reviews:** 150 of their reviews are dated 2016 or later, covering 62 businesses. I parsed the three date formats in the data before filtering.\n- **Categories:** Categories aren't a separate field. I extracted them from the free-text `description`, which is LLM-style prose, so the parsing is noisy. I kept only segments that appear as category names in at least two businesses. A review on a business with several categories counts toward each of them.\n\nCaveats:\n- \"Since 2016\" is read as review date \u2265 2016-01-01. If it means after each user's registration date, the counts would shift.\n- Categories that occur in only one business top out at 8 reviews, below the 13 for the fifth-place category, so the filter shouldn't change the top 5. The parsing is still heuristic.",
+      "command_errors": 0,
+      "trace": "runs/yelp/query7/events.jsonl",
+      "semantic_root_cause": "Not yet manually reviewed",
+      "review_evidence": ""
+    }
+  ]
+}

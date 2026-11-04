@@ -1,0 +1,10 @@
+{
+  "path": "/home/minhyeok/dab-archives/haiku-claude-104x3-trial2.tar.gz",
+  "sha256": "324c6e6ceb6b73af5ee2c345e4192a48dc91c037e42ebb5c8e0afdacbb8d9702",
+  "bytes": 913761175,
+  "files": 2464,
+  "coverage": 104,
+  "datasets": 17,
+  "data_included": false,
+  "full_trajectories_included": true
+}

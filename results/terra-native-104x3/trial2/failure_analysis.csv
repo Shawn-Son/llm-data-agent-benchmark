@@ -1,0 +1,135 @@
+dataset,query,category,official_reason,answer,command_errors,trace,semantic_root_cause,review_evidence
+DEPS_DEV_V1,1,answer_mismatch,Missing or mis-versioned above-cutoff package: @dmrvos/infrajs>0.0.6>typescript 2.6.2,"The top 5 latest-release NPM packages by GitHub stars are:
+
+| Package | Latest release | GitHub stars |
+|---|---:|---:|
+| `@dylanvann/svelte` | `3.25.4` | 73,499 |
+| `@dumc11/tailwindcss` | `0.4.0` | 73,464 |
+| `@dman777/shadow-dom-quill-temp` | `1.0.0` | 42,407 |
+| `@dynasty/styled-components` | `3.2.1` | 39,660 |
+| `@dothq/styled-components` | `1.0.0` | 39,660 |",1,runs/DEPS_DEV_V1/query1/events.jsonl,Not yet manually reviewed,
+GITHUB_REPOS,1,answer_mismatch,No value in LLM output rounds to 0.33,"15 of 101 non-Python repositories’ root `README.md` files contain “copyright” information: **14.85%**.
+
+I excluded 10 README records without a matching language declaration.",2,runs/GITHUB_REPOS/query1/events.jsonl,Not yet manually reviewed,
+PANCANCER_ATLAS,1,answer_mismatch,Missing histology type: 9382/3,"Average IGF2 expression (`mean(log10(normalized_count + 1))`) for LGG patients:
+
+| Histology type | Average |
+|---|---:|
+| Astrocytoma | 2.5713 |
+| Oligoastrocytoma | 2.7136 |
+| Oligodendroglioma | 2.6825 |
+
+Included 23 patients with non-null IGF2 expression and non-bracketed histology annotations.",2,runs/PANCANCER_ATLAS/query1/events.jsonl,Not yet manually reviewed,
+agnews,2,answer_mismatch,"Ground truth '0.14414414414414414' (tol=0.0001) not found in LLM output: Amy Jones authored 111 articles, of which 24 are Science/Technology.
+
+Fraction: **24/111 = 8/37 ≈ 21.6%**.","Amy Jones authored 111 articles, of which 24 are Science/Technology.
+
+Fraction: **24/111 = 8/37 ≈ 21.6%**.",0,runs/agnews/query2/events.jsonl,Not yet manually reviewed,
+agnews,3,answer_mismatch,"Ground truth numeric value '336.6363636363636' (tol=0.01) not found in LLM output: There were 3,700 Business articles published in Europe from 2010–2020. Across 11 years, that averages **336.36 articles per year**.","There were 3,700 Business articles published in Europe from 2010–2020. Across 11 years, that averages **336.36 articles per year**.",1,runs/agnews/query3/events.jsonl,Not yet manually reviewed,
+agnews,4,answer_mismatch,Ground truth 'Africa' not found in LLM output: South America published the largest number of World-category articles in 2015.,South America published the largest number of World-category articles in 2015.,1,runs/agnews/query4/events.jsonl,Not yet manually reviewed,
+civic_unstructured,10,answer_mismatch,Ground truth '0.69' (tol=0.01) not found in LLM output: 0.32,0.32,1,runs/civic_unstructured/query10/events.jsonl,Not yet manually reviewed,
+civic_unstructured,2,answer_mismatch,"Missing in LLM output: project name 'Corral Canyon Culvert Repairs', amount '13460000'","The project is **Michael Landon Center HVAC Replacement Project**, with accumulated funding of **$15,509,000 USD** as of 2023-01-01.
+
+Its latest eligible report is dated November 10, 2022 and states that the project “is now completed.” I summed its 10 funding grants dated through the cutoff.",1,runs/civic_unstructured/query2/events.jsonl,Not yet manually reviewed,
+civic_unstructured,3,answer_mismatch,"Ground truth is empty, but output lists funding source(s): ['Public-Private Partnership', 'Municipal Fund', 'Municipal Bond', 'Emergency Relief Fund', 'Private Donation', 'County Grant', 'State Grant', 'Federal Grant']","All funding sources meet the 25% threshold (after resolving project-name variants and excluding non-project noise):
+
+| Funding source | Completed / funded projects | Share |
+|---|---:|---:|
+| County Grant | 9 / 29 | 31.0% |
+| Emergency Relief Fund | 10 / 32 | 31.2% |
+| Federal Grant | 8 / 28 | 28.6% |
+| Municipal Bond | 9 / 34 | 26.5% |
+| Municipal Fund | 9 / 26 | 34.6% |
+| Private Donation | 9 / 31 | 29.0% |
+| Public-Private Partnership | 10 / 32 | 31.2% |
+| State Grant | 8 / 29 | 27.6% |",0,runs/civic_unstructured/query3/events.jsonl,Not yet manually reviewed,
+civic_unstructured,4,answer_mismatch,"Ground truth '0.34' (tol=0.01) not found in LLM output: 0.61
+
+Capital funding total: $38,121,000  
+Disaster funding total: $62,874,000","0.61
+
+Capital funding total: $38,121,000  
+Disaster funding total: $62,874,000",0,runs/civic_unstructured/query4/events.jsonl,Not yet manually reviewed,
+civic_unstructured,5,answer_mismatch,"Ground truth '4401352.94' (tol=0.1) not found in LLM output: The average total funding was **$4,352,312.50** per project.
+
+This is based on 16 projects with at least one status change during the period, totaling $69,637,000 in resolved funding records.","The average total funding was **$4,352,312.50** per project.
+
+This is based on 16 projects with at least one status change during the period, totaling $69,637,000 in resolved funding records.",0,runs/civic_unstructured/query5/events.jsonl,Not yet manually reviewed,
+civic_unstructured,6,answer_mismatch,Missing in LLM output: amount '88615000',"**2023** had the highest capital-project funding total: **$117,680,000 USD**.",0,runs/civic_unstructured/query6/events.jsonl,Not yet manually reviewed,
+crmarenapro,12,answer_mismatch,"Found agent IDs ['005Wt000003NJgAIAW'], but expected '005Wt000003NDEBIA4'",005Wt000003NJgAIAW,2,runs/crmarenapro/query12/events.jsonl,Not yet manually reviewed,
+crmarenapro,13,answer_mismatch,"Found agent IDs ['005Wt000003NHw5IAG'], but expected '005Wt000003NIXCIA4'",005Wt000003NHw5IAG,2,runs/crmarenapro/query13/events.jsonl,Not yet manually reviewed,
+crmarenapro,2,answer_mismatch,"Found knowledge article IDs ['ka0Wt000000Ens5IAC'], but expected 'ka0Wt000000Eq0MIAS'",ka0Wt000000Ens5IAC,0,runs/crmarenapro/query2/events.jsonl,Not yet manually reviewed,
+crmarenapro,3,answer_mismatch,"Found stages ['Quote'], but expected 'Negotiation'",Quote,1,runs/crmarenapro/query3/events.jsonl,Not yet manually reviewed,
+crmarenapro,6,answer_mismatch,"Found knowledge article IDs ['ka0Wt000000Eq0MIAS'], but expected 'ka0Wt000000EnwvIAC'",ka0Wt000000Eq0MIAS,1,runs/crmarenapro/query6/events.jsonl,Not yet manually reviewed,
+crmarenapro,7,answer_mismatch,"Found knowledge article IDs ['ka0Wt000000EpSUIA0'], but expected 'ka0Wt000000EoD3IAK'",ka0Wt000000EpSUIA0,0,runs/crmarenapro/query7/events.jsonl,Not yet manually reviewed,
+crmarenapro,8,answer_mismatch,"Found agent IDs ['005Wt000003NBykIAG'], but expected '005Wt000003NIliIAG'",005Wt000003NBykIAG,3,runs/crmarenapro/query8/events.jsonl,Not yet manually reviewed,
+cve,1,answer_mismatch,expected 4,1 distinct CVE — CVE-2023-27524.,1,runs/cve/query1/events.jsonl,Not yet manually reviewed,
+cve,10,answer_mismatch,expected 5,26 distinct Microsoft products.,4,runs/cve/query10/events.jsonl,Not yet manually reviewed,
+cve,2,answer_mismatch,expected 'fortinet',microsoft,0,runs/cve/query2/events.jsonl,Not yet manually reviewed,
+cve,3,answer_mismatch,expected 1262,"**1,271** KEV entries reference CVEs with no matching record in `vulns_db`.",1,runs/cve/query3/events.jsonl,Not yet manually reviewed,
+cve,4,answer_mismatch,expected 'ivanti',d-link,3,runs/cve/query4/events.jsonl,Not yet manually reviewed,
+cve,5,answer_mismatch,expected 1,"0 distinct version strings.
+
+The only KEV/CPE-qualified Apache Tomcat CVE with matching CPE data is CVE-2025-24813. Its recorded `version_text` values are all `*` (with version ranges held separately), so excluding wildcards and nulls leaves no version strings to normalize or count.",0,runs/cve/query5/events.jsonl,Not yet manually reviewed,
+cve,6,answer_mismatch,expected 13,59,1,runs/cve/query6/events.jsonl,Not yet manually reviewed,
+cve,7,answer_mismatch,expected 'cisco:adaptive_security_appliance_software',microsoft:windows_10_1809,2,runs/cve/query7/events.jsonl,Not yet manually reviewed,
+cve,8,answer_mismatch,expected 58,334 distinct CVEs.,2,runs/cve/query8/events.jsonl,Not yet manually reviewed,
+cve,9,answer_mismatch,expected 8,16 distinct CVEs.,4,runs/cve/query9/events.jsonl,Not yet manually reviewed,
+imdb,1,infrastructure,Kind 'movie' not found in LLM output.,,0,runs/imdb/query1/events.jsonl,Not yet manually reviewed,
+imdb,10,answer_mismatch,Title '...And Then I...' not found in LLM output.,"- Alphabetically first cast member: **Abell, Alistair**
+- Alphabetically first title: **AVPR: Aliens vs Predator - Requiem**",7,runs/imdb/query10/events.jsonl,Not yet manually reviewed,
+imdb,6,answer_mismatch,Character name 'Lola' not found in LLM output.,"- Character: **Abby Mallard**
+- Actress: **Andrews, Julie**
+- Title: **Chicken Little**",5,runs/imdb/query6/events.jsonl,Not yet manually reviewed,
+imdb,9,answer_mismatch,Vote count '1040' not found in LLM output.,"- Genre: **Horror**
+- Vote count: **101188**
+- Writer: **Agnew, Jim**
+- Title: **2001 Maniacs**",4,runs/imdb/query9/events.jsonl,Not yet manually reviewed,
+krama,10,answer_mismatch,"Found numbers ['43180', '10', '13', '2024', '0.000708'], but expected 0.000748 (±5e-07)","The mean BSTAR for NORAD 43180 during the May 10–13, 2024 geomagnetic-storm period is **0.000708**.",4,runs/krama/query10/events.jsonl,Not yet manually reviewed,
+krama,2,answer_mismatch,"Found states ['Wyoming'], but expected 'Idaho'",Wyoming,4,runs/krama/query2/events.jsonl,Not yet manually reviewed,
+krama,3,answer_mismatch,"Found numbers ['12', '964.8727', '55', '1', '2023'], but expected 12964.8727 (±5e-05)","The average is **12,964.8727 reported identity thefts**.
+
+This uses 55 MSAs that (1) had interpolated 2023 populations above 1,000,000 and (2) matched a 2024 identity-theft report. Their identity-theft reports totalled 713,068.",3,runs/krama/query3/events.jsonl,Not yet manually reviewed,
+krama,4,answer_mismatch,"Found numbers ['2024', '903', '100000', '2020', '2024'], but expected 319655","The MSA is Miami–Fort Lauderdale–West Palm Beach, FL, with the highest 2024 identity-theft rate: 903 per 100,000.
+
+Its reported population base is unchanged between 2020 and 2024 (about 6.14 million), so the absolute population change is **0 people**.",2,runs/krama/query4/events.jsonl,Not yet manually reviewed,
+krama,6,answer_mismatch,"Found numbers ['10.55', '2008', '2016', '3', '99'], but expected 3.88 (±0.1)","Ocean @ Squibnocket Beach had the lowest average water temperature: 10.55 °C.
+
+Its 2008–2016 bacterial records contain 3 violations across 99 samples:
+
+\[
+(3 / 99) \times 100 = \mathbf{3.03\%}
+\]
+
+So, the bacterial exceedance rate is **3.03%**.",1,runs/krama/query6/events.jsonl,Not yet manually reviewed,
+krama,8,answer_mismatch,"Found protein-like tokens ['S016', 'NIFK'], but expected 'PFN1'",The oldest eligible Serous patient is S016 (age 90); the associated protein is **NIFK**.,1,runs/krama/query8/events.jsonl,Not yet manually reviewed,
+krama,9,infrastructure,No numeric value found in LLM output,,2,runs/krama/query9/events.jsonl,Not yet manually reviewed,
+music_brainz_20k,3,infrastructure,No fuzzy match (Zo gaat het leven aan je voor) found in . Best score: 0.00,,5,runs/music_brainz_20k/query3/events.jsonl,Not yet manually reviewed,
+stockmarket,3,infrastructure,"Name not found within 5 edits: 'Apex Global Brands Inc', closest: '' (distance=inf)",,0,runs/stockmarket/query3/events.jsonl,Not yet manually reviewed,
+stockmarket,4,answer_mismatch,"Name not found within 5 edits: 'Argo Group International Holdings, Ltd', closest: 'er-toledo international, inc. —' (distance=19)","Ranked by number of 2017 up days, the results are:
+
+1. HDFC Bank Limited — 146 up, 102 down
+2. Mettler-Toledo International, Inc. — 143 up, 108 down
+3. Getty Realty Corporation — 143 up, 104 down
+4. Albany International Corporation — 143 up, 101 down
+5. Tie: Ameriprise Financial, Inc. — 141 up, 110 down; Pfizer, Inc. — 141 up, 105 down
+
+Because fifth place is tied, there are six names at the top-five cutoff.",0,runs/stockmarket/query4/events.jsonl,Not yet manually reviewed,
+stockmarket,5,infrastructure,"Name not found within 5 edits: 'Synthesis Energy Systems, Inc', closest: '' (distance=inf)",,0,runs/stockmarket/query5/events.jsonl,Not yet manually reviewed,
+usaspending,1,infrastructure,expected 898,,0,runs/usaspending/query1/events.jsonl,Not yet manually reviewed,
+usaspending,10,infrastructure,expected 141,,0,runs/usaspending/query10/events.jsonl,Not yet manually reviewed,
+usaspending,2,infrastructure,expected 75,,0,runs/usaspending/query2/events.jsonl,Not yet manually reviewed,
+usaspending,3,infrastructure,expected 601,,0,runs/usaspending/query3/events.jsonl,Not yet manually reviewed,
+usaspending,4,infrastructure,expected 'department of homeland security',,0,runs/usaspending/query4/events.jsonl,Not yet manually reviewed,
+usaspending,5,infrastructure,expected 12,,0,runs/usaspending/query5/events.jsonl,Not yet manually reviewed,
+usaspending,6,infrastructure,expected 56,,0,runs/usaspending/query6/events.jsonl,Not yet manually reviewed,
+usaspending,7,infrastructure,expected 23,,0,runs/usaspending/query7/events.jsonl,Not yet manually reviewed,
+usaspending,8,infrastructure,expected 25,,0,runs/usaspending/query8/events.jsonl,Not yet manually reviewed,
+usaspending,9,infrastructure,expected 147,,0,runs/usaspending/query9/events.jsonl,Not yet manually reviewed,
+yelp,1,infrastructure,No number found in LLM output.,,0,runs/yelp/query1/events.jsonl,Not yet manually reviewed,
+yelp,2,infrastructure,No occurrence of 3.7 near PA/Pennsylvania.,,0,runs/yelp/query2/events.jsonl,Not yet manually reviewed,
+yelp,3,infrastructure,No number found in LLM output.,,0,runs/yelp/query3/events.jsonl,Not yet manually reviewed,
+yelp,4,infrastructure,Category 'Restaurant' not found in LLM output.,,0,runs/yelp/query4/events.jsonl,Not yet manually reviewed,
+yelp,5,infrastructure,No occurrence of 3.48 near PA/Pennsylvania.,,0,runs/yelp/query5/events.jsonl,Not yet manually reviewed,
+yelp,6,infrastructure,Missing name: Coffee House Too Cafe,,0,runs/yelp/query6/events.jsonl,Not yet manually reviewed,
+yelp,7,infrastructure,Missing category: Restaurants,,0,runs/yelp/query7/events.jsonl,Not yet manually reviewed,
