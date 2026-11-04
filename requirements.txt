@@ -6,3 +6,7 @@ duckdb>=1.2,<2
 psycopg2-binary>=2.9,<3
 pymongo>=4.10,<5
 python-dotenv>=1,<2
+# dabcheck (verification modules): LLM client, SQL transpilation for synthetic execution, tests
+anthropic>=2.3,<3
+sqlglot>=27,<32
+pytest>=8,<9

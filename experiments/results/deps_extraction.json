@@ -1,0 +1,125 @@
+{
+  "naive_forks": {
+    "summary": {
+      "rows": 770,
+      "by_source": {
+        "code": 516,
+        "null": 254
+      },
+      "code_coverage": 0.6701298701298701,
+      "final_coverage": 0.6701298701298701,
+      "warnings": [
+        "forks: parse coverage 67.0% < 95% (254 of 770 rows unparsed)",
+        "18 captures are preceded by digits or commas: the pattern probably truncates numbers with thousands separators",
+        "forks: final coverage 67.0% after code+LLM; the answer may rest on a subset of rows",
+        "forks: most parsed values are < 1000 and truncation signals fired; check thousands separators"
+      ]
+    },
+    "coverage": {
+      "rows": 770,
+      "parsed": 516,
+      "coverage": 0.6701298701298701,
+      "empty": 0,
+      "by_pattern": {
+        "0": 516
+      },
+      "suspected_truncations": 18,
+      "unparsed_samples": [
+        "The project leaflet/leaflet.markercluster is hosted on GitHub and currently has an open issues count of 130, along with a stars count of 3761 and forks count of",
+        "The project is hosted on GitHub under the name learnfrontend-dc/product-cart, and it currently has 2 open issues. It has garnered a total of 11 stars and has be",
+        "The project leebyron/testcheck-js on GitHub has an open issues count of 29, a stars count of 1185, and a forks count of 58, making it a notable repository in th",
+        "The project legendjaden/aftablecolumn on GitHub currently has an open issues count of 35, a stars count of 136, and a forks count of 29.",
+        "The project named leo-ran/easy-node-server is hosted on GitHub and currently has an open issues count of 0, stars count of 0, and forks count of 0."
+      ],
+      "warnings": [
+        "forks: parse coverage 67.0% < 95% (254 of 770 rows unparsed)",
+        "18 captures are preceded by digits or commas: the pattern probably truncates numbers with thousands separators"
+      ]
+    }
+  },
+  "forks": {
+    "summary": {
+      "rows": 770,
+      "by_source": {
+        "code": 770
+      },
+      "code_coverage": 1.0,
+      "final_coverage": 1.0,
+      "warnings": []
+    },
+    "coverage": {
+      "rows": 770,
+      "parsed": 770,
+      "coverage": 1.0,
+      "empty": 0,
+      "by_pattern": {
+        "0": 548,
+        "1": 154,
+        "2": 68
+      },
+      "suspected_truncations": 0,
+      "unparsed_samples": [],
+      "warnings": []
+    }
+  },
+  "stars": {
+    "summary": {
+      "rows": 770,
+      "by_source": {
+        "code": 769,
+        "null": 1
+      },
+      "code_coverage": 0.9987012987012988,
+      "final_coverage": 0.9987012987012988,
+      "warnings": []
+    },
+    "coverage": {
+      "rows": 770,
+      "parsed": 769,
+      "coverage": 0.9987012987012988,
+      "empty": 0,
+      "by_pattern": {
+        "0": 599,
+        "1": 170
+      },
+      "suspected_truncations": 0,
+      "unparsed_samples": [
+        "The project nandorojo/dripsy on GitHub has an open issues count of 26, is currently starred by 1835 users, and has been forked 71 times."
+      ],
+      "warnings": []
+    }
+  },
+  "ground_truth_check": [
+    {
+      "project": "mui-org/material-ui",
+      "ground_truth": 30522,
+      "pipeline": 30522,
+      "naive_regex": 522
+    },
+    {
+      "project": "moment/moment",
+      "ground_truth": 7201,
+      "pipeline": 7201,
+      "naive_regex": null
+    },
+    {
+      "project": "semantic-org/semantic-ui",
+      "ground_truth": 4955,
+      "pipeline": 4955,
+      "naive_regex": 4955
+    },
+    {
+      "project": "react-native-elements/react-native-elements",
+      "ground_truth": 4623,
+      "pipeline": 4623,
+      "naive_regex": 623
+    },
+    {
+      "project": "sveltejs/svelte",
+      "ground_truth": 4091,
+      "pipeline": 4091,
+      "naive_regex": 91
+    }
+  ],
+  "seconds": 0.1
+}

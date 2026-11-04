@@ -1,0 +1,33 @@
+{
+  "real_data": {
+    "signed_date_sql": [
+      [
+        "005Wt000003NDEBIA4",
+        304.0
+      ]
+    ],
+    "created_date_sql": [
+      [
+        "005Wt000003NJgAIAW",
+        49.0
+      ]
+    ]
+  },
+  "synthetic_execution": {
+    "signed_date_sql": {
+      "accept": true,
+      "reason": "all synthetic cases agree"
+    },
+    "created_date_sql": {
+      "accept": false,
+      "reason": "1 of 1 synthetic cases disagree"
+    }
+  },
+  "intent_cards": {
+    "created_date_sql": [
+      "date field: the question anchors the period on \"contract company-signed (closing) date\" but the SQL filters on \"Opportunity.CreatedDate\""
+    ],
+    "signed_date_sql": []
+  },
+  "seconds": 0.1
+}

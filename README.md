@@ -1,5 +1,15 @@
 # DataAgentBench: one-model reproduction
 
+## Verification modules (branch `verify-modules`, November 2026)
+
+`dabcheck/` implements three VLDB methods against the failure categories of the review below: FDJ
+(featurized-decomposition joins) for identifier joins, DocETL-style extraction pipelines with
+parse-coverage reports, and Text-to-SQL verification (round trip, synthetic execution, cohort intent
+cards) for cohort and temporal errors. Offline tests and experiments run without an API key.
+See [docs/PROPOSAL.md](docs/PROPOSAL.md) and [docs/dabcheck.md](docs/dabcheck.md);
+`native104.py --checks` runs the new experimental condition.
+
+
 ## Repeated runs — terra and Haiku (November 2026)
 
 Same 104 questions, descriptions + hints and unchanged original validators. One run is one full 104-question sweep. **Analysis uses two runs per model:** terra = the original single run + new run 1; Haiku = new runs 1 and 2.

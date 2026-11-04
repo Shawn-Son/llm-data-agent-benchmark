@@ -1,0 +1,106 @@
+{
+  "rows": 10266,
+  "summary": {
+    "rows": 10266,
+    "by_source": {
+      "null": 9585,
+      "code": 681
+    },
+    "code_coverage": 0.0663354763296318,
+    "final_coverage": 0.0663354763296318,
+    "warnings": [
+      "award_amount: parse coverage 6.6% < 95% (9585 of 10266 rows unparsed)",
+      "award_amount: final coverage 6.6% after code+LLM; the answer may rest on a subset of rows"
+    ]
+  },
+  "coverage": {
+    "rows": 10266,
+    "parsed": 681,
+    "coverage": 0.0663354763296318,
+    "empty": 0,
+    "by_pattern": {
+      "null": 681
+    },
+    "suspected_truncations": 0,
+    "unparsed_samples": [
+      "This Department of Defense contract with Utah State University's Space Dynamics Laboratory represents a significant portion that aligns with eight-figure invest",
+      "The Department of Defense's award to EBL Engineers, LLC, represents a mid-tier commitment typical for minor engineering consultancies, hovering in the six-figur",
+      "For the Department of Veterans Affairs, VALHALLA ENGINEERING GROUP, LLC's contract represents a strategic outlay characteristic of targeted six-figure commitmen",
+      "In the realm of aircraft manufacturing, this Department of Defense contract entrusted to Lockheed Martin Corp signifies a ten-figure commitment, underscoring th",
+      "The Department of Defense's partnership with The Boeing Company in aircraft manufacturing reflects a scale consistent with substantial, nation-shaping investmen"
+    ],
+    "warnings": [
+      "award_amount: parse coverage 6.6% < 95% (9585 of 10266 rows unparsed)"
+    ]
+  },
+  "numeric_rows": 681,
+  "numeric_over_1M": 98,
+  "old_suffix_rows": 0,
+  "join_audit": {
+    "rules": {
+      "raw": {
+        "left_keys": 9921,
+        "right_keys": 9921,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 9921,
+        "left_matched_rows": 9921,
+        "right_matched_rows": 10266,
+        "join_rows": 10266,
+        "left_unmatched_rows": 0,
+        "right_unmatched_rows": 0,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 345
+      },
+      "strip_hash_case": {
+        "left_keys": 9921,
+        "right_keys": 9921,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 9921,
+        "left_matched_rows": 9921,
+        "right_matched_rows": 10266,
+        "join_rows": 10266,
+        "left_unmatched_rows": 0,
+        "right_unmatched_rows": 0,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 345
+      },
+      "numeric_id": {
+        "left_keys": 6730,
+        "right_keys": 6730,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 6730,
+        "left_matched_rows": 9921,
+        "right_matched_rows": 10266,
+        "join_rows": 1322356,
+        "left_unmatched_rows": 0,
+        "right_unmatched_rows": 0,
+        "many_to_many_keys": 326,
+        "left_dup_keys": 326,
+        "right_dup_keys": 559
+      },
+      "ocr_fold_digits": {
+        "left_keys": 9471,
+        "right_keys": 9471,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 9471,
+        "left_matched_rows": 9921,
+        "right_matched_rows": 10266,
+        "join_rows": 11304,
+        "left_unmatched_rows": 0,
+        "right_unmatched_rows": 0,
+        "many_to_many_keys": 405,
+        "left_dup_keys": 405,
+        "right_dup_keys": 721
+      }
+    },
+    "best_rule": "raw",
+    "warnings": []
+  },
+  "seconds": 0.6
+}

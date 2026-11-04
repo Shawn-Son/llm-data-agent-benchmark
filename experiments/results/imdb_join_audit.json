@@ -1,0 +1,89 @@
+{
+  "audit": {
+    "rules": {
+      "raw": {
+        "left_keys": 134170,
+        "right_keys": 386098,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 0,
+        "left_matched_rows": 0,
+        "right_matched_rows": 0,
+        "join_rows": 0,
+        "left_unmatched_rows": 134170,
+        "right_unmatched_rows": 4523930,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 214291
+      },
+      "strip_hash_case": {
+        "left_keys": 134170,
+        "right_keys": 386098,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 0,
+        "left_matched_rows": 0,
+        "right_matched_rows": 0,
+        "join_rows": 0,
+        "left_unmatched_rows": 134170,
+        "right_unmatched_rows": 4523930,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 214291
+      },
+      "numeric_id": {
+        "left_keys": 134170,
+        "right_keys": 134170,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 134170,
+        "left_matched_rows": 134170,
+        "right_matched_rows": 4523930,
+        "join_rows": 4523930,
+        "left_unmatched_rows": 0,
+        "right_unmatched_rows": 0,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 84470
+      },
+      "ocr_fold_digits": {
+        "left_keys": 134170,
+        "right_keys": 386098,
+        "left_null": 0,
+        "right_null": 0,
+        "matched_keys": 0,
+        "left_matched_rows": 0,
+        "right_matched_rows": 0,
+        "join_rows": 0,
+        "left_unmatched_rows": 134170,
+        "right_unmatched_rows": 4523930,
+        "many_to_many_keys": 0,
+        "left_dup_keys": 0,
+        "right_dup_keys": 214291
+      }
+    },
+    "best_rule": "numeric_id",
+    "warnings": [
+      "match count swings with the key rule: raw=0 vs numeric_id=134170; canonicalise keys (numeric_id) before joining",
+      "movie_keyword.keyword_id: >20% of keys are zero-padded numbers behind a prefix; compare as integers, not digit strings"
+    ]
+  },
+  "q10_keyword_filter": {
+    "keywords": [
+      "superhero",
+      "marvel-comics",
+      "based-on-comic",
+      "tv-special",
+      "fight",
+      "violence",
+      "magnet",
+      "web",
+      "claw",
+      "laser"
+    ],
+    "keyword_rows": 10,
+    "movies_digit_string_rule": 2371,
+    "movies_numeric_id_rule": 21046
+  },
+  "seconds": 42.8
+}

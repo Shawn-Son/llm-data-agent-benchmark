@@ -21,22 +21,25 @@ KEYS={'codex':Path('/home/minhyeok/.config/dab/key'),'claude':Path('/home/minhye
 DEFAULT_MODEL={'codex':'gpt-5.6-terra','claude':'claude-haiku-5-5'}
 TAGS={'codex':'terra-native','claude':'haiku-claude'}
 REPEATS=3
-HARNESS='codex';BIN=CODEX;MODEL='gpt-5.6-terra';TRIAL=0;BUDGET=None
+HARNESS='codex';BIN=CODEX;MODEL='gpt-5.6-terra';TRIAL=0;BUDGET=None;CHECKS=False  # CHECKS: experimental 'description+hints+checks' condition (dabcheck)
 OUT=ARTIFACTS/'terra-native-104x1'
 
-def configure(harness='codex',model=None,trial=None,budget=None):
-    """Select harness/model/trial. trial=None keeps the original 104x1 output directory."""
-    global HARNESS,BIN,MODEL,TRIAL,OUT,BUDGET
+def configure(harness='codex',model=None,trial=None,budget=None,checks=False):
+    """Select harness/model/trial. trial=None keeps the original 104x1 output directory.
+    checks=True stages the dabcheck package in every task directory and appends its agent
+    instructions to the prompt (a new condition; never mix its results with the baseline runs)."""
+    global HARNESS,BIN,MODEL,TRIAL,OUT,BUDGET,CHECKS
     assert harness in DEFAULT_MODEL,harness
     HARNESS=harness;BIN=CODEX if harness=='codex' else CLAUDE
-    MODEL=model or DEFAULT_MODEL[harness];BUDGET=budget
+    MODEL=model or DEFAULT_MODEL[harness];BUDGET=budget;CHECKS=bool(checks)
+    if CHECKS:assert trial is not None,'--checks needs --trial (its own trial directory)'
     TRIAL=0 if trial is None else int(trial)
     if trial is None:
         assert harness=='codex','Only the original Codex run uses the 104x1 layout'
         OUT=ARTIFACTS/'terra-native-104x1'
     else:
         assert 1<=TRIAL<=REPEATS,TRIAL
-        OUT=ARTIFACTS/f'{TAGS[harness]}-104x{REPEATS}'/f'trial{TRIAL}'
+        OUT=ARTIFACTS/f'{TAGS[harness]}{"-checks" if CHECKS else ""}-104x{REPEATS}'/f'trial{TRIAL}'
     return OUT
 
 def results_dir():
@@ -63,6 +66,9 @@ def setup(folder,dataset,sockets):
         (work/'query_dataset').symlink_to(data,target_is_directory=True)
     cfg=ROOT/f'query_{dataset}/db_config.yaml'
     shutil.copyfile(cfg,work/'db_config.yaml')
+    if CHECKS:
+        from dabcheck.harness import stage_package
+        stage_package(work)  # code-only checks; the sandbox has no network, so no LLM calls happen inside it
     rules={str(BIN.resolve().parent):'read',':minimal':'read',str(work):'write',str(PROJECT/'strict/.venv'):'read',
            str(Path(sys.executable).resolve().parent.parent):'read'}
     for p in ['/sw','/etc','/usr','/lib','/lib64','/bin','/sbin']:
@@ -258,10 +264,14 @@ def one(ds,qid,sockets,pf):
     if (folder/'result.json').exists():return json.loads((folder/'result.json').read_text())
     folder.mkdir(parents=True,exist_ok=False)
     work,home,env=setup(folder,ds,sockets)
-    source=prompt(ROOT,ds,qid);(folder/'prompt.txt').write_text(source)
+    source=prompt(ROOT,ds,qid)
+    if CHECKS:
+        from dabcheck.harness import prompt_addendum,CONDITION
+        source+='\n\n'+prompt_addendum()
+    (folder/'prompt.txt').write_text(source)
     answer=work/'answer.txt'
     cmd=agent_command(work,home,answer)
-    record={'model':MODEL,'dataset':ds,'query':qid,'trial':TRIAL,'condition':'description+hints',
+    record={'model':MODEL,'dataset':ds,'query':qid,'trial':TRIAL,'condition':CONDITION if CHECKS else 'description+hints',
             'upstream_commit':PIN,'harness':pf['version'] if HARNESS=='claude' else 'native Codex CLI 0.166.0','harness_reconstruction':True,
             'sandbox_revision':'claude-code-bwrap-v1' if HARNESS=='claude' else 'unix-proxy-v2',
             'binary_sha256':pf['binary_sha256'],'prompt_sha256':digest(folder/'prompt.txt'),
@@ -401,10 +411,11 @@ def arguments(argv=None):
     p.add_argument('--trial',type=int,default=None,help=f'repeated sweep 1..{REPEATS}; omit for the original 104x1 layout')
     p.add_argument('--budget',type=float,default=None,help='Claude Code per-question --max-budget-usd')
     p.add_argument('--after',default=None,help='Slurm job id this submission waits for (afterany)')
+    p.add_argument('--checks',action='store_true',help='experimental: stage dabcheck in each task and append its instructions to the prompt')
     return p.parse_args(argv)
 
 def main(args):
-    configure(args.harness,args.model,args.trial,args.budget)
+    configure(args.harness,args.model,args.trial,args.budget,args.checks)
     assert os.getenv('SLURM_JOB_ID'),'Use a Slurm compute allocation'
     assert subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()==PIN
     pf=preflight()
@@ -412,7 +423,7 @@ def main(args):
     tasks=all_tasks(ROOT);assert len(tasks)==104
     version=pf['version'] if HARNESS=='claude' else '0.166.0'
     write(OUT/'protocol.json',{'model':MODEL,'harness':HARNESS,'trial':TRIAL,'repeats':REPEATS if args.trial else 1,
-          'tasks':tasks,'trials_per_query':1,'upstream_commit':PIN,'condition':'description+hints','cli_version':version,
+          'tasks':tasks,'trials_per_query':1,'upstream_commit':PIN,'condition':'description+hints+checks' if CHECKS else 'description+hints','cli_version':version,
           'sandbox':('Claude Code bubblewrap sandbox for Bash: no external domains, all Unix sockets allowed, writes only in the task directory; '
                      'deny rules on answer-bearing paths for both the sandbox and built-in file tools; key via apiKeyHelper outside the sandbox')
                     if HARNESS=='claude' else 'native bubblewrap with managed deny-by-default network proxy and filesystem-scoped Unix sockets',
@@ -445,9 +456,9 @@ def main(args):
 
 def submit(args):
     """Write one Slurm script per harness/model/trial; --pilot submits only preflight+pilot."""
-    configure(args.harness,args.model,args.trial,args.budget)
-    opts=f'--harness {HARNESS} --model {MODEL}'+(f' --trial {TRIAL}' if args.trial else '')+(f' --budget {BUDGET}' if BUDGET else '')
-    name=(f'{TAGS[HARNESS]}-t{TRIAL}' if args.trial else 'terra-native104')+('-pilot' if args.pilot else '')
+    configure(args.harness,args.model,args.trial,args.budget,args.checks)
+    opts=f'--harness {HARNESS} --model {MODEL}'+(f' --trial {TRIAL}' if args.trial else '')+(f' --budget {BUDGET}' if BUDGET else '')+(' --checks' if CHECKS else '')
+    name=(f'{TAGS[HARNESS]}{"-checks" if CHECKS else ""}-t{TRIAL}' if args.trial else 'terra-native104')+('-pilot' if args.pilot else '')
     script=PROJECT/'slurm'/(name+'.sbatch');script.parent.mkdir(parents=True,exist_ok=True)
     (PROJECT/'strict-status').mkdir(exist_ok=True)
     body=('#!/bin/bash\n'f'#SBATCH --job-name={name}\n#SBATCH --account=cse584f26_class\n#SBATCH --partition=standard\n'
