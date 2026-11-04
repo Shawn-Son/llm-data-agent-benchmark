@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 .dabcheck_cache/
 experiments/results/*.sqlite
+.env
