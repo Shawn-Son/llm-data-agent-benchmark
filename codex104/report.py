@@ -88,44 +88,72 @@ def pass_at_k(n,c,k):
  for i in range(n-c+1,n+1):p*=1-k/i
  return 1-p
 
-def aggregate(trials,dest):
- """Combine independent repeated sweeps (each a finalized trial directory with reports/runs.csv).
- Every question must be scored once in every trial; nothing is re-graded or re-selected here."""
+def aggregate(trials,dest,labels=None):
+ """Combine independent repeated sweeps of one model. Each trial is a directory with
+ reports/runs.csv (or runs.csv). Nothing is re-graded or re-selected. A question that is not
+ completed and scored in a trial (infrastructure failure, quota exhaustion) counts as unscored
+ for that trial, never as wrong. Per-trial accuracy uses that trial's scored questions; cross-trial
+ metrics (pass@n, consistency, SD) use only the questions scored in every trial ("common")."""
  trials=[Path(t) for t in trials];dest=Path(dest);dest.mkdir(parents=True,exist_ok=True)
+ labels=labels or [t.name for t in trials];assert len(labels)==len(trials) and len(set(labels))==len(labels)
  per={}
- for t in trials:
+ for t,name in zip(trials,labels):
   src=t/'reports/runs.csv' if (t/'reports/runs.csv').exists() else t/'runs.csv'
   with src.open() as f:rows=list(csv.DictReader(f))
-  assert len(rows)==104 and all(r['grading_status']=='scored' and r['passed'] in ('True','False') for r in rows),'Unscored or incomplete trial: '+str(t)
-  per[t.name]={(r['dataset'],int(r['query'])):r for r in rows}
+  assert len(rows)==104 and len({(r['dataset'],r['query']) for r in rows})==104,'Incomplete or duplicated trial: '+str(t)
+  per[name]={(r['dataset'],int(r['query'])):r for r in rows}
  keys=sorted(next(iter(per.values())));assert all(set(v)==set(keys) for v in per.values()),'Trials cover different questions'
- n=len(trials);model=next(iter(per.values()))[keys[0]]['model']
+ n=len(trials);models=sorted({r['model'] for rs in per.values() for r in rs.values()});assert len(models)==1,models
  datasets=sorted({d for d,q in keys})
- def macro(f):return statistics.mean(statistics.mean(f(k) for k in keys if k[0]==d) for d in datasets)
+ scored=lambda r:r['status']=='completed' and r.get('grading_status')=='scored' and r['passed'] in ('True','False')
+ ok=lambda r:r['passed']=='True'
+ common=[k for k in keys if all(scored(rs[k]) for rs in per.values())]
+ def macro(f,ks):
+  vals=[statistics.mean(f(k) for k in ks if k[0]==d) for d in datasets if any(k[0]==d for k in ks)]
+  return statistics.mean(vals) if vals else None
+ def sd(xs):return statistics.stdev(xs) if len(xs)>1 else 0.0
  trial_rows=[]
  for name,rs in per.items():
-  ok=lambda k,rs=rs:rs[k]['passed']=='True'
-  trial_rows.append({'trial':name,'correct':sum(ok(k) for k in keys),'micro_accuracy':sum(ok(k) for k in keys)/len(keys),'macro_pass1':macro(ok),
-                     'input_tokens':sum(int(rs[k]['input_tokens'] or 0) for k in keys),'cached_input_tokens':sum(int(rs[k]['cached_input_tokens'] or 0) for k in keys),
-                     'output_tokens':sum(int(rs[k]['output_tokens'] or 0) for k in keys),'tool_calls':sum(int(rs[k]['tool_calls'] or 0) for k in keys),
-                     'estimated_cost_usd':sum(float(rs[k]['estimated_cost_usd']) for k in keys) if all(rs[k].get('estimated_cost_usd') for k in keys) else None})
- c={k:sum(rs[k]['passed']=='True' for rs in per.values()) for k in keys}
- questions=[{'dataset':d,'query':q,'correct_trials':c[(d,q)],'trials':n,**{f'{t}_passed':per[t][(d,q)]['passed'] for t in per}} for d,q in keys]
- def sd(xs):return statistics.stdev(xs) if len(xs)>1 else 0.0
+  sk=[k for k in keys if scored(rs[k])];num=lambda c:sum(int(float(rs[k].get(c) or 0)) for k in keys)
+  trial_rows.append({'trial':name,'scored':len(sk),'unscored':len(keys)-len(sk),'correct':sum(ok(rs[k]) for k in sk),
+                     'micro_accuracy':sum(ok(rs[k]) for k in sk)/len(sk) if sk else None,
+                     'macro_pass1':macro(lambda k:ok(rs[k]),sk),'datasets_scored':len({k[0] for k in sk}),
+                     'common_correct':sum(ok(rs[k]) for k in common),
+                     'common_micro_accuracy':sum(ok(rs[k]) for k in common)/len(common) if common else None,
+                     'common_macro_pass1':macro(lambda k:ok(rs[k]),common),
+                     'input_tokens':num('input_tokens'),'cached_input_tokens':num('cached_input_tokens'),
+                     'output_tokens':num('output_tokens'),'tool_calls':num('tool_calls'),
+                     'median_duration_s':statistics.median(float(rs[k]['duration_s']) for k in sk) if sk else None,
+                     'estimated_cost_usd':sum(float(rs[k]['estimated_cost_usd']) for k in keys) if all(rs[k].get('estimated_cost_usd') not in (None,'') for k in keys) else None})
+ c={k:sum(ok(rs[k]) for rs in per.values() if scored(rs[k])) for k in keys}
+ m={k:sum(scored(rs[k]) for rs in per.values()) for k in keys}
+ questions=[{'dataset':d,'query':q,'scored_trials':m[(d,q)],'correct_trials':c[(d,q)],'common':(d,q) in common,
+             **{f'{t}':(per[t][(d,q)]['passed'] if scored(per[t][(d,q)]) else 'unscored') for t in per}} for d,q in keys]
  ds=[]
  for d in datasets:
-  ks=[k for k in keys if k[0]==d];accs=[statistics.mean(per[t][k]['passed']=='True' for k in ks) for t in per]
-  ds.append({'dataset':d,'questions':len(ks),'mean_accuracy':statistics.mean(accs),'sd_accuracy':sd(accs),
-             **{f'{t}_correct':sum(per[t][k]['passed']=='True' for k in ks) for t in per},
-             'pass_at_n':statistics.mean(c[k]>0 for k in ks),'all_n_correct':sum(c[k]==n for k in ks),'none_correct':sum(c[k]==0 for k in ks)})
- micro=[r['micro_accuracy'] for r in trial_rows];mac=[r['macro_pass1'] for r in trial_rows]
- summary={'model':model,'trials':n,'questions':len(keys),'datasets':len(datasets),
+  ks=[k for k in keys if k[0]==d];cks=[k for k in common if k[0]==d]
+  accs=[statistics.mean(ok(per[t][k]) for k in ks if scored(per[t][k])) for t in per if any(scored(per[t][k]) for k in ks)]
+  ds.append({'dataset':d,'questions':len(ks),'mean_accuracy':statistics.mean(accs) if accs else None,'sd_accuracy':sd(accs),
+             **{f'{t}':f"{sum(ok(per[t][k]) for k in ks if scored(per[t][k]))}/{sum(scored(per[t][k]) for k in ks)}" for t in per},
+             'common_questions':len(cks),'all_trials_correct':sum(c[k]==n for k in cks),'no_trial_correct':sum(c[k]==0 for k in cks),
+             'inconsistent':sum(0<c[k]<n for k in cks)})
+ micro=[r['micro_accuracy'] for r in trial_rows if r['micro_accuracy'] is not None]
+ mac=[r['macro_pass1'] for r in trial_rows if r['macro_pass1'] is not None]
+ cmic=[r['common_micro_accuracy'] for r in trial_rows if r['common_micro_accuracy'] is not None]
+ summary={'model':models[0],'trials':n,'trial_labels':labels,'questions':len(keys),'datasets':len(datasets),
+          'complete_trials':sum(r['unscored']==0 for r in trial_rows),'common_questions':len(common),
+          'common_datasets':len({k[0] for k in common}),
           'micro_accuracy_mean':statistics.mean(micro),'micro_accuracy_sd':sd(micro),
           'macro_pass1_mean':statistics.mean(mac),'macro_pass1_sd':sd(mac),
-          'macro_pass1_estimator':macro(lambda k:pass_at_k(n,c[k],1)),f'macro_pass{n}':macro(lambda k:pass_at_k(n,c[k],n)),
-          f'micro_pass{n}':statistics.mean(c[k]>0 for k in keys),'all_trials_correct':sum(c[k]==n for k in keys),
-          'no_trial_correct':sum(c[k]==0 for k in keys),'inconsistent':sum(0<c[k]<n for k in keys),'per_trial':trial_rows,
-          'note':'Macro metrics average question-level estimates within each dataset, then across datasets (paper stratification). SD is across trials.'}
+          'common_micro_accuracy_mean':statistics.mean(cmic) if cmic else None,'common_micro_accuracy_sd':sd(cmic),
+          'common_macro_pass1_estimator':macro(lambda k:pass_at_k(n,c[k],1),common),
+          f'common_macro_pass{n}':macro(lambda k:pass_at_k(n,c[k],n),common),
+          f'common_micro_pass{n}':statistics.mean(c[k]>0 for k in common) if common else None,
+          'all_trials_correct':sum(c[k]==n for k in common),'no_trial_correct':sum(c[k]==0 for k in common),
+          'inconsistent':sum(0<c[k]<n for k in common),'per_trial':trial_rows,
+          'note':('Per-trial accuracy uses that trial\'s scored questions; unscored (infrastructure/quota) questions are never counted wrong. '
+                  'Cross-trial metrics use only questions scored in every trial. Macro averages questions within each dataset, then datasets '
+                  '(paper stratification). SD is across trials.')}
  def csvwrite(name,rs):
   with (dest/name).open('w',newline='') as f:
    w=csv.DictWriter(f,fieldnames=list(rs[0]));w.writeheader();w.writerows(rs)
@@ -136,5 +164,6 @@ def aggregate(trials,dest):
 if __name__=='__main__':
  import argparse
  p=argparse.ArgumentParser();p.add_argument('out',type=Path,nargs='?');p.add_argument('--trials',nargs='+',type=Path);p.add_argument('--dest',type=Path)
+ p.add_argument('--labels',nargs='+',default=None)
  a=p.parse_args()
- print(json.dumps(aggregate(a.trials,a.dest) if a.trials else generate(a.out),indent=2))
+ print(json.dumps(aggregate(a.trials,a.dest,a.labels) if a.trials else generate(a.out),indent=2))
