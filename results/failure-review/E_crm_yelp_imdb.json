@@ -1,0 +1,757 @@
+[
+ {
+  "dataset": "crmarenapro",
+  "query": "query2",
+  "expected": "ka0Wt000000Eq0MIAS (Volume-Based Discounts)",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "ka0Wt000000Ens5IAC (Mandatory Bundles for Quotes)",
+    "discrepancy": "Cited the Mandatory Bundles article instead of the Volume-Based Discounts article; ruled the discounts compliant.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "**Discounts were checked and are not the problem.** The Volume-Based Discounts article allows 5% over $5, 10% over $10, and 15% over $20. Every quoted line is at or below its tier."
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S2"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "The agent loaded the quote's 4 line items (discounts 5/15/10/5% on quantities 5/8/10/7) and the Volume-Based Discounts article. It read the tiers ('over $5/$10/$20') as dollar thresholds, so every line looked eligible for up to 15%. Read as unit-volume tiers, the EcoPCB Creator line (qty 8, 15%) exceeds the allowed 5%. The agent then picked the bundle rule (PulseSim Pro without CircuitMaster Analyzer and VeriSim Express) as the violation. The trace does not state the intended tier reading, so this is likely rather than proven."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "ka0Wt000000Ens5IAC (Mandatory Bundles for Quotes)",
+    "discrepancy": "Same wrong article as H1; judged discounts compliant against the dollar total.",
+    "first_divergence": {
+     "step": 16,
+     "excerpt": "**Volume-Based Discounts:** the total is about $11,420, which qualifies for the 15% tier. The line discounts (5%, 15%, 10%, 5%) are at or below that tier"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S2"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "H2 read all six policy articles (step 12-13) and applied the discount tiers to the quote's dollar total ($11,420), which puts every line under the 15% cap. Applied per line by unit volume, the 15% discount on 8 units of EcoPCB Creator breaks the Volume-Based Discounts policy. H2 instead flagged the missing PulseSim Pro bundle partners and returned the bundle article."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Both Haiku runs gave the same wrong ID (Ens5IAC). On the visible article text, the PulseSim Pro bundle requirement also looks unmet (no CircuitMaster Analyzer or VeriSim Express on the quote), so the task assumes a single intended violation and is partly ambiguous. Terra returned only the ID and gave no reasoning.",
+  "question_summary": "Policy judgment: Haiku read the 'over $5/$10/$20' discount tiers as dollar totals (so all discounts looked valid) and chose another plausible violation (missing bundle) instead of the intended discount violation."
+ },
+ {
+  "dataset": "crmarenapro",
+  "query": "query3",
+  "expected": "Negotiation",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Quote",
+    "discrepancy": "Answered 'Quote' instead of 'Negotiation'.",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "Quote"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 pulled the opportunity (stage Discovery) and its six Tasks, which include 'Hold negotiation meeting' (2022-02-10) and 'Prepare contract for approval' (2022-02-20). It did not look at Events or call transcripts. It answered 'Quote' with no stated reasoning, which underweights the open negotiation and contract tasks that T0 used to answer Negotiation."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 (step 2) pulled the same Tasks plus Events and VoiceCallTranscript__c for the opportunity and answered Negotiation. T1 (step 2) looked at Tasks only and answered Quote."
+  },
+  "validator_or_task_note": "The answer rests on judgment. Both terra runs saw the same Task rows but reached different labels.",
+  "question_summary": "Judging the stage from activities is subjective: one terra run mapped the late-stage tasks (negotiation meeting, contract prep) to 'Quote' instead of 'Negotiation'."
+ },
+ {
+  "dataset": "crmarenapro",
+  "query": "query7",
+  "expected": "ka0Wt000000EoD3IAK (Scalability Enhancement Package article)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "None",
+    "discrepancy": "Returned None, but the agent's recommendation breaks the Scalability Enhancement Package article's timing rule.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "None"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "S2"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "T0 found the case (created 2022-09-22), the agent's emails recommending the Scalability Enhancement Package, the article ka0Wt000000EoD3IAK (step 8) and the order date 2021-09-20 (step 9). The article says the package is available 30 days after purchase with a 365-day validity window. The case came about 367 days after purchase, so the recommendation falls outside that window. T0 did not apply the window and answered None."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "None",
+    "discrepancy": "Returned None instead of the Scalability article ID.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "None"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "S2"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "T1 printed the article text with 'available to enterprises 30 days after the purchase date ... validity period of 365 days' (step 8). It looked up the case's order item (EffectiveDate 2021-09-20, step 9). It never compared the case date 2022-09-22 against the 365-day window and answered None."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "ka0Wt000000EpSUIA0 (Installation Timeline Policy)",
+    "discrepancy": "Picked the installation-timeline article; explicitly ruled out the expected scalability article.",
+    "first_divergence": {
+     "step": 22,
+     "excerpt": "The purchase was on 2021-09-20 and the case was created 2022-09-22, so the 30-day availability rule was satisfied. That leaves the installation timeline policy"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "S2"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H1 read the scalability article (step 17) and noted only the 30-day 'available after purchase' rule. It concluded that rule was met (purchase 2021-09-20, case 2022-09-22) and ignored the 365-day validity bound, which the case date exceeds by 2 days. It then moved to the volume-based installation timeline policy and returned #ka0Wt000000EpSUIA0."
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H2 reached the same wrong conclusion as H1 (answer ka0Wt000000EpSUIA0, and it states 'Its 30-day availability rule was met'). It was graded correct only because its explanation names ka0Wt000000EoD3IAK while ruling it out."
+  },
+  "validator_or_task_note": "Validator false positive: it passes any output that contains the expected ID. H2's final answer is the wrong article (EpSUIA0) but it mentions EoD3IAK in the text. All four runs therefore missed the 365-day validity check.",
+  "question_summary": "Every run missed the 365-day validity bound in the Scalability Enhancement Package article (purchase 2021-09-20, recommendation 2022-09-22). Terra returned None and Haiku chose the installation-timeline article."
+ },
+ {
+  "dataset": "crmarenapro",
+  "query": "query12",
+  "expected": "005Wt000003NDEBIA4",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "005Wt000003NJgAIAW",
+    "discrepancy": "Filtered by opportunity CreatedDate in April 2023 instead of contracts closed (CompanySignedDate) in April 2023.",
+    "first_divergence": {
+     "step": 0,
+     "excerpt": "I’ll calculate sales-cycle averages for opportunities opened in April 2023, joining each opportunity to its signed contract"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T4"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T0 computed both readings (step 6). Filtering on Opportunity.CreatedDate in April 2023 gave NJgAIAW at 49 days. Filtering on Contract.CompanySignedDate in April 2023 gave NDEBIA4 at 304 days, the expected agent. It returned the created-date answer, although 'turnaround from opening to closing ... in April 2023' anchors the month on the close/sign date."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "005Wt000003NJgAIAW",
+    "discrepancy": "Same as T0: returned the created-in-April cohort's winner, not the signed-in-April winner.",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "005Wt000003NJgAIAW"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T4"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1 first planned to use contracts signed in April 2023 and computed it (step 5: 005Wt000003NDEBIA4, 304 days). It also computed the created-in-April variant (NJgAIAW, 49 days) and returned that one. The date field used for the April filter was the wrong one."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "005Wt000003NJgAIAW",
+    "discrepancy": "Applied the April 2023 filter to Opportunity.CreatedDate only.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "where substr(o.CreatedDate,1,7)='2023-04'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T4"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H1 joined Opportunity to Contract correctly after stripping '#' and spaces (163/163 matched). It restricted to opportunities created in April 2023 and got three agents (49/168/186 days). It never tried the closing-date reading (CompanySignedDate in April 2023), which gives NDEBIA4."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "005Wt000003NJgAIAW",
+    "discrepancy": "Same created-date filter as H1.",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "where o.CreatedDate >= '2023-04-01' and o.CreatedDate < '2023-05-01'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T4"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H2 filtered opportunities by CreatedDate in April 2023 and averaged days to CompanySignedDate per owner. It picked the 49-day agent. The intended cohort is opportunities whose contract was signed (closed) in April 2023."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Both models gave the same wrong ID. Both terra runs printed the correct agent (NDEBIA4) for the signed-date reading and then chose the created-date one.",
+  "question_summary": "Wrong date field for the month filter: every run used opportunity creation in April 2023 instead of contract signing (closing) in April 2023."
+ },
+ {
+  "dataset": "crmarenapro",
+  "query": "query13",
+  "expected": "005Wt000003NIXCIA4",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "005Wt000003NEa3IAG",
+    "discrepancy": "Credited order amounts to the Opportunity owner instead of the Order owner.",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "for c,a,owner in opp:\n for oid,oa in orders:\n  if a==oa:agg[owner]+=tot[oid]"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J5"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "At step 5 T0 already had the correct ranking: orders dated in the window on accounts with a contract signed in the window, grouped by Order.OwnerId, gave NIXCIA4 = 46,919. At step 7 it re-attributed the same order totals to the owner of the contract's Opportunity. The 46,919 order then counts for NEa3IAG, which T0 returned."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "005Wt000003NHw5IAG",
+    "discrepancy": "Counted all orders (any date) of accounts with a contract signed in the window, not only orders made in the last five months.",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "order owner (opp-linked) [('005Wt000003NHw5IAG', 96136.239), ('005Wt000003NIaRIAW', 48438.066999999995)"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H1 joined Order to Contract through AccountId and kept orders whose account had a contract with CompanySignedDate between 2022-06-25 and 2022-11-25. It never filtered Order.EffectiveDate to that window. Older orders on those accounts pushed NHw5IAG to 96,136. With the order-date filter (as T1 did), NIXCIA4's 46,919 order is the top total."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "005Wt000003NHw5IAG",
+    "discrepancy": "Same missing order-date filter (39 orders kept instead of about 15).",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "if acc in acct_elig: ea[own]+=amt.get(oid,0)"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H2 found 16 contracts signed in the window and kept every order on those accounts regardless of EffectiveDate ('orders in window 39'). NHw5IAG led with 69,783. The question restricts to orders made in the past five months, which leaves NIXCIA4 on top."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 (step 5) restricted orders to EffectiveDate in 2022-06-25..2022-11-25, matched them to accounts with a contract signed in the window, and credited Order.OwnerId, giving NIXCIA4. T0 had the same ranking at step 5 but switched to opportunity owners at step 7."
+  },
+  "validator_or_task_note": "Both Haiku runs gave the same wrong ID (NHw5IAG).",
+  "question_summary": "Order-to-contract attribution is underspecified. Failures came from crediting the opportunity owner (T0) or dropping the order-date window (Haiku)."
+ },
+ {
+  "dataset": "yelp",
+  "query": "query2",
+  "expected": "PA, 3.70",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Missouri, 2,243 reviews, 3.91",
+    "discrepancy": "Ranked states by the business.review_count metadata (MO 2243) instead of review-table rows (PA 662).",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "Missouri has the most business reviews: 2,243 total. Its businesses’ average review rating is approximately 3.91 out of 5."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C2"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "At step 8 T0 printed both counts: review rows by state ('PA', 662, 3.699396) and the business-metadata sum ('MO', 2243), ('PA', 2022). It chose the metadata review_count to pick the state (MO). It then took MO's average from the review table (3.91). The expected answer counts review rows (PA, 3.70)."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Missouri, 2,243 reviews, 3.91",
+    "discrepancy": "Same metadata-vs-rows choice as T0.",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "Missouri has the highest total number of business reviews: 2,243."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C2"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1 computed 'actual reviews' (PA 662, 3.6994) and 'business declared' (MO 2243) at step 4. It ranked by the declared review_count, then mixed sources by reporting MO's review-table average (832 points over 213 reviews)."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Both terra runs gave the same wrong state. They saw the expected PA/3.699 figure and picked the metadata count instead. 'Highest number of reviews' is somewhat ambiguous between the two sources.",
+  "question_summary": "Aggregate source choice: terra counted reviews from business.review_count metadata instead of rows in the review table."
+ },
+ {
+  "dataset": "yelp",
+  "query": "query3",
+  "expected": "35",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "21",
+    "discrepancy": "21 vs 35: only ISO-format review dates were recognized as 2018 (36 businesses instead of 67).",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "select count(*), count(distinct business_ref) from review where date like '2018%'  -> [(65, 36)]"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "E5"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "review.date mixes three formats ('2018-01-05 00:33:00', 'November 05, 2018 at 05:46 PM', '20 Jul 2018, 17:24'). T0 used string tests ('2018%' and date >= '2018-01-01' AND < '2019-01-01') that only match ISO strings. It found 65 reviews on 36 businesses instead of 211 on 67. The parking logic was fine; the shrunken cohort gave 21 instead of 35."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 (steps 3-4) saw the mixed formats and parsed them with a coalesce of five try_strptime patterns, giving 211 reviews on 67 businesses and the correct 35."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Mixed review-date formats: string-prefix year filtering missed two of the three formats."
+ },
+ {
+  "dataset": "yelp",
+  "query": "query4",
+  "expected": "Restaurants, 3.63",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Restaurants (22), 3.47",
+    "discrepancy": "Right category but average 3.47 instead of 3.63, because only 22 of the 27 credit-card restaurants were tagged Restaurants.",
+    "first_divergence": {
+     "step": 25,
+     "excerpt": "businessid_52 ['Indianapolis', 'IN', 'this establishment offers a diverse selection of Antiques', 'Shopping', 'Home Services'"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "error_loop"
+    ],
+    "evidence": "supported",
+    "narrative": "Categories exist only in free-text descriptions. H2 extracted them with a regex that takes the text after the last cue word (in/including/featuring...). Its cleanup then drops fragments starting with 'this ' or city/state tokens, which lost 'Restaurants' for several businesses. It found 22 card-accepting restaurants (615 reviews, avg 3.47) instead of 27 (778 reviews, avg 3.63). Several steps (15-21) failed: /tmp scripts vanished and the sandbox broke on the .mcp.json path."
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H1 (step 13 onward) gave up on regex parsing and transcribed each of the 75 businesses' category lists by hand from the printed descriptions. That gave 27 restaurants and the 778-review average of 3.63."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Free-text category extraction: a regex parser under-tagged 'Restaurants', which shrank the cohort and moved the average rating."
+ },
+ {
+  "dataset": "yelp",
+  "query": "query7",
+  "expected": "Restaurants, Food, American (New), Shopping, Breakfast & Brunch",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Restaurants, Food, Shopping, American (New), Grocery",
+    "discrepancy": "Grocery instead of Breakfast & Brunch; based on 36 reviews instead of 150.",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "select count(*) from \\\"user\\\" where yelping_since >= '2016-01-01' and yelping_since < '2017-01-01'  -> [(53,)]"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "E5"
+    ],
+    "signals": [
+     "no_verification",
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "yelping_since and review.date use three string formats. T0 filtered both with ISO string comparisons and found 53 users registered in 2016 (true count 168). The review filter (date >= '2016-01-01') also behaves arbitrarily on the non-ISO formats. That left 36 qualifying reviews instead of 150. T0 then assigned categories from the printed descriptions with no visible parsing code. On the shrunken sample, Grocery tied into fifth place."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Restaurants, Food, Shopping, Local Services, American (New)",
+    "discrepancy": "Local Services in place of Breakfast & Brunch; Restaurants counted 25 instead of 58.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "def cats(desc):\n    m=list(re.finditer(r'\\b(?:in|including|for|seeking|of|include)\\s',desc))"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 parsed dates correctly (168 users, 150 reviews). Its category extractor keeps only the segment after the last 'in/for/of/including' in each description, and many descriptions end with filler such as 'perfect for a casual meal'. The real category lists were lost there (step 16 shows businessref_59 -> ['a casual meal or a refreshing drink']). A later vocabulary filter could not recover them. Restaurants fell to 25 and Breakfast & Brunch dropped out of the top 5."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 parsed yelping_since with a year regex (168 users, 150 reviews) and mapped categories from the descriptions: Restaurants 58, Breakfast & Brunch 19.",
+   "haiku": "H1 (steps 22-26) stripped the intro clause and trailing commentary from each description and hand-corrected five businesses, giving Restaurants 58 and Breakfast & Brunch 19. H2 used the last-cue-word regex."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Two noisy-text problems: mixed date formats (terra T0 kept only ISO dates) and free-text category extraction (Haiku H2's regex dropped categories)."
+ },
+ {
+  "dataset": "imdb",
+  "query": "query2",
+  "expected": "\"A.J.\", #1 Cheerleader Camp",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "\"A.J.\", #",
+    "discrepancy": "Title '#' instead of '#1 Cheerleader Camp': the title minimum ignored the pseudonymous-writer condition.",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "select min(t.title) from movie_companies mc join company_name cn on ... where cn.country_code='[us]'  -> global title ('#',)"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1 built the US-company title set and the eligible writer set (writers with an aka_name credited on US titles) correctly, and got the pseudonym '\"A.J.\"'. For the title it took MIN(title) over all US-company titles, ignoring whether a pseudonymous writer was credited, which returned '#'. The expected title is the minimum over titles credited to such writers ('#1 Cheerleader Camp')."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 (step 12) collected the movie IDs credited (role_id 4) to writers with an aka_name, then scanned titles in sorted order to the first one in that set, giving '#1 Cheerleader Camp'."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Dropped a filter on one output column: the title minimum must be over titles with a pseudonymous writer, not all US-company titles."
+ },
+ {
+  "dataset": "imdb",
+  "query": "query5",
+  "expected": "\"O\" Films, 1.0, #54 Meets #47",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "\"O\" Films, 6.5, Parking Ticket",
+    "discrepancy": "Rating and title come from the first row ordered by (company, rating, title), not the per-column minima (1.0 and '#54 Meets #47').",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "ORDER BY cn.name, r.info, t.title\nLIMIT 20"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "C5"
+    ],
+    "signals": [
+     "sampled"
+    ],
+    "evidence": "supported",
+    "narrative": "The question asks for the alphabetically first company, the first rating and the first title, each independently (MIN per column). T0 read it as the first combined row. It sorted by company name, then rating, then title, and returned the ratings and title of '\"O\" Films' itself (6.5, Parking Ticket). Its step-11 loop also stopped at the first company with a qualifying movie, so it never looked for the global minimum rating or title."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "\"O\" Films, 6.5, Parking Ticket",
+    "discrepancy": "Same row-wise ordering as T0.",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "ORDER BY p.name,r.info,t.title LIMIT 10"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "C5"
+    ],
+    "signals": [
+     "sampled"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 limited the work to the first 100 US companies by name (step 14) and sorted the candidate rows by (company, rating, title). It reported the first row. Per-column minima over the full qualifying set give rating 1.0 and title '#54 Meets #47'."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Both terra runs gave the same wrong answer. The expected values come from different rows (independent MIN per column), which the question wording supports.",
+  "question_summary": "'Alphabetically first X, Y and Z' means independent per-column minima. Terra returned the first lexicographic row instead."
+ },
+ {
+  "dataset": "imdb",
+  "query": "query6",
+  "expected": "Lola, Andrews, Julie, Hoodwinked!",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Bridget, Andrews, Julie, Monster House",
+    "discrepancy": "Character 'Bridget' and title 'Monster House' instead of 'Lola' and 'Hoodwinked!'.",
+    "first_divergence": {
+     "step": 21,
+     "excerpt": "if x in pids and row[2]=='f' and 'an' in row[1].lower(): names[x]=(row[1],row[0])"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "E4"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 matched 'An' case-insensitively, which admitted actresses like Cusack and Curran (17 rows at step 21). It then re-derived the eligible people by hand from sqlite3 '-column' output that truncated IDs (e.g. 'nm000001924' for 1924909). At step 27 it typed those truncated IDs (1924, 209484, 215, ...) into the aka_name/person_info lookup, which silently dropped Hathaway and Jolie. The leftover set gave Bridget (Garofalo) and Monster House."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Abby Mallard, Andrews, Julie, Chicken Little",
+    "discrepancy": "Case-insensitive 'An' match added Joan Cusack's 'Abby Mallard' in Chicken Little.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "select id,name,gender from name where gender='f' and name like '%An%'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1 correctly reduced the movie side to 18 titles. It then used SQLite LIKE '%An%', which is case-insensitive, so names containing lowercase 'an' (Cusack, Joan; Janney; Krakowski...) qualified. The per-column minima became Abby Mallard / Chicken Little instead of Lola / Hoodwinked!, which a case-sensitive 'An' gives."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Lola, Jolie, Angelina, Shark Tale",
+    "discrepancy": "Actress and title wrong: only 2 candidate films (Shark Tale, Chicken Little) instead of 18.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "join keyword k on regexp_replace(k.id,'\\D','','g') = regexp_replace(mk.keyword_id,'\\D','','g')"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 joined keyword to movie_keyword by comparing digit strings without casting to integer. Leading zeros remained ('kwd.7084' -> '7084' vs 'Kw0000...' forms), so most computer-animation tags did not match. Only 40 tagged titles and 2 qualifying films survived (step 18: 2 rows). Shrek 2 and Hoodwinked! were excluded, so Julie Andrews and the title Hoodwinked! were lost, even though H1 applied the case-sensitive 'An' correctly."
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H2 (step 15) normalized every ID with NULLIF(regexp_replace(..., '\\D','','g'),'')::bigint, keeping 18 films, and matched 'An' case-sensitively, giving exactly the expected 3 rows."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Two failure modes: case-insensitive LIKE '%An%' (terra) widened the actress set, and digit-string ID comparison without stripping leading zeros (H1) lost most keyword links."
+ },
+ {
+  "dataset": "imdb",
+  "query": "query9",
+  "expected": "Horror, 1040, Agnew, Jim, 2001 Maniacs",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Horror, 101188, Agnew, Jim, 2001 Maniacs",
+    "discrepancy": "Vote count 101188 instead of 1040.",
+    "first_divergence": {
+     "step": 14,
+     "excerpt": "writerp={nid(p) for _,p,r,_ in casts if roles.get(nid(r))=='writer'}"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "S3"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "The writing roles named in the question (writer, head writer, written by, story, story editor) are credit-note values, not role_type labels. T0 kept every role_id=4 (writer) credit regardless of cast_info.note. The wider cohort includes movies such as The Lincoln Lawyer (votes '101188'), and '101188' sorts before '1040' as text. The trace never shows the writer note values, so whether the note filter alone removes 101188 is not proven."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Horror, 101188, Agnew, Jim, A Dangerous Method",
+    "discrepancy": "Vote count 101188 instead of 1040, and title 'A Dangerous Method' instead of '2001 Maniacs'.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "select id,role from role_type where lower(role) in ('writer','head writer','written by','story','story editor');"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "S3",
+     "J1"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "T1 looked for the writing-credit labels in role_type, found only 'writer', and used role_id=4 without a cast_info.note filter. Its row set contains The Lincoln Lawyer ('101188'). It also rebuilt title IDs as 'tt'+zfill(width) for widths 1-10 only (step 28), which misses IDs with longer zero padding (e.g. 'tt000002279738' style). That cut the cohort to 127 movies (versus 186 for H1) and dropped 2001 Maniacs. Its own output shows ORDERED_FIRST ('Horror', '1040', ...)."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Horror, 101188, Agnew, Jim, 2001 Maniacs",
+    "discrepancy": "Vote count 101188 instead of 1040.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "`role_type` only contains `writer` among the writing roles; \"head writer\", \"written by\", \"story\", and \"story editor\" don't exist as role values, so the writer filter reduces to role `writer`."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "S3"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "H1 searched role_type for the five writing-credit labels, concluded only 'writer' exists, and dropped the rest of the condition instead of checking cast_info.note. Its 404 joined rows over 186 movies include a movie with votes '101188', the text minimum. The expected 1040 implies a narrower cohort, consistent with filtering writer credits by note."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Horror, 101188, Agnew, Jim, 2001 Maniacs",
+    "discrepancy": "Vote count 101188 instead of 1040.",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "Only the `writer` role exists in `role_type` (id 4), so that's the writing credit I can match."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "S3"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "likely",
+    "narrative": "Same reading as H1: the credit types were looked up in role_type only, so all writer credits were kept. The Lionsgate check (exact vs contains) did not change the result. The vote minimum '101188' comes from the wider writer cohort."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "All four runs agree on vote count '101188' (three also on the other fields). The validator expects 1040. The likely cause is the unchecked cast_info.note writing-credit filter, but no run inspected note values, so the exact mechanism behind 1040 remains unresolved from the traces.",
+  "question_summary": "Every run mapped 'writer, head writer, written by, story, story editor' onto role_type (only 'writer' exists) instead of the credit-note field. The wider cohort brought in the text-minimum vote '101188'."
+ },
+ {
+  "dataset": "imdb",
+  "query": "query10",
+  "expected": "Abell, Alistair, ...And Then I...",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Abell, Alistair, AVPR: Aliens vs Predator - Requiem",
+    "discrepancy": "Title wrong: only 119 candidate movies instead of 937, so '...And Then I...' was missing.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "JOIN keyword k ON regexp_replace(k.id,'[^0-9]','','g') = regexp_replace(mk.keyword_id,'[^0-9]','','g')"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 compared keyword IDs as digit strings without removing leading zeros. keyword.id 'kwd..2905' -> '2905' but movie_keyword.keyword_id like 'Kw00002083' -> '00002083', so most keyword links failed. Only 119 movies passed the keyword + completeness filters (H2 found 937). The cast-member minimum happened to survive, but the title minimum moved to 'AVPR: Aliens vs Predator - Requiem'."
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H2 (step 11) cast both sides to bigint (regexp_replace(...,'\\D','','g')::bigint), which drops leading zeros. It got 937 movies and the expected '...And Then I...'."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Noisy keyword ID join: comparing digit strings without dropping leading zeros silently lost most keyword links."
+ }
+]

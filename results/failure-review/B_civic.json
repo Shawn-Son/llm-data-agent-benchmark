@@ -1,0 +1,628 @@
+[
+ {
+  "dataset": "civic_unstructured",
+  "query": "query2",
+  "expected": "Corral Canyon Culvert Repairs, $13,460,000",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Michael Landon Center HVAC Replacement Project, $15,509,000",
+    "discrepancy": "Wrong project and amount (15,509,000 vs 13,460,000); HVAC project is not a 'Completed'-section project in its latest pre-cutoff report.",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "This project is now completed and will be accepted by the City"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1",
+     "J3"
+    ],
+    "signals": [
+     "no_hint_use",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 ranked raw funding names by total (step 3) and checked status by free-text phrases instead of the agenda section headings; it took rid_0007's sentence 'This project is now completed' for Michael Landon HVAC, which sits under a Construction heading (the next heading is 'Capital Improvement Projects (Not Started)'). It never merged funding-name variants, so Corral Canyon Culvert (9,061,000 + other variants = 13,460,000) was never assembled as a candidate."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Citywide Guardrail Replacement (FEMA/CalOES), $35,712,000",
+    "discrepancy": "Wrong project; amount 35,712,000 sums four guardrail name variants instead of 13,460,000 for Corral Canyon Culvert.",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "select sum(amount) from Funding where grant_time <= '2023-01-01' and project_name like '%guardrail%'"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "T3"
+    ],
+    "signals": [
+     "no_hint_use",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 merged every name containing 'guardrail' (citywide_guardrail_replacement plus the three guardrail_replacement_citywide FEMA variants) into one project and used rid_0019's 'Citywide Guardrail Replacement' Completed listing as its status. The two guardrail projects are listed separately in rid_0010, and the validator's ER keeps them distinct; the FEMA guardrail's latest report (rid_0010, really late Jan 2022) puts it under Design. The over-merge produced 35.7M."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Guardrail Replacement Citywide (FEMA), $33,417,000",
+    "discrepancy": "Wrong project (33,417,000); the expected project Corral Canyon Culvert at 13,460,000 was computed as runner-up at step 29.",
+    "first_divergence": {
+     "step": 23,
+     "excerpt": "'rid_0010':'2021-10-27'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T3"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 ordered agendas by stated meeting date, placing rid_0010 at 2021-10-27, before rid_0015 (Dec 2021, guardrail Completed). rid_0010's text dates it to late January 2022, and its scan (step 25) shows 'rid_0010 Design | Guardrail Replacement Citywide (FEMA Project)', so with the corrected date the FEMA guardrail's latest status is Design and it drops out. H1 said the in-text dates 'agree' and never applied the date-conflict hint."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Guardrail Replacement Citywide, $33,417,000",
+    "discrepancy": "Same wrong project/amount as H1; Corral Canyon Culvert (~13.5M) listed only as a runner-up.",
+    "first_divergence": {
+     "step": 28,
+     "excerpt": "The text dates line up with the stated meeting dates."
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T3"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 checked dates superficially and kept rid_0010 at its stated Oct 27, 2021 date, so it took rid_0015 (Dec 2021, Completed) as guardrail's latest report. In fact rid_0010 (late Jan 2022) lists Guardrail Replacement Citywide (FEMA) under Design, which disqualifies it and leaves Corral Canyon Culvert (13.46M) as the top completed project."
+   }
+  },
+  "validator_or_task_note": "Both Haiku runs gave the same wrong answer (guardrail, 33,417,000) and both computed the correct runner-up 13,460,000 for Corral Canyon Culvert; the only blocker was the rid_0010 date trap.",
+  "question_summary": "The misdated rid_0010 agenda (stated Oct 2021, really Jan 2022) re-classifies the FEMA guardrail as Design; models missed it (Haiku) or over-merged/keyword-classified projects (terra)."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query3",
+  "expected": "Empty set: no funding source has >=25% completed projects",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Municipal Fund (27.6%), Public-Private Partnership (26.5%)",
+    "discrepancy": "Lists two sources; expected none.",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "'corral_canyon_road_bridge_repairs','dume_drive_and_fernhill_drive_speed_humps_project','guardrail_replacement_citywide'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T1",
+     "T3",
+     "J2"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 hand-typed a static 'completed' set that includes Corral Canyon Road Bridge Repairs (moved back to Design in rid_0019, Mar 2022) and Guardrail Replacement Citywide (Design in rid_0010 once that agenda is dated late Jan 2022), and it merged citywide_guardrail_replacement into the FEMA guardrail. These extra completed projects push Municipal Fund and PPP over 25%."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Municipal Fund 7/28 (25.0%)",
+    "discrepancy": "Lists Municipal Fund at exactly 25%; expected none.",
+    "first_divergence": {
+     "step": 14,
+     "excerpt": "'guardrail_replacement_citywide':'citywide_guardrail_replacement'"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "T3"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 aliased the FEMA guardrail into 'Citywide Guardrail Replacement' (Completed in rid_0019) and also aliased both Malibu Park names into Birdview, so the FEMA guardrail inherited a Completed status it does not have after rid_0010 (Design). Municipal Fund landed exactly on the 25% boundary; one fewer completed project puts it below."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Municipal Fund 8/26, Public-Private Partnership 8/31",
+    "discrepancy": "Lists two qualifying sources (and names all 8 sources in the text); expected none.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "Either way it falls before the cutoff."
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T3"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 noticed rid_0010 is really from early 2022 but decided the date did not matter because it is before the cutoff. It matters for ordering: rid_0010 then postdates rid_0015 and lists Guardrail Replacement Citywide under Design, so Guardrail is not completed. H1 counted Guardrail as completed; H2's corrected-date run shows this one change drops MF and PPP below 25%."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "No funding source qualifies (with table of all 8 sources and an alternative answer)",
+    "discrepancy": "Conclusion matches ground truth, but the table names all eight sources and an 'alternative' answer naming Municipal Fund and PPP, so the name-presence validator rejects it.",
+    "first_divergence": {
+     "step": 68,
+     "excerpt": "if you trust the printed October 2021 date (or drop rid_0010 entirely), the answer is **Municipal Fund"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 correctly re-dated rid_0010 to late Jan 2022, found that Guardrail falls back to Design, and concluded no source qualifies (MF 23.1%, PPP 21.9%). The final answer included a per-source table and an alternative reading naming Municipal Fund and PPP. The validator fails any output that names a funding source."
+   }
+  },
+  "validator_or_task_note": "H2 is semantically correct but rejected because the validator fails on any mention of a funding-source name, even in a supporting table. H1 would also fail for listing names regardless of its conclusion.",
+  "question_summary": "The empty answer depends on re-dating rid_0010 so the FEMA guardrail is Design, plus not over-merging the two guardrail projects; the one run that got it right lost on validator format."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query4",
+  "expected": "0.34",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "0.31",
+    "discrepancy": "0.31 vs 0.34 (capital 18,964,000 / disaster 60,822,000 from hand labels).",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "capital improvement 1535000 westward_beach_road_shoulder_repairs_caloes_project => Westward Beach Road Improvements Project"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "E4"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 bucketed grants by a hand-written report-date CASE (rid_0010 kept at Oct 2021) and matched funding names to agenda lines with token-Jaccard similarity, which produced mismatches such as Westward Beach Road Shoulder -> Westward Beach Road Improvements. It then hand-typed C/D/X labels for ~130 grouped amounts (step 14) and excluded 32.9M as X. Errors in the fuzzy matches and manual labels shifted capital/disaster totals."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "0.66",
+    "discrepancy": "0.66 vs 0.34; capital 44,422,000 / disaster 67,034,000 counts every in-window grant.",
+    "first_divergence": {
+     "step": 14,
+     "excerpt": "cap_prefix=['2021_annual'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T1",
+     "S3"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 typed each grant by a name-prefix list (only Malibu Road Slope / Malibu Park got date switches) and did not require a report dated on or before the grant date. Grants for projects that first appear in later agendas (Michael Landon, PCH Overhead, Point Dume, etc.) were therefore typed anyway. These totals (44,422,000 / 67,034,000) exactly equal Haiku's 'fallback' reading, which both Haiku runs identified as giving 0.66."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "0.31 (18,858,000 / 59,995,000)",
+    "discrepancy": "0.3143 vs 0.34; disaster total equals H1's, capital is 1,208,000 lower than H1's 20,066,000.",
+    "first_divergence": {
+     "step": 43,
+     "excerpt": "'westward_beach_road_repair_project':'CAP_WBRR'"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "likely",
+    "narrative": "H2 kept year/phase/renamed variants separate (2022 vs 2021 Annual Street Maintenance, Westward Beach Road Repair vs Improvements, Storm Drain Trash Screens Phase Two, PCH Crosswalk vs PCH Overhead, Malibu Park Storm Drain vs Drainage). The later-named variants have no agenda before their grant dates, so their capital grants were excluded as untyped. The H1-only capital items (164k+395k+275k+61k+313k) add up to exactly the 1,208,000 gap."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "n/a (both wrong)",
+   "haiku": "H1 merged Westward Beach Road Repair into Improvements (step 52), 2021/2022 Annual Street Maintenance, PCH Overhead/Crosswalk and Trash Screens phases, so those grants inherited earlier capital reports (capital 20,066,000 -> 0.33); H2 kept them separate and excluded them (18,858,000 -> 0.31)."
+  },
+  "validator_or_task_note": "H1 passed with 0.3345 (printed 0.33), within the 0.01 tolerance of 0.34. GT 0.34 itself is not exactly reproduced by any trace.",
+  "question_summary": "Per-grant typing needs report-gated types and aggressive merging of renamed variants; static name typing (terra T1) doubles the ratio and under-merging (H2) lowers it."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query5",
+  "expected": "4,401,352.94 (17 projects, 74,823,000)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "$4,238,882.35 (17 projects, 72,061,000)",
+    "discrepancy": "Total short by exactly 2,762,000 = in-window funding of 2022_annual_street_maintenance; same 17-project cohort.",
+    "first_divergence": {
+     "step": 14,
+     "excerpt": "'annual':840000"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 found the right 17 status-changing projects but counted only the 2021_annual_street_maintenance funding (840,000) for Annual Street Maintenance. The validator's ER merges 2021/2022 Annual Street Maintenance, and adding 2022_annual_street_maintenance's in-window 2,762,000 gives 74,823,000/17 = 4,401,352.94 exactly."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "$3,476,181.82 (11 projects)",
+    "discrepancy": "Cohort of 11 projects/38,238,000 vs 17/74,823,000.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "THEN 'Malibu Park storm-drain / Birdview improvements'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "J2"
+    ],
+    "signals": [
+     "hardcoded",
+     "tmp_loss"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 chose the qualifying projects by eye and hard-coded 11 names, omitting projects with visible status changes (e.g. Westward Beach Road Shoulder: Not Started in rid_0002/0006 -> Design in rid_0015, shown at step 16; guardrail, Corral bridge/culvert, Storm Drain Master Plan). It also merged Malibu Park Drainage, Malibu Park Storm Drain and Birdview into one entity."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "$4,279,266.67 (15 projects)",
+    "discrepancy": "15 projects/64,189,000; its alternative (17 projects, 4,238,882.35) still misses 2,762,000 of 2022 Annual Street Maintenance.",
+    "first_divergence": {
+     "step": 48,
+     "excerpt": "'2021 Annual Street Maintenance':['2021_annual_street_maintenance']"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "S2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 mapped Annual Street Maintenance to only the 2021 funding name. It also picked as its final answer the reading that folds the 'Construction' heading into 'design', which drops Broad Beach and Malibu Park Drainage from the cohort. Its own alternative with Construction as a separate status reproduced T0's 17-project 72,061,000 total, which is the GT cohort minus the 2022 ASM funding."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "$3,712,461.54 (13 projects)",
+    "discrepancy": "13 projects/48,262,000; missing guardrail, Corral bridge, Corral culvert, Broad Beach; ASM 2022 not merged.",
+    "first_divergence": {
+     "step": 38,
+     "excerpt": "sit under the Design header but read as completed"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S2",
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "likely",
+    "narrative": "H2 overrode section headings: entries under rid_0010/rid_0019 Design headings were relabelled Completed because their prose sounds finished. That erased the status changes for Guardrail and the Corral Canyon projects. It also mapped Construction to design (dropping Broad Beach), merged Malibu Park Storm Drain into Drainage, and kept 2022 Annual Street Maintenance separate."
+   }
+  },
+  "validator_or_task_note": "The GT is reproduced exactly by T0's cohort plus 2022_annual_street_maintenance funding (72,061,000 + 2,762,000 = 74,823,000; /17 = 4,401,352.94).",
+  "question_summary": "Every run failed to merge 2021 and 2022 Annual Street Maintenance; Haiku runs also shrank the cohort by reinterpreting the Construction heading or prose-implied status."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query6",
+  "expected": "2023, $88,615,000",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "2023, $123,003,000",
+    "discrepancy": "Year correct; amount 123,003,000 vs 88,615,000.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "dis=p.startswith(disaster_prefixes) or p in noise"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T1",
+     "S3"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 classified every funding name as capital unless it matched a hand-typed disaster prefix list, and summed all 2023 grants. It ignored the rule that type comes from the most recent report on or before the grant date, so grants with no prior report (e.g. projects first listed in 2023 agendas) were counted as capital and inflated 2023."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "2023, $76,886,000",
+    "discrepancy": "Year correct; amount 76,886,000 vs 88,615,000; that figure appears in no command output.",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "classify={n: ('D' if any(k in n for k in D) else 'C') for n in names}"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X3",
+     "T1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T1 typed names with a static disaster-keyword list. Its only report-gated computation (step 13) gave 103,019,000 for 2023, and a later name-only listing (step 18) sums to about 131.6M. The final 76,886,000 is not produced by any visible step, so the mechanism behind the reported number is unresolved.",
+    "new_sub_issue_note": "X3 (new): the reported final number or verdict is not produced by any visible computation in the trace, so the answer cannot be tied to a mechanism."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "2023, $61,179,000",
+    "discrepancy": "Amount 61,179,000 vs 88,615,000; exactly 23,066,000 below H2's 84,245,000.",
+    "first_divergence": {
+     "step": 34,
+     "excerpt": "reduce each title and each funding name to a base key by stripping the agency suffixes"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "likely",
+    "narrative": "H1 resolved entities only by stripping agency suffixes, so 'Malibu Bluffs Park Roof Replacement Project' (23,066,000 in 2023) was not linked to the Michael Landon Center Roof project, which the validator's ER merges, and its 2023 grants went untyped. H2 shows that this merge alone moves 61,179,000 to 84,245,000. The remaining 4.37M gap to GT is unexplained."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "2023, $84,245,000",
+    "discrepancy": "Amount 84,245,000 vs 88,615,000 (4,370,000 short).",
+    "first_divergence": {
+     "step": 47,
+     "excerpt": "BEST capital year: 2023 84245000"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "unresolved",
+    "narrative": "H2 merged the roof projects and typed mixed-heading 2023 agendas by each project's last explicit type, getting 84,245,000. The 4,370,000 shortfall is likely in how renamed projects (e.g. Point Dume Walkway, Broad Beach, Latigo) or 'no prior report' records were assigned, but the trace does not isolate which records."
+   }
+  },
+  "validator_or_task_note": "All four runs got the year (2023) right; only the amount failed. Exact-match on the amount makes this sensitive to every per-record entity and type decision.",
+  "question_summary": "Typing each grant by the latest prior report, with merging of renamed projects (notably the Malibu Bluffs/Michael Landon roof), was not reproduced; terra used static name-based types."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query7",
+  "expected": "Empty set: no project qualifies",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "No projects qualify (but names 7 earlier not-started disaster projects)",
+    "discrepancy": "Conclusion matches ground truth; the explanation names candidate projects, which the validator treats as listing them.",
+    "first_divergence": {
+     "step": 37,
+     "excerpt": "The seven projects they cover are Clover Heights Storm Drain"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 correctly found that every disaster project once listed as Not Started was later listed as Design, so none qualifies. It listed those seven projects by name in the explanation, and the validator fails any output naming a project from its ER table."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "No projects qualify (but names candidate projects)",
+    "discrepancy": "Correct empty conclusion; output names Clover Heights, Latigo Culvert, Encinal, etc.",
+    "first_divergence": {
+     "step": 36,
+     "excerpt": "Clover Heights Storm Drain, Latigo Canyon Road Culvert Repairs"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 reached the correct empty answer (it even re-dated rid_0010) but explained it by naming the projects that were Not Started earlier. The validator checks project names before empty-result phrases, so naming them counts as listing them."
+   }
+  },
+  "validator_or_task_note": "Both Haiku answers are semantically correct ('no projects qualify') and were rejected only because the explanatory text names projects. Terra passed with terse answers.",
+  "question_summary": "Haiku's verbose explanations named excluded candidates and tripped a strict name-presence validator; the analysis itself was correct."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query9",
+  "expected": "Public-Private Partnership",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Emergency Relief Fund, Federal Grant, Private Donation",
+    "discrepancy": "Omits Public-Private Partnership and adds three other sources.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "Noise names: ['bluffs_park_workout_station', 'city_traffic_signals_backup_power'"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "C1",
+     "T1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hardcoded"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 hard-coded one final type per name prefix and dropped real projects (Bluffs Workout, City Traffic Signals, Kanan Dume, Michael Landon, PCH Overhead, Point Dume, etc.) as 'noise', which shrank denominators. With Annual Street Maintenance merged (step 9), PPP was at 16/29 = 55.2% and qualified. At step 10 it split 2021/2022/plain Annual Street Maintenance into three entities, PPP fell to 16/31 = 51.6%, and the final list kept ERF, Federal Grant and Private Donation instead."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "No funding source qualifies (closest ~52%)",
+    "discrepancy": "Expected PPP; answered none.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "('bluffs_park_workout','NOISE: bluffs workout')"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X3",
+     "J2"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T1 built a canonical entity list per source (labelling real projects such as Bluffs Workout, City Hall Roof and Dume speed humps as NOISE) but never computed per-project types or disaster shares in any visible step. The final '~52%' claim has no supporting computation, so the cause of the miss cannot be established from the trace.",
+    "new_sub_issue_note": "X3 (new): the reported final number or verdict is not produced by any visible computation in the trace, so the answer cannot be tied to a mechanism."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "No funding source qualifies (PPP 17/35 = 48.6%)",
+    "discrepancy": "Expected PPP >55%; H2 computed 48.6%.",
+    "first_divergence": {
+     "step": 39,
+     "excerpt": "Public-Private Partnership          total= 35 dis= 17 unknown=1 ratio=0.486"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "unresolved",
+    "narrative": "H2 kept ASM, ASM2021 and ASM2022 as three capital projects and left 'outdoor_warning_signs' as an unknown in the denominator; the validator's ER merges both (Annual Street Maintenance into one, Outdoor Warning Signs into Outdoor Warning Sirens). Applying those merges takes PPP only to 17/32 = 53.1%, so the rest of the gap to >55% is not explained by the trace."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "n/a (both wrong)",
+   "haiku": "H1 reached the same conclusion as H2 ('no funding source meets the criterion', PPP 17/33 = 51.5%). It passed only because its table row names 'Public-Private Partnership'. No method difference explains the pass."
+  },
+  "validator_or_task_note": "The validator only checks that the string 'Public-Private Partnership' appears. H1 passed although it explicitly said no source qualifies. All four runs concluded PPP is not above 55%, so the GT likely depends on ER/type decisions none of the runs reproduced.",
+  "question_summary": "No run got PPP above 55%. Splitting Annual Street Maintenance and dropping or adding projects moved PPP around the 55% line, and the only 'pass' is a validator false positive."
+ },
+ {
+  "dataset": "civic_unstructured",
+  "query": "query10",
+  "expected": "0.69",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "0.66",
+    "discrepancy": "0.66 (12,031,000 / 18,143,000) vs 0.69; denominator 18,143,000 appears without a visible computation.",
+    "first_divergence": {
+     "step": 19,
+     "excerpt": "completed={'civic_center_way_improvements','civic_center_stormwater_diversion_structure','citywide_guardrail_replacement'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T1",
+     "J2"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 used static completed/not-started name sets for every in-window grant: Corral Bridge and the FEMA guardrail were counted as completed throughout, and 2022 Annual Street Maintenance was absent. It then hand-adjusted the not-started base (30,229,000) to 18,143,000 in a comment-driven step that was not shown. Static status plus manual adjustment gave 0.66."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "0.39 (12,795,000 / 33,175,000)",
+    "discrepancy": "Not-started total 33,175,000 vs ~19,903,000 in both Haiku runs (H1 passed with it).",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "'trancas_canyon_park_playground_resurfacing','pch_overhead_warning_signs') THEN 'not_started'"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T1"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "likely",
+    "narrative": "T1's CASE marked all PCH Overhead Warning Signs grants as not_started regardless of date. The Sep 1-14, 2021 grants (about 11.5M) predate the first agenda listing that project (rid_0002, Sep 22, 2021), so they should be untyped. This static assignment explains most of the 13.3M excess in the not-started total."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "0.56 (11,140,000 / 19,903,000)",
+    "discrepancy": "Completed total 2,665,000 lower than H1's 13,805,000; same not-started total.",
+    "first_divergence": {
+     "step": 39,
+     "excerpt": "The 2022 project is a separate entry."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 kept 2022 Annual Street Maintenance as a separate project, and it has no agenda before its 2022 grants, so those grants dropped out of 'completed'. The validator's ER merges 2021/2022 Annual Street Maintenance, which inherits the 2021 project's Completed status. H1 stated that splitting them gives about 0.56, matching H2."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "n/a (both wrong)",
+   "haiku": "H1 merged 2021/2022/plain Annual Street Maintenance into one entity (step 42 regex '^(2021|2022)_annual_street|^annual_street_maintenance$' -> ANNUAL) and got 0.69. H2 split them (step 39) and got 0.56."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Merging the Annual Street Maintenance year variants and typing each grant by its latest prior report decided the ratio; terra used static status lists and Haiku H2 under-merged."
+ }
+]

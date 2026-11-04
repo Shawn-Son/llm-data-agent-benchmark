@@ -1,0 +1,718 @@
+[
+ {
+  "dataset": "DEPS_DEV_V1",
+  "query": "query1",
+  "expected": "Top-4 strictly: @dmrvos/infrajs>0.0.6>typescript 2.6.2, @dmrvos/infrajs>0.0.5>typescript 2.6.2, @dylanvann/svelte 3.25.4, @dumc11/tailwindcss 0.4.0; 5th = any of 95 lodash/lodash-mapped packages tied at 57779 stars",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "@ec-nordbund/leaflet 1.7.1, @dongjiang/textmate-grammars 0.0.5, ...node-sass 3.10.1, two ...>qs 6.4.0 (top star 38,715)",
+    "discrepancy": "None of the 4 required packages nor any lodash package; whole ranking tops out at 38,715 stars, so every repo with a comma-formatted star count (svelte 73,499, tailwind 73,464, lodash 57,779, typescript) was demoted.",
+    "first_divergence": {
+     "step": 4,
+     "excerpt": "regexp_extract(pi.Project_Information, '([0-9]+) stars', 1) stars"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "Stars were parsed from Project_Information with the regex '([0-9]+) stars' (steps 4-7), which on text like '73,499 stars' captures only '499'; rows phrased 'stars count of N' are dropped entirely by the regexp_matches filter. So high-star repos written with thousands separators collapse to small values and leaflet/leaflet (38715, no comma) ranks first. The trace never prints a svelte/tailwind row, so the exact parsed values are inferred, but Haiku runs show sveltejs/svelte text uses '73,499' form."
+   },
+   "T1": {
+    "passed": null
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "@dylanvann/svelte 3.25.4, @dumc11/tailwindcss 0.4.0, @dman777/shadow-dom-quill-temp 1.0.0, @dynasty/styled-components 3.2.1, @dothq/styled-components 1.0.0",
+    "discrepancy": "Has svelte and tailwind correct, but misses both @dmrvos/infrajs>...>typescript 2.6.2 packages and any lodash (57779) package; quill (42,407) and styled-components (39,660) fill their slots.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "star_pat = re.compile(r'(\\d[\\d,]*)\\s+stars?\\b')"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "In step 13 the agent tested two star patterns, including 'stars(?: count)?(?: of| is|:)?\\s*(\\d...)' for 'a stars count of N' wording (199 rows in step 11 did not match the plain 'N stars' form). The final pipeline in step 15 kept only '(\\d[\\d,]*)\\s+stars?\\b', so just 617 of 770 project_info rows got a star count. Projects worded 'stars count of N' (likely microsoft/typescript and lodash/lodash) silently dropped out. The trace does not print those two rows, so the exact phrasing is inferred."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Same as H1: svelte, tailwindcss, shadow-dom-quill-temp, two styled-components packages",
+    "discrepancy": "Misses both typescript packages and the lodash-tied fifth place; includes quill and styled-components instead.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "pat = re.compile(r'The project (\\S+?) (?:on GitHub |is hosted on GitHub )')"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "timeout",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The project name was parsed only from 'The project X on GitHub'/'is hosted on GitHub' sentences, and stars only from '([\\d,]+) stars'. Rows worded 'The GitHub project named X', 'a stars count of N' and similar were excluded, and the agent never counted how many of the 770 project_info rows were parsed. The missing typescript and lodash projects are consistent with that coverage gap; their raw text is not shown in the trace."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 unscored (runtime_error); only T0 scored.",
+   "haiku": "Both Haiku runs wrong in the same way."
+  },
+  "validator_or_task_note": "Both Haiku runs give the identical wrong top-5 (svelte, tailwind, quill, 2x styled-components). The validator already relaxes the tied 5th place (95 lodash packages), so the failures come from the missing typescript packages, not the tie.",
+  "question_summary": "Free-text star counts in project_info come in several phrasings and with thousands separators; every scored run's regex missed some of them, so the top-starred repos (typescript, lodash, and for Terra also svelte/tailwind) were lost."
+ },
+ {
+  "dataset": "DEPS_DEV_V1",
+  "query": "query2",
+  "expected": "mui-org/material-ui (30522), moment/moment (7201), semantic-org/semantic-ui (4955), react-native-elements/react-native-elements (4623), sveltejs/svelte (4091)",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "semantic-ui 4955, react-native-webview 2962, node-sass 1326, material-table 1035, react-loadable 857",
+    "discrepancy": "Missing material-ui, moment, react-native-elements and svelte; fork counts with thousands separators were truncated (react-native-elements parsed as 623 instead of 4,623; tailwindcss 848 instead of 3,848).",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "f=re.search(r'(\\d+) forks',txt or '')"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2"
+    ],
+    "signals": [
+     "timeout",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "Fork counts were parsed with '(\\d+) forks', which on '30,522 forks' captures only '522'. The output at step 11 shows the effect directly: 'react-native-elements/react-native-elements 623' and 'tailwindcss/tailwindcss 848' (true values 4,623 and 3,848). The name parser 'The project (\\S+) ' also skipped 111 rows. The agent noticed semantic-ui stars were 'not parsed' but did not check the comma issue."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "material-ui 30522, semantic-ui 4955, react-native-elements 4623, svelte 4091, tailwindcss 3848",
+    "discrepancy": "moment/moment (7,201 forks) is missing and tailwindcss/tailwindcss is in its place.",
+    "first_divergence": {
+     "step": 5,
+     "excerpt": "m=re.search(r'([\\d,]+) forks',t)"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "timeout",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The single fork regex '([\\d,]+) forks' handles commas but not wordings such as 'forks count of N' or 'forked N times', which other runs show exist (T1 step 5 needed three patterns). A row whose forks fail to parse gets NaN and sorts last, so moment/moment (found by both Terra runs under the same MIT and release filters) drops out. The agent claimed the top 5 were 'well separated' without checking for unparsed rows. moment's raw text is not printed, so its exact wording is not confirmed."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "Both Terra runs passed: T0 step 4 used a fork regex with count/of variants, and T1 step 5 used three patterns including 'forked N times'.",
+   "haiku": "Both Haiku runs wrong."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Fork counts are embedded in varied prose with thousands separators; the Haiku runs' single-pattern regexes truncated or missed counts, while Terra's multi-pattern parsing succeeded."
+ },
+ {
+  "dataset": "GITHUB_REPOS",
+  "query": "query1",
+  "expected": "0.3333 (1 of 3 README.md files)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "16/111 = 14.4%",
+    "discrepancy": "Denominator 111-115 README files vs expected 3; proportion 0.144 vs 0.333. The final message (16/111) also disagrees with its own step 8 output (17/115 = 14.78%).",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "select id,sample_repo_name,sample_ref,sample_path from contents where lower(sample_path)='readme.md'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C4",
+     "J5"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "The README cohort was taken straight from contents.sample_path/sample_repo_name (133 rows, 115 non-Python) instead of a files-to-contents id join. The answer then reported 16/111, a figure computed nowhere in the trace (step 8 printed 17/115). How the ground truth reaches only 3 README files is not visible in any trace."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "15/101 = 14.85%",
+    "discrepancy": "Denominator 101 vs 3; 0.1485 vs 0.3333.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "select sample_repo_name,content from contents where sample_path='README.md'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C4",
+     "J5"
+    ],
+    "signals": [],
+    "evidence": "unresolved",
+    "narrative": "In step 8 the agent joined files (1,059 root README.md) to contents on id, got 'content nonnull 0', and then fell back to the contents sample (128 READMEs, 101 non-Python with language rows). The intended cohort that gives 3 files is not established by the trace; the files-to-contents id join (the hinted key) was abandoned after the exact-path version returned nothing."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "17/101 = 16.8%",
+    "discrepancy": "Denominator 101 vs 3; 0.168 vs 0.333. It also counted the © symbol as copyright (15 by word alone).",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "from contents ct join nonpy n on n.repo_name=ct.sample_repo_name where ct.sample_path='README.md'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C4",
+     "J5"
+    ],
+    "signals": [],
+    "evidence": "unresolved",
+    "narrative": "Same as T1: the files-to-contents id join on path='README.md' returned 0 rows (step 8), so the agent used contents.sample_repo_name joined to non-Python languages (101 files). It broadened copyright to include ©. The 3-file ground-truth cohort cannot be reconstructed from the trace."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "17/138 = 12.3% (framed as rough estimate)",
+    "discrepancy": "Denominator 138 (includes subdirectory README.md) vs 3; 0.123 vs 0.333.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "where sample_path ilike 'README.md' or sample_path ilike '%/README.md'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C4",
+     "C1"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "unresolved",
+    "narrative": "The agent counted README.md files at any depth from the contents sample (204 rows; 138 non-Python with language info) and never tried the files table join. The result is framed as an estimate. The ground-truth derivation of 3 files is not visible."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "All four runs converge on about 100-140 README rows with 15-17 copyright hits (12-18%). The ground truth's denominator of 3 is not reproducible from anything in the traces: files JOIN contents ON id with path='README.md' returned 0 content rows (T1 step 8, H1 step 8). This is likely a task/GT construction issue (V2); the exact intended cohort is unresolved.",
+  "question_summary": "Every run built the README cohort from the contents sample and got ~15% vs the GT's 1/3 on only 3 files; the GT cohort definition is not recoverable from the traces."
+ },
+ {
+  "dataset": "GITHUB_REPOS",
+  "query": "query4",
+  "expected": "apple/swift, twbs/bootstrap, Microsoft/vscode, facebook/react, tensorflow/tensorflow",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "torvalds/linux, apple/swift, twbs/bootstrap, Microsoft/vscode, facebook/react",
+    "discrepancy": "Includes torvalds/linux (no languages row, so main language unknown) and drops tensorflow/tensorflow.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "1. torvalds/linux"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "Step 8 queried languages for the six repos with commits and got only five rows, so torvalds/linux has no language metadata. The answer still ranked it first by commits (16,061) instead of excluding it as having no determinable main language. That pushed tensorflow/tensorflow (156 commits, C++ main) out of the top five."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 step 5 printed '16061 torvalds/linux None' and excluded it, answering with tensorflow as fifth (step 6).",
+   "haiku": "Both Haiku runs passed and explicitly noted linux has no languages row."
+  },
+  "validator_or_task_note": "Mild task ambiguity (V2): linux's main language is C in reality, but the dataset has no languages row for it, and the GT excludes it.",
+  "question_summary": "Only six repos have commits; the one failing run included torvalds/linux despite its missing language metadata."
+ },
+ {
+  "dataset": "PANCANCER_ATLAS",
+  "query": "query1",
+  "expected": "By ICD-O-3 histology code: 9382/3 2.7136, 9400/3 2.6014, 9401/3 2.5584, 9450/3 2.6967, 9451/3 2.5826",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Astrocytoma 2.5713, Oligoastrocytoma 2.7136, Oligodendroglioma 2.6825",
+    "discrepancy": "Grouped by histological_type names (3 groups) instead of icd_o_3_histology codes (5 groups). Oligoastrocytoma 2.7136 equals the GT for 9382/3, which shows that the cohort, join and transform were right.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "lgg=df[df.Patient_description.str.contains('Brain lower grade glioma',case=False,na=False)][['ParticipantBarcode','histological_type']]"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "The clinical columns listed at step 5 include icd_o_3_histology (index 8), but the agent chose histological_type for 'histology types'. The validator looks for the ICD-O-3 codes (9382/3 etc.), which split astrocytoma and oligodendroglioma into /3 subcodes (9400/9401, 9450/9451). The per-group arithmetic is correct: Oligoastrocytoma maps one-to-one to 9382/3 and matches to 6 decimals."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Astrocytoma 2.5713, Oligoastrocytoma 2.7136, Oligodendroglioma 2.6825",
+    "discrepancy": "Same as T0: grouped by histological_type names rather than ICD-O-3 codes.",
+    "first_divergence": {
+     "step": 5,
+     "excerpt": "SELECT histological_type, count(*) FROM clinical_info WHERE"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "The agent saw icd_o_3_histology in the schema (step 4) but grouped by histological_type. Everything else (LGG cohort of 513, barcode regex, log10(x+1) means on 23 patients) matches the GT, as shown by the identical 2.7136 value for oligoastrocytoma / 9382/3."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Astrocytoma 2.5713, Oligoastrocytoma 2.7136, Oligodendroglioma 2.6825",
+    "discrepancy": "Same 3 name-level groups instead of the 5 ICD-O-3 codes.",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "histological_type from clinical_info"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "Step 9 even queried icd_o_3_histology, yet the analysis used histological_type. The agent noted that 'No LGG rows had bracketed values, so that filter removed nothing'. That was a missed cue: the square-bracket exclusion in the task points to a column that does carry bracketed values. The numeric pipeline is otherwise identical to the GT."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Astrocytoma 2.5713, Oligoastrocytoma 2.7136, Oligodendroglioma 2.6825",
+    "discrepancy": "Same as other runs: wrong histology column (names vs ICD-O-3 codes).",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "histological_type from clinical_info where"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "The agent grouped LGG patients by histological_type and found 'None were bracketed or missing, so none were excluded by that rule', without considering that the bracket rule implies another column (icd_o_3_histology). The averages are numerically right for the name-level grouping."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "All four runs give the identical, semantically reasonable answer (same three name-level means). The validator needs ICD-O-3 codes, and the question says only 'histology types'. Task ambiguity (V2), although the bracket-exclusion clause is a hint toward icd_o_3_histology.",
+  "question_summary": "Every run used the histological_type name column instead of the icd_o_3_histology code column the GT uses; the rest of the computation was correct."
+ },
+ {
+  "dataset": "PANCANCER_ATLAS",
+  "query": "query3",
+  "expected": "chi-square = 305.12 (N=1059, all female BRCA with known histology, no mutation-profiling restriction)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "chi2 = 325.34 (N=762)",
+    "discrepancy": "Cohort restricted to patients with at least one FILTER='PASS' mutation record (762 vs 1,059 patients), so chi2 is 325.34 instead of 305.12.",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "mutation absence is only interpretable for patients represented in the mutation data"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "Step 8 computed three variants, including 'all clinical' = 305.1239 (the GT), 'any mutation' = 364.17 and 'pass coverage' = 325.34. The agent deliberately chose the PASS-coverage cohort on the reasoning that CDH1-negative status is only meaningful for profiled patients. That extra filter changes every row total."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "chi2 = 364.17 (N=984)",
+    "discrepancy": "Cohort restricted to patients present in Mutation_Data (997 profiled, 984 after the marginal filter) instead of all 1,059.",
+    "first_divergence": {
+     "step": 23,
+     "excerpt": "cohort = {p: h for p, h in pat_hist.items() if p in profiled and known(h)}"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "The script keeps only female BRCA patients with any Mutation_Data row ('Patients without mutation data were excluded rather than treated as CDH1-wild-type'). That removes 78 patients, mostly IDC and ILC wild-type, and raises chi2 to 364.17, the same value T0 computed as its 'any mutation' variant."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 (step 9) kept all 1,075 female BRCA patients with known histology, treating patients without a PASS CDH1 call as not mutated, giving N=1059 and 305.124.",
+   "haiku": "H1 (step 16) likewise used all female BRCA patients (766/201/45/30/17 rows) without requiring mutation profiling, giving 305.12."
+  },
+  "validator_or_task_note": "T0 and H2 use a statistically defensible cohort (only mutation-profiled patients); the GT treats unprofiled patients as CDH1-negative. Task ambiguity (V2) about the denominator.",
+  "question_summary": "Failures come from restricting the cohort to mutation-profiled patients, while the GT counts every female BRCA patient with known histology and treats absent mutations as wild-type."
+ },
+ {
+  "dataset": "PATENTS",
+  "query": "query2",
+  "expected": "23 level-4 CPC groups, each with title and best year (e.g. A21 2015, A61 2016, B62 2010, B63 2014, C09 2015, H01 2008, H04 2015 ...)",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "19 groups (A61 ... H04); H01 best year 2013",
+    "discrepancy": "Missing A21, B62, B63 and C09; H01 best year 2013 instead of 2008. Only 27 of 34 German H2-2019 patents were selected.",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "raw patents 277813 qualified patent-group assignments 31 groups 19"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2"
+    ],
+    "signals": [
+     "no_verification",
+     "no_hint_use"
+    ],
+    "evidence": "supported",
+    "narrative": "analyze.py (step 6) identified German patents with the prose regex '\\bfrom DE\\b|\\bIn DE\\b|\\bDE patent' on Patents_info. That misses wordings such as 'The DE application (ID DE-...)' (e.g. LEMKE SEBASTIAN DE-102014111322, HAWE DE-102016102746, both granted H2 2019 and listed in T0 step 10). Step 9 shows only 27 matches versus T0's 34, and the agent did not reconcile the count. The missing patents carry the A21, B62, B63 and C09 groups and the 2008 H01 filing."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Table with only H04 (2015) and A61 (2016); the other 21 codes are listed without titles or years",
+    "discrepancy": "The computation matches the GT (step 27 lists all 23 groups with the GT best years), but the answer gives full title and year only for the two groups with peak EMA 2.0. The validator needs every group's title next to its code and year.",
+    "first_divergence": {
+     "step": 28,
+     "excerpt": "Grouping at level 4 gives a clear top pair: H04 and A61, both at EMA 2.0."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "V2"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "After first grouping at 4-character subclasses (level 5 in this table) and correcting to 3-character classes (step 26-27), H2 computed exactly the GT set. It then read 'the CPC technology areas ... with the highest EMA' as 'only the top-ranked areas' and reported just H04 and A61 in full. The remaining 21 codes appear as a bare list, so their titles and years are never output."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 (step 10-11) selected patents by the 'DE-' number prefix (\\bDE-\\d), giving 34 patents and all 23 groups.",
+   "haiku": "H1 reported all 23 groups with titles and best years in one table; H2 computed the same values but output only the top two."
+  },
+  "validator_or_task_note": "The wording 'with the highest EMA' is ambiguous (top groups vs each group's peak year). The GT lists all groups, each with its best year, so H2's top-2 reading fails although its numbers are right.",
+  "question_summary": "The correct runs selected German patents by the DE- number prefix and listed every level-4 class; failures were a prose country regex that dropped 7 patents (T1) and a 'top only' reading of the output (H2)."
+ },
+ {
+  "dataset": "PATENTS",
+  "query": "query3",
+  "expected": "BLOOM ENERGY CORP - H01M title; CRYSTAL IS INC - C30B title; SCHOWALTER LEO J - H01L 'SEMICONDUCTOR DEVICES NOT COVERED BY CLASS H10'",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "CALIFORNIA INST OF TECHN - G01V1/01 'Measuring or predicting earthquakes'; SCHOWALTER LEO J - H01L21/0262 'Reduction or decomposition of gaseous compounds, e.g. CVD'",
+    "discrepancy": "Missing BLOOM ENERGY CORP and CRYSTAL IS INC; reports titles of the full CPC group codes instead of the subclass (4-char) titles.",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "uc 55 ['AU-2003247814'"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2",
+     "E3"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The UC publication list built in investigate.py had only 55 base numbers (step 7), while 169 rows mention UNIV CALIFORNIA (step 4/5). US-6767662, the UC patent Bloom Energy cites, is absent, so only 2 citing patents matched. Why Crystal IS (which cites US-2010025717-A1, present in the list) was also missed is unresolved because investigate.py was deleted. Separately, the answer used titleFull of the detailed codes (G01V1/01, H01L21/0262) rather than the subclass level the question asks for."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Table: Caltech-G01V, BLOOM-H01M, CRYSTAL IS-C30B, 'SCHOWALTER LEO J (individual holder)'-H01L with correct titles",
+    "discrepancy": "Content matches the GT, but the validator fails on SCHOWALTER: in the normalized text the inserted '(individual holder) | H01L' adds about 20 characters between assignee and title, beyond the Levenshtein limit of 10.",
+    "first_divergence": {
+     "step": 24,
+     "excerpt": "| SCHOWALTER LEO J (individual holder) | H01L |"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 found the same 4 citing patents and correct subclass titles as T1. The validator's local-window branch searches for normalize(assignee) (spaces removed, e.g. 'schowalterleoj') in a space-preserving string, so it can never match. Only the fuzzy branch works, and it requires the title within about 10 normalized chars after the assignee. The '(individual holder)' annotation plus the 'H01L' column exceed that (reproduced locally with the validator code)."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Table with Cited UC patent column: Caltech, BLOOM-H01M, CRYSTAL IS-C30B, SCHOWALTER-H01L with correct titles",
+    "discrepancy": "Content matches the GT, but the extra 'Cited UC patent' column ('US-6767662-B2 | H01M') puts about 15 normalized chars between assignee and title, so the fuzzy match fails for BLOOM ENERGY CORP.",
+    "first_divergence": {
+     "step": 28,
+     "excerpt": "| BLOOM ENERGY CORP | US-6767662-B2 | H01M |"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "The answer is substantively correct (4 citing patents, correct subclass titles). The failure is caused only by the validator: its local-window strategy is broken (assignee normalized without spaces, then searched in the space-preserving output), and the fuzzy strategy tolerates only about 10 extra characters. A table column of cited publication numbers breaks it."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 (step 11) matched citation publication_numbers against all 169 UNIV CALIFORNIA rows, found 4 citing patents, and printed 'assignee | subclass | title' with only the 4-char code in between, which the validator tolerates.",
+   "haiku": "Both Haiku runs had correct content and both were rejected by the validator."
+  },
+  "validator_or_task_note": "Validator bug: in validate(), idx = llm_output_with_space.find(normalize(assignee)) searches a no-space string inside a space-preserving string, so the local-window branch never fires for multi-word assignees. Only the fuzzy branch (Levenshtein <= 10 on assignee+title concatenation) can pass, which rejects any table with an extra column between assignee and title. H1 and H2 are false negatives (V1).",
+  "question_summary": "Haiku got the right assignee/subclass pairs but was rejected by a broken validator; Terra T0 genuinely missed citing patents and used group-level instead of subclass titles."
+ },
+ {
+  "dataset": "agnews",
+  "query": "query2",
+  "expected": "16/111 = 0.1441",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "18/111 = 6/37 = 16.2%",
+    "discrepancy": "18 Sci/Tech articles vs the GT's 16.",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "Of those, 18 are Science/Technology articles."
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S4"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "After printing all 111 titles and descriptions (step 6) and failing to download the original AG News labels (step 8, proxy error), the agent labeled the articles in hidden reasoning and reported 18. The trace does not show which articles it labeled Sci/Tech; the gap is consistent with tech-company business stories (Intel, TI, AMCC, IBM PC sale) being counted as Sci/Tech."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "20/111 = 18.0%",
+    "discrepancy": "20 Sci/Tech articles vs 16.",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "Of these, 20 are Science/Technology."
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S4"
+    ],
+    "signals": [],
+    "evidence": "likely",
+    "narrative": "Same procedure as T0: it printed the 111 articles (step 4), tried and failed to fetch AG News labels via curl (step 6), then gave a hand-judged count of 20 with no visible per-article labeling. It over-counted borderline business/tech items relative to the source labels."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "15/111 = 13.5%",
+    "discrepancy": "15 vs 16; compared with H2 it omits article 93804 (Ontario water research funding).",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "**Answer: 15 of Amy Jones's 111 articles are Science/Technology"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S4"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss"
+    ],
+    "evidence": "likely",
+    "narrative": "The agent hand-labeled the 111 articles printed at step 12 and placed tech-company earnings stories under Business. It left out the Ontario water-research article that H2 counted. Its article IDs for two stories differ from H2's (17491/21238 vs 15473/22354 for the Iraqi physicist and Genesis probe items); the trace does not show which is right, and the count is unaffected."
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H2 (step 16) used the same manual approach but also counted 93804 (Ontario water research funding) as Sci/Tech, reaching 16/111. Its own note says plausible readings range from 13 to 19.",
+   "terra": "Both Terra runs wrong (18 and 20)."
+  },
+  "validator_or_task_note": "The GT relies on the original AG News labels, which are not in the database. Any per-article judgment on ~5 borderline business/tech items moves the answer by +-3, so H2's pass is partly luck (V2). New sub-issue S4 = manual per-item LLM labeling that diverges from the hidden source labels on borderline items (neither a keyword heuristic nor a policy rule).",
+  "question_summary": "With no category field, all runs hand-labeled 111 articles; results ranged from 15 to 20 depending on how tech-company business news was judged."
+ },
+ {
+  "dataset": "agnews",
+  "query": "query3",
+  "expected": "336.636 (3,703 business articles / 11 years)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "337.73 per year",
+    "discrepancy": "337.73 vs 336.64. 337.73 = 3715/11 = 14860/4/11, whereas the agent's only computed business count was 6,465 (587.7/yr).",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "business [('2010', 554), ('2011', 592)"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The agent's keyword rule (Business = no sports/tech/world keyword hit) gave 6,465 Business articles (step 13), clearly implausible. Instead of refining it, the final message reports 337.73, a number produced by no command and exactly equal to 14,860 Europe articles / 4 categories / 11 years. The reported value is effectively a uniform-prior estimate presented as a result."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "3,716 business articles, 337.82 per year",
+    "discrepancy": "3,716 vs 3,703; the computed classifier outputs were 4,506 (step 11), 3,168 (step 13) and 3,236 (step 14), none equal to 3,716.",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "14860 {'sports': 3411, 'sci': 3006, 'world': 3937, 'business': 4506}"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "Keyword and self-trained Naive Bayes classifiers gave 4,506, 3,168 and 3,236 Business articles. The final answer states 3,716, which appears in no output and is about 14,860/4 (3,715). Like T0, the reported figure looks like a balanced-class prior rather than a computed count."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "about 339 per year (3,724/11 = 338.5), framed as estimate",
+    "discrepancy": "3,724 vs 3,703 Business articles; 338.5 (reported as 'about 339') vs 336.64.",
+    "first_divergence": {
+     "step": 17,
+     "excerpt": "Counter({'World': 4951, 'Business': 3776, 'Sports': 3299, 'Sci/Tech': 2834})"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "Categories were assigned with a keyword-scoring script that defaults to World. After adding a few sports terms (step 19) it gave 3,724 Business, 21 off the GT; with a tolerance of 0.01 this cannot pass. The agent explicitly called the result an estimate."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "about 366 per year (4,031/11), framed as estimate",
+    "discrepancy": "4,031 vs 3,703 Business articles; 366.45 vs 336.64.",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "Counter({'World': 5033, 'Business': 4031, 'Sports': 3248, 'Sci/Tech': 2548})"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1"
+    ],
+    "signals": [
+     "timeout",
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "A weighted keyword classifier with ties resolved toward Business over-assigned Business (4,031). The spot check of 30 articles did not reveal the bias, and the answer is hedged."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "The validator tolerance (0.01 on a mean over 11 years) requires the exact count of 3,703 out of 14,860 classified articles, which is unattainable without the original AG News labels (V2). Both Terra runs reported uncomputed values close to 14,860/4.",
+  "question_summary": "Requires near-perfect topic labels for 14,860 articles; Haiku's keyword classifiers missed by 21-328 articles, and Terra reported figures matching a uniform 1/4 prior rather than its own classifier output."
+ },
+ {
+  "dataset": "agnews",
+  "query": "query4",
+  "expected": "Africa",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "South America",
+    "discrepancy": "South America instead of Africa.",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "ts=toks(d['title'])*3+toks(d['description']); scores={}"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "After the AG News label download failed (step 6), the agent built keyword seeds plus a Naive Bayes classifier (steps 11-12). Regional World counts differed by only a few articles and flipped with the smoothing alpha (step 12 shows Europe, then South America, leading). The agent reported South America with no caveat although the margin was within classifier noise."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Europe",
+    "discrepancy": "Europe instead of Africa.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "I found the corpus preserves the original AG News training-set ordering, whose four 30,000-record blocks are category-labeled."
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "J4",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The agent assumed article_id blocks 30000-59999 were all World and counted 2015 articles in that range by region (Europe 362), adding NB predictions for ids >= 120000. Its own step 14 output contradicts the assumption: id 10000 is 'A Daily Look at U.S. Iraq Military Deaths' (World, in the supposed Business block) and 59999 is a technology study (in the supposed World block). The positional labels are therefore wrong, and Europe comes out on top."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "The validator is a plain substring check for 'Africa'. H1 passed even though its stated best estimate is North America, only because 'Africa' appears in its comparison text, so H1 is a false positive. H2 answered Africa after labeling all 6,696 titles by hand (69 steps), with a 6-article margin over South America.",
+  "question_summary": "Regional World counts differ by a handful of articles, so any imperfect classifier (keyword/NB) or a false positional-label assumption picks the wrong region; Haiku's passes are partly validator leniency (H1)."
+ }
+]

@@ -1,0 +1,546 @@
+[
+ {
+  "dataset": "krama",
+  "query": "query2",
+  "expected": "Idaho",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "Wyoming.",
+    "discrepancy": "Answered Wyoming instead of Idaho; no per-state total was ever computed.",
+    "first_divergence": {
+     "step": 15,
+     "excerpt": "min() iterable argument is empty ... USAKACC \nUSWIEACC \nUSCAONCC \nUSMTNRC \nUSORNWC"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X2",
+     "X1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "The custom GeoPackage parser took county points only from a single 'poly' ring, but the county geometries are MultiPolygons, so every county raised 'min() iterable argument is empty' and every GACC mapped to an empty state list (step 15). The patch at step 16 failed because /tmp/geoint.py no longer existed, and the envelope fallback at step 18 printed nothing. The lightning counts at step 17 were never summed by state, so 'Wyoming.' (step 19) has no computation behind it."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 parsed the quoted Area/Report records (steps 10-12), decoded MultiPolygon geometries with proper offsets, and intersected GACC polygons with county polygons grouped by adm_description state (steps 14-20), giving Idaho = GB+NR+NW = 23,355.",
+   "haiku": "n/a (both Haiku runs passed)"
+  },
+  "validator_or_task_note": "H2's stated answer is California (Idaho is only the runner-up in its table), but it passed because the validator returns True as soon as 'Idaho' appears anywhere in the text. H1 hedged heavily (an alternate reading flips it to Colorado). The H1 and H2 totals differ a lot from T1's (40,728 / 31,153 vs 23,355), so the extraction is fragile even in passing runs.",
+  "question_summary": "Needs both prose extraction of lightning-fire counts and a hand-written polygon intersection without shapely. Terra T0 broke on the geometry decoding and answered with no supporting computation."
+ },
+ {
+  "dataset": "krama",
+  "query": "query3",
+  "expected": "12964.8727 (55 MSAs, Puerto Rico excluded)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "12,751.9643 (714,110 / 56, incl. San Juan PR)",
+    "discrepancy": "Includes San Juan–Bayamón–Caguas, PR (identity count 1,042) as a 56th MSA. The expected average uses the 55 MSAs of the main US table: 713,068 / 55 = 12964.8727.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "retained the 56 shared MSAs above one million residents (including San Juan–Bayamón–Caguas), and averaged their 2024 identity-theft counts: 714,110 ÷ 56."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "V2"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 built the cohort from table 1 of the Wikipedia MSA page (55 candidates, step 14) and at step 17 computed '55 713068 12964.872727272726', which is exactly the expected value. In the final message it added the Puerto Rico MSA from the separate PR table (table 2, seen at step 12), adding 1,042 to the total without any visible computation, and reported 714,110/56. The counts were also hand-typed into the averaging script."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "12,751.9643 (56 MSAs incl. San Juan)",
+    "discrepancy": "Same as T0: the extra San Juan PR MSA (1,042) gives 714,110/56 instead of 713,068/55.",
+    "first_divergence": {
+     "step": 16,
+     "excerpt": "if 'San Juan' in x: print(i,x)"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "V2"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 parsed the 388-row main MSA table plus the 7-row Puerto Rico table (step 13). Its eligible-candidates list had 55 entries (step 15). It then specifically searched the docs for San Juan (step 16), appended its 2024 count of 1,042 to a hand-typed value list (steps 17 and 19), and averaged 56 values. Treating the PR MSA as a 'US metropolitan statistical area' is what made the answer wrong."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "validator_or_task_note": "Both terra runs gave the same wrong answer, 12751.9643, from the same deliberate inclusion of Puerto Rico. Both Haiku runs excluded PR and passed; H1 even reported 12751.9643 as the alternative. Whether PR counts as a 'US MSA' is genuinely ambiguous (V2): it is a US territory, but the source table lists its MSAs separately. T0 had computed the expected 12964.8727 at step 17 before overriding it.",
+  "question_summary": "Cohort-scope ambiguity: terra counted the Puerto Rico MSA (from a separate table) as a US MSA, while the ground truth uses only the 387-MSA main table."
+ },
+ {
+  "dataset": "krama",
+  "query": "query4",
+  "expected": "319655 (Miami MSA: 6,457,988 − 6,138,333)",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "essentially zero (~−600 people)",
+    "discrepancy": "Correctly picked Miami-Fort Lauderdale-West Palm Beach (903 per 100K) but estimated population as count/rate×100K from the docs (~6.14M in both years) instead of reading the 2020 census and 2024 estimate (6,138,333 → 6,457,988).",
+    "first_divergence": {
+     "step": 22,
+     "excerpt": "The `domain_assets` files look like scientific data, not census tables."
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C2"
+    ],
+    "signals": [
+     "wrong_db",
+     "hedged",
+     "tmp_loss",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 listed the domain_assets files (step 21, head -100 of 96 rows, so row 93, the Wikipedia metropolitan-statistics HTML, was in its output) but dismissed the whole store as scientific data (step 22). Without the population source, it back-derived population from report counts and per-100K rates in the FTC-style prose (steps 32-52). Those imply roughly the same 6.14M for every year, so it reported a change of about −600 and hedged that it was 'essentially zero'. Earlier, /tmp/docs.pkl vanished (step 9) and two commands timed out (steps 11 and 23)."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "267,137 (Orlando-Kissimmee-Sanford)",
+    "discrepancy": "Chose Orlando (555 per 100K) as the highest 2024 identity-theft rate; Miami's 903 per 100K is higher, giving 319,655.",
+    "first_divergence": {
+     "step": 39,
+     "excerpt": "PAIR=re.compile(N+r\"\\s*(?:and|&)\\s*\"+N) ... resolved: 150 unresolved: 251"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E2",
+     "C5"
+    ],
+    "signals": [
+     "no_verification",
+     "hedged",
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H2's rate parser (step 39) resolved only 150 of 401 2024-dated lines. It then hand-reviewed unresolved lines ranked by the largest 'per 100K' number (step 41), which mixed fraud and identity rates. Miami's line ('rates of 2 793 and 903 per 100K') appeared in steps 41, 43 and 45, but H2 dismissed the high values as counts and concluded Orlando at 555 was the maximum (step 46). The population lookup from the Wikipedia table was correct for the wrong MSA."
+   }
+  },
+  "validator_or_task_note": "Both terra runs passed and both Haiku runs failed in different ways: H1 picked the right MSA but used the wrong population source, and H2 used the right source but picked the wrong MSA.",
+  "question_summary": "Needs the identity-theft rate parsed from varied 'X and Y per 100K' prose and the population taken from the MSA HTML table in domain_assets. Haiku missed one of the two in each run."
+ },
+ {
+  "dataset": "krama",
+  "query": "query6",
+  "expected": "3.88% (4 violations / 103 Squibnocket samples, 2008-2016)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "4.12% (4/97)",
+    "discrepancy": "Numerator 4 is correct, but the denominator is 97 instead of 103: 6 in-period samples were dropped because their dates did not parse.",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "m=re.search(r'\\\\b(20\\\\d\\\\d)\\\\d{4}(?:T|\\\\s)',s)"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "E2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The year extractor (step 8) required the 8-digit YYYYMMDD form to be followed by 'T' or whitespace and had no clean 14-digit YYYYMMDDhhmmss case. Lines like 'collected on 20080729000000.' got no year and were silently skipped (only years in 2008-2016 were kept, with no count of unparsed lines). The violation classification (step 9, which excluded 'no violation') correctly found 4, but over 97 samples. Haiku's runs show 103 in-period records once the 14-digit form is handled."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "4.30% (4/93)",
+    "discrepancy": "Numerator 4 is correct, but the denominator is 93 instead of 103: compact 12-digit yymmddhhmmss dates did not parse.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "for p in [r'\\\\b(20\\\\d{2})\\\\d{4}',r'\\\\b(20\\\\d{2})(?!\\\\d)',r'\\\\b(\\\\d\\\\d)[-/]\\\\d\\\\d[-/]\\\\d\\\\d\\\\b',r'\\\\b(\\\\d\\\\d)\\\\d{4}(?:T|\\\\b)']"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2",
+     "E2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T1's last pattern '\\b(\\d\\d)\\d{4}(?:T|\\b)' cannot match 12-digit forms like '070827000000', because a digit follows the 6-digit prefix. Those samples got no year and were dropped, leaving 93 in period. The step 10 classifier correctly negated 'no violation' and found 4 violations, so only the denominator is wrong. The count of samples with no parsed year was never checked."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "21.36% (22/103)",
+    "discrepancy": "Denominator 103 is correct, but 22 violations instead of 4: 'no violation recorded' compliant results were counted as violations.",
+    "first_divergence": {
+     "step": 29,
+     "excerpt": "VIOL=re.compile(r'exceed|failed to meet|constitutes a violation|non-compliant|did not meet|surpassed|violation recorded',re.I)"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 listed all 32 result templates correctly (step 27), including the compliant 'Measurement: Enterococci = N; no violation recorded.' Its violation regex then used the unanchored substring 'violation recorded', which also matches the compliant template, so those samples were flagged as exceedances. Date parsing was fixed for 14-digit stamps (step 31), giving the right 103 samples, but 22/103 = 21.36%. H1 stated that it did not check the wording against numeric limits."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "21.36% (22/103)",
+    "discrepancy": "Same as H1: 'no violation recorded' matched as a violation, giving 22 instead of 4.",
+    "first_divergence": {
+     "step": 27,
+     "excerpt": "VIOL=['failed to meet',...,'surpassed the regulatory','violation recorded'] ... v=any(x in r[4] for x in VIOL)"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 claimed the 16 phrasings 'split cleanly into 8 compliant and 8 violation patterns' (step 22). It then matched them with substring 'in', and 'violation recorded' is contained in the compliant 'no violation recorded'. Year parsing was repaired (step 29) to 103 in-period samples, so only the numerator is inflated (22 instead of 4)."
+   }
+  },
+  "validator_or_task_note": "Expected 3.88 = 4/103: terra had the right numerator and Haiku had the right denominator. All four runs found the correct coldest beach (Ocean @ Squibnocket Beach).",
+  "question_summary": "Two independent noise traps: compact 12/14-digit timestamps (terra dropped samples) and a compliant phrase that contains a violation phrase (Haiku over-counted violations)."
+ },
+ {
+  "dataset": "krama",
+  "query": "query7",
+  "expected": "60.0",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "63.82 (62 patients)",
+    "discrepancy": "Defined 'hyperactivated CDK12' as CDK12 global-proteomics value > 0 in workbook row 87 (62 patients), instead of the domain_docs hyperactivation statements matched to S### patient IDs (3 patients aged 67, 75, 38).",
+    "first_divergence": {
+     "step": 25,
+     "excerpt": "for desc,pred in [('positive',lambda x:x>0),('negative',lambda x:x<0),('ge1',lambda x:x>=1),('gt05',lambda x:x>.5)]:"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S2",
+     "C2"
+    ],
+    "signals": [
+     "wrong_db",
+     "no_hint_use",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 found the docs with 'were hyperactivated with <proteins>' patient statements (step 14) but abandoned them after an rg for UCEC/C3L IDs found nothing (step 15). It never canonicalized the noisy patient IDs (s-4541, GS.348 ...) to the sheet's S### index, despite the hint about patient ID formats. Instead it aligned the CDK12 row of the proteomics workbook positionally with sheet ages and invented a threshold (value > 0 = hyperactivated), reporting the mean of 62 ages (63.82)."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 parsed the domain_docs 'IDs ... <verb> PROTEINS respectively' statements, canonicalized IDs to S### and matched them to the meta sheet (steps 27-33), finding S070, S100, S018 (67, 75, 38) for a mean of 60.0.",
+   "haiku": "n/a (both Haiku runs scored as passed)"
+  },
+  "validator_or_task_note": "Both Haiku passes are spurious. H1 answered 60.08 (12 patients) and H2 answered 56.33 (3 patients), and both passed only because an individual age '60' appears in their listed ages; the validator accepts any number within 0.005 of 60.0. The three runs that parsed the docs each found a different CDK12 patient set (T1: 3 via 'had proteins'/'showed elevated activity'; H2: 3 via literal 'hyperactivated'; H1: 12 via all verbs), so the intended relation-verb set is ambiguous.",
+  "question_summary": "Needs patient-to-protein pairs parsed from positional 'respectively' prose and noisy patient IDs joined to the sheet's S### index. T0 substituted a proteomics-abundance threshold for that join."
+ },
+ {
+  "dataset": "krama",
+  "query": "query9",
+  "expected": "2.4431",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "2.4432",
+    "discrepancy": "The computed mean was 2.4431451613 (step 17), but the reported value was 2.4432; the correct 4-decimal rounding is 2.4431.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "The mean hourly OMNI2 Kp index that month was **2.4432**."
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V3"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T0 correctly found October 2024 as Swarm-B's peak mean density month (step 14) and averaged the 744 October Kp codes /10 = 2.4431451613 (step 17). In the final message it rounded this up to 2.4432, outside the validator's 5e-5 tolerance. This is a pure final-rounding slip."
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T1 used the same month and Kp computation and reported 2.4431, rounding correctly.",
+   "haiku": "n/a (both passed)"
+  },
+  "validator_or_task_note": "T0's analysis was correct; only the last-digit rounding of 2.44314516 was wrong.",
+  "question_summary": "Straightforward once Swarm-B density and the OMNI2 Kp column are found; the only failure is a rounding slip in the final message."
+ },
+ {
+  "dataset": "krama",
+  "query": "query10",
+  "expected": "0.000748 (10 TLEs with epochs between 2024-05-10 13:03:59 and 2024-05-13 14:27:30)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "0.000708 (14 TLEs, May 10-13 calendar days)",
+    "discrepancy": "Used whole calendar days May 10-13 (14 TLEs), which adds two pre-storm May 10 TLEs (04:24, 12:17) and two post-storm May 13 TLEs (16:00 duplicate pair). The exact storm span from NORAD 58214's disturbed epochs gives 10 TLEs with mean 0.000747513.",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "for st,en in [('2024-05-10','2024-05-13'),('2024-05-10','2024-05-12'),('2024-05-11','2024-05-13'),('2024-05-11','2024-05-12')]:"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 decoded BSTAR correctly and found the 58214 OMM records with storm/quiet narratives (step 15), whose first disturbed epoch is 2024-05-10 13:03:59 and last is 2024-05-13 14:27:30. It compared TLE dates at day granularity only (step 13: str(date) between '2024-05-10' and '2024-05-13'), so it included TLEs outside the storm span. Dropping the 27469-3, 27710-3 and the two 94097-3 entries leaves exactly 10 values averaging 7.475e-4."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "0.000708 (May 10-13)",
+    "discrepancy": "Same calendar-day window as T0 (14 TLEs), instead of the exact 13:03:59-14:27:30 epoch span (10 TLEs, 0.000748).",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "for a,z in [('2024-05-10','2024-05-14'),('2024-05-10','2024-05-13'),...]: x=[r for r in rows if datetime.datetime.fromisoformat(a)<=r[0]<datetime.datetime.fromisoformat(z)]"
+    },
+    "primary": "Temporal state and status",
+    "sub_issues": [
+     "T2"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 printed the full-precision TLE epochs (step 11) and the 58214 storm epochs (step 12), and at step 13 started considering the exact overlap ('to last 58214 storm epoch May13.602 14:27'). It trimmed only the trailing pair from a hand-typed list (b=a[:-2], 12 values) and kept the two May 10 TLEs before 13:03:59. It then fell back to the calendar-day mean of 0.000708."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "validator_or_task_note": "Both terra runs gave the same wrong answer, 0.000708. H2's headline answer was 0.000683 (deduplicated), but it passed because it also wrote 'If the duplicate records were kept, the mean would be 0.000748'; the validator accepts any matching number. The ground truth keeps duplicate TLEs and uses the exact epoch span of the disturbed 58214 records.",
+  "question_summary": "The storm window must be the exact timestamp span of 58214's disturbed-condition epochs, not whole calendar days. Terra used day granularity and included four out-of-window TLEs."
+ },
+ {
+  "dataset": "music_brainz_20k",
+  "query": "query1",
+  "expected": "1059.46",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "$601.44 (track_ids 4233 + 12954)",
+    "discrepancy": "Missed duplicate track 5281 ('GetMe Bodied', Beyoncé), which has a Canada/Apple Music sale of 458.02; 601.44 + 458.02 = 1059.46.",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "select track_id, ... from tracks where title like '%get me bodied%';"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "E2"
+    ],
+    "signals": [
+     "no_hint_use",
+     "no_verification",
+     "timeout"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 found candidate duplicates with one exact substring filter on title, '%get me bodied%'. That misses track 5281, whose title is 'GetMe Bodied' (no space) even though its artist is 'Beyoncé' and its album 'Sexxxplicit R&B, Volume X25' is a near match. Only 4233 and 12954 had Canadian Apple Music sales among the four found IDs, so it reported 601.44. The hint explicitly warns that duplicates may not match exactly, and no fuzzy or artist-based search was tried."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "$601.44",
+    "discrepancy": "Same as H1: track 5281 ('GetMe Bodied') was not merged, so its 458.02 is missing.",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "SELECT track_id, ... FROM tracks WHERE title LIKE '%get me bodied%';"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2",
+     "E2"
+    ],
+    "signals": [
+     "no_hint_use",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 used the identical title-substring filter and got the same four IDs (4233, 10838, 12954, 15158), never seeing 5281 'GetMe Bodied'. Its Canada sales query (step 7) therefore summed only two Apple Music rows, 377.62 + 223.82."
+   }
+  },
+  "validator_or_task_note": "Both Haiku runs gave the same wrong answer, 601.44. Terra T0 caught 5281 because its search also used OR lower(artist) LIKE '%beyonc%'.",
+  "question_summary": "Entity resolution under-merge: one duplicate's title lacks a space ('GetMe Bodied'), so an exact title-substring filter misses it."
+ },
+ {
+  "dataset": "googlelocal",
+  "query": "query2",
+  "expected": "Elite Massage 5.0, Angel-A Massage 4.33, Aurora Massage 4.18, J B Oriental Inc 4.17",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Elite 5.00, Angel-A 4.33, Aurora 4.18 (J B Oriental excluded)",
+    "discrepancy": "Excluded J B Oriental Inc (4.17) because its description lacks the word 'massage'. The table also puts a gmap_id column between each name and its score, so the validator's 10-character window after 'Elite Massage' finds no decimal.",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "where lower(description) like '%massage%' or lower(name) like '%massage%'"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1",
+     "V1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H1 defined massage businesses by the literal keyword 'massage' in name or description (step 6, 7 hits). At step 8 a broader search surfaced J B Oriental Inc ('rejuvenating therapies and soothing body treatments') with average 4.167 (step 10), but H1 explicitly excluded it in the final answer (step 11). Independently, the '| Elite Massage | gmap_25 | 5.00 |' layout puts the score more than 10 characters after the name, which is the actual reason the validator rejected the answer."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Elite 5.00, Angel-A 4.33, Aurora 4.18",
+    "discrepancy": "Same keyword cohort (7 businesses), so J B Oriental Inc is missing, and the same gmap_id column between name and score fails the validator window.",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "where description ilike '%massage%' or name ilike '%massage%'"
+    },
+    "primary": "Semantic classification",
+    "sub_issues": [
+     "S1",
+     "V1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H2 used the 'massage' keyword filter on name and description, checked MISC (no massage category, step 9), and never looked at semantically similar descriptions. It therefore never considered J B Oriental Inc. Its output table also puts gmap_id between name and rating, which fails the validator's 10-character window."
+   }
+  },
+  "validator_or_task_note": "Both Haiku runs gave the same wrong answer and are rejected by format first ('No score found after name: Elite Massage'), because the validator only looks 10 characters after the name. They would also fail on the missing J B Oriental Inc. Terra T0 read all 79 descriptions and hand-picked the massage-like names, including J B Oriental Inc.",
+  "question_summary": "Category scope: a massage business whose description never says 'massage' must be recognized semantically; a narrow 10-character validator window also penalizes table layouts."
+ },
+ {
+  "dataset": "googlelocal",
+  "query": "query3",
+  "expected": "TACOS LA CABANA, White Barn Candle Co, Mariscos el poblano, Beauty Divine Artistry, Taba Rug Gallery, each 5.0, with full 7-day hours",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "Same 5 businesses at 5.00, weekday-only hours",
+    "discrepancy": "Names and ratings are correct, but only the qualifying Mon-Fri hours are listed (e.g. TACOS LA CABANA 'Mon & Fri: 5–11 PM'). The validator requires every day's hours, including 'Thursday Closed'.",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "| 4 | TACOS LA CABANA | Mon & Fri: 5–11 PM | 5.00 (2 reviews) |"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V2",
+     "V1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1's filtering and ranking (steps 6-8) found exactly the expected five 5.0-rated late-closing businesses. In the final table it summarized only weekday hours, dropping closed days and weekend hours. The validator checks all seven (day, hours) pairs within 500 characters of each name and fails on TACOS LA CABANA's 'Thursday Closed'."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Same 5 businesses at 5.0, Mon-Fri hours",
+    "discrepancy": "Correct set and ratings; the hours column is limited to Mon-Fri ('Mon and Fri 5–11PM'), so the full weekly schedule required by the validator is missing.",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "| 5 | TACOS LA CABANA | 5.0 | 2 | Mon and Fri 5–11PM | Mon and Fri close 11PM |"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V2",
+     "V1"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "H1's parser (step 12) correctly handled overnight, 24-hour and suffix-less ranges and produced the expected top five. It presented only weekday hours under a 'Weekday hours (Mon–Fri)' column, so the validator could not find '[Thursday, Closed]' for TACOS LA CABANA."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "Same 5 businesses at 5.0, weekday hours past 6 PM",
+    "discrepancy": "Correct set and ratings; only the qualifying weekday hours are shown, not the full schedule the validator expects.",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "| 4 | TACOS LA CABANA | Mon and Fri 5–11PM | 5.0 | 2 |"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V2",
+     "V1"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 fixed the 'after 6 PM' comparison to strict (step 13), recovered from a lost /tmp script (step 14), and got the right five businesses. Its 'Weekday hours past 6 PM' column omits closed days and weekends, so the full-hours check fails on TACOS LA CABANA."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 (step 12) printed each business's whole-week schedule, including 'Tue–Thu closed' and weekend hours, which satisfies the day/hours window check.",
+   "haiku": "n/a (both failed)"
+  },
+  "validator_or_task_note": "Three of four runs have semantically correct answers (right five businesses and ratings) and are rejected only because the validator requires every day's hours, including Closed days and weekends. The question's 'operating hours' does not clearly ask for a full weekly schedule, so this is a task/validator ambiguity.",
+  "question_summary": "The computation is right in all runs; failures come from showing only weekday hours when the validator demands the full 7-day schedule."
+ }
+]

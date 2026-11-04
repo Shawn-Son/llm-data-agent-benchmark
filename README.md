@@ -15,6 +15,8 @@ Same 104 questions, descriptions + hints and unchanged original validators. One 
 - **Not a controlled model comparison.** The harnesses differ (Codex vs Claude Code). Claude Code's sandbox masks `/tmp` per command, so files Haiku wrote there vanished between commands; its default 2-minute Bash timeout also fired often. Neither was corrected. Haiku cost (Claude Code estimate): $3.12 and $4.31.
 - Two of Haiku's repeated failures look like validator false negatives: `cve q5` answers "1." (expected 1) but the validator regex ignores a number followed by "."; `civic_unstructured q7` correctly reports an empty result but names rejected candidates. Official grades are unchanged.
 
+- **Full trajectory failure review** of all 61 questions any run got wrong (166 wrong runs): main problems per model, shared problems, per-category sub-issues, validator false negatives (11 runs) and false positives (9, all Haiku). See [results/failure-review/FAILURE_REVIEW.md](results/failure-review/FAILURE_REVIEW.md).
+
 Results: [terra aggregate (original + run 1)](results/terra-native-104x3/aggregate/) · [Haiku aggregate (runs 1–2)](results/haiku-claude-104x3/aggregate/) · per-run reports under `results/terra-native-104x3/trial1/` and `results/haiku-claude-104x3/trialN/`. Run with `native104.py --harness codex|claude --trial N`; combine with `codex104/report.py --trials ... --labels ... --dest ...`.
 
 ## Results — 104 questions, one trial each

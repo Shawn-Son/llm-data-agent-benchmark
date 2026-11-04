@@ -1,0 +1,767 @@
+[
+ {
+  "dataset": "cve",
+  "query": "query1",
+  "expected": "4 (likely CVE-2023-27524, -33246, -44487, -46604)",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "3 (27524, 33246, 46604)",
+    "discrepancy": "3 vs 4; omits CVE-2023-44487 (HTTP/2 Rapid Reset, KEV vendor 'ietf', Apache Tomcat CPE rows)",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "select e.cve_ref,e.vendor_project,e.products_csv,e.notes from kev_entries e join kev_vendor_aliases a on e.vendor_project=a.vendor_project where a.canonical_vendor='apache'"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C1",
+     "J1"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "The 'Apache product' condition belongs to the CPE side, but T1 picked candidates from KEV rows whose vendor resolves to apache (step 6). It then checked CPE only for the hand-typed products superset/activemq/rocketmq (step 9). CVE-2023-44487 is listed under KEV vendor 'ietf' but has vulnerable ASF Tomcat CPE rows, so T1 never considered it. T1 also never decoded the CPE or vulns keys of its 3 picks; it took them as matched from product names and KEV notes alone."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "1 (CVE-2023-46604)",
+    "discrepancy": "1 vs 4; dropped 27524/33246 (CPE keys in b36/b36mix encodings not decoded) and 44487 (no vulns row found)",
+    "first_divergence": {
+     "step": 60,
+     "excerpt": "Those base-36 fragments decode to nothing meaningful, so they are filler."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hardcoded",
+     "no_hint_use",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 tried int() over the whole 'b36y1k…' token instead of the year/number sub-fields. It concluded the base-36 fragments were filler (step 60), even though the hints name base encodings. As a result the Superset (b36) and RocketMQ (reversed b36mix) CPE keys were never linked to 27524/33246. H1 also dropped CVE-2023-44487 because its own chunk matcher found no vulns_db row, and it treated that matcher failure as the CVE being absent (step 99)."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "3 (27524, 44487, 46604), 4th flagged as uncertain",
+    "discrepancy": "3 vs 4; excluded CVE-2023-33246 because no vulns_db row was decoded",
+    "first_divergence": {
+     "step": 104,
+     "excerpt": "The base-36 search found nothing for CVE-2023-33246 in `vulns.db`, so that CVE may simply be absent there."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "hedged"
+    ],
+    "evidence": "likely",
+    "narrative": "H2 decoded the b36, hexmix, sp and b36mix CPE families and confirmed the RocketMQ CPE row for CVE-2023-33246 (step 92). It then could not find that CVE's vulns_db row under its plain, reversed, b36 and hex tests (steps 97-104), and excluded it rather than assuming the row uses another encoding family. The answer text explicitly says 'If such a row exists with a 2023 published date, the count becomes 4'."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "T0 (correct, 4) took the 4 Apache-related 2023 KEV CVEs, including 44487 found through ASF Tomcat CPE rows (step 9), and answered without decoding every key. T1 restricted candidates by KEV vendor=apache and missed 44487.",
+   "haiku": "Both Haiku runs failed."
+  },
+  "validator_or_task_note": "T0's correct answer comes from a hand-picked candidate list (step 9 hardcodes 27524/46604/33246/44487), not a full decode.",
+  "question_summary": "The CPE-side Apache filter has to be applied to decoded noisy keys (including b36/b36mix/sp families). Agents either filtered on the KEV vendor instead or gave up on one encoding family."
+ },
+ {
+  "dataset": "cve",
+  "query": "query2",
+  "expected": "fortinet",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "microsoft",
+    "discrepancy": "microsoft vs fortinet",
+    "first_divergence": {
+     "step": 5,
+     "excerpt": "select a.canonical_vendor, count(*) as n from kev_entries e join kev_vendor_aliases a using(vendor_project) where e.known_ransomware_use='Known' group by 1 having n>=3 order by n desc"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "C2"
+    ],
+    "signals": [
+     "no_verification",
+     "no_hint_use"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 counted ransomware-flagged KEV CVEs per vendor (microsoft 103, fortinet 13) and probed one CVSS row. Without ever computing CRITICAL counts, it listed the Microsoft CVEs (step 11) and answered 'microsoft'. The answer is the vendor with the most ransomware CVEs, not the most CRITICAL ones. Neither CVSS joins nor the description severity taglines (hint) were used."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "microsoft",
+    "discrepancy": "microsoft vs fortinet",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "RANK [('microsoft', [70, 7]), ('ivanti', [9, 2]), ('apache', [4, 2]), ('sonicwall', [9, 1]),"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "C2"
+    ],
+    "signals": [
+     "no_verification",
+     "no_hint_use"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 matched each KEV CVE to cvss_metadata by a min-window digit subsequence over OCR-mapped keys and took the tightest window. That 'matched' 202 of 317 CVEs, even though vulns_db only covers CVEs published in 2023-2024. Many matches are spurious (e.g. accellion CVE-2021-27101 matched to a 'swap…2023-3162' key). Counting CVSS≥9 over these inflated matches favours the vendor with the most CVEs, microsoft (70 matched, 7 'critical'). Fortinet got only 5 matches."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "validator_or_task_note": "Both Haiku 'passes' are low-confidence guesses. H1 says its Fortinet ranking rests on CVSS scores 'from memory', and H2 says fortinet is tied with ivanti. The severity source is ambiguous: vulns_db covers only CVEs published 2023-24, and the hint says severity is encoded in description taglines. The expected answer probably relies on descriptions_db severity rather than CVSS. Both terra runs answered microsoft.",
+  "question_summary": "CRITICAL severity per vendor needs either decoded CVSS joins or the opaque severity taglines in descriptions. Terra used ransomware volume or noisy over-matching, which favours microsoft."
+ },
+ {
+  "dataset": "cve",
+  "query": "query3",
+  "expected": "1262",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "1,238",
+    "discrepancy": "1238 vs 1262 (-24)",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "2023_24 325 other 1258"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T0 used fuzzy LCS matching of KEV IDs to vulns keys (step 8). It saw that vulns_db publications span only 2023-2024 and counted KEV entries with non-2023/2024 CVE years: 1258 (step 10). It then checked a single sample match (step 14) and answered 1,238. That number appears in no printed output, so how 1238 was reached is unresolved. The approach is a year proxy, not a decoded anti-join."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "35",
+    "discrepancy": "35 vs 1262",
+    "first_divergence": {
+     "step": 20,
+     "excerpt": "ix={y:[s for s in vp if y in s or y[::-1] in s] for y in years};d=collections.Counter()\nfor y,n in rows:d[sum(sub(n,s) or sub(n[::-1],s) for s in ix[y])]+=1"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 called a KEV CVE 'present' if any vulns key containing its year had the CVE number as a digit subsequence, forward or reversed (step 20). Over long digit streams this matches almost any number: hit counts reach the thousands per CVE. Only 35 CVEs had zero hits, so T1 answered 35. T1 never measured false positives, although its own earlier step 12 showed that loose subsequence rules inflate matches (1010 of 1583 self-matches)."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "~1,258 (estimate)",
+    "discrepancy": "1258 vs 1262 (-4)",
+    "first_divergence": {
+     "step": 49,
+     "excerpt": "As a fallback, I'll count KEV rows by the year of their notes CVE, since vulns_db appears to hold only 2023–2024 publications."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "T4"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "likely",
+    "narrative": "H1 could not decode the vulns keys, so it counted KEV entries whose CVE-ID year is outside 2023-2024 (1035+180+43=1258). The proxy uses the CVE-ID year rather than the publication date. It also assumes every 2023/2024-ID KEV CVE is present, which does not hold for the 4 extra missing entries. H1 itself noted the year/publication mismatch and framed the result as an estimate."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "declined (no number)",
+    "discrepancy": "no answer vs 1262",
+    "first_divergence": {
+     "step": 65,
+     "excerpt": "The digit matcher finds 928 KEV IDs in vulns, but its self-recall of 29% and fake-ID false-positive rate of about 23% can't be reconciled into a stable count"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "declined"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 calibrated digit-subsequence matchers on the KEV keys (recall ~16-29%, high fake-ID hit rate) and found none precise enough. It refused to give a count. It never tried the publication-window shortcut that H1 and T0 used."
+   }
+  },
+  "validator_or_task_note": "The year proxy (KEV CVE-ID year not 2023/2024 = 1258) comes within 4 of the truth. Exact 1262 requires a decoded anti-join.",
+  "question_summary": "An anti-join over noisy keys: without a real decoder, agents used a year proxy (close but off) or loose matching (wildly off)."
+ },
+ {
+  "dataset": "cve",
+  "query": "query4",
+  "expected": "ivanti",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "d-link",
+    "discrepancy": "d-link vs ivanti",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "scores 9 Counter()\ncpe 5 Counter() both 1\nhighest eligibility estimates"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T0's literal-year regex matcher linked only 9 then 84 KEV CVEs to scores, and 41 to both CVSS and CPE (step 15). No vendor reached the ≥10 threshold: google 7, cisco 5. The final answer 'd-link' is supported by none of the printed computations. d-link appears only in an early loose vendor tally with 5 CVEs (step 10). The key decoding never recovered enough CVEs to apply the threshold."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "atlassian",
+    "discrepancy": "atlassian vs ivanti",
+    "first_divergence": {
+     "step": 17,
+     "excerpt": "cpevalid direct 1255 amb 295803"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "error_loop",
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T1 matched noisy keys to KEV CVEs by a shared last-4-digit window and kept only unique candidates. Its first attempts crashed with the same TypeError four times (steps 17-21). The final table (step 22) has no 'atlassian' row and puts ivanti at 5 CVEs, 0 high. The vendors meeting ≥10 there are oracle and google (0.30), apple, cisco, microsoft, adobe and apache. 'atlassian' is unsupported by any visible output."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "microsoft (low confidence)",
+    "discrepancy": "microsoft vs ivanti; validator parsed declared answer as 'reaches'",
+    "first_divergence": {
+     "step": 71,
+     "excerpt": "I'll compute the answer from the high-precision subset only: contiguous `YYYYNNNN` matches in the OCR-normalized stream, with unique target assignment."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1's matchers recovered only ~10-20% of KEV IDs. It answered from the strict contiguous subset, where only microsoft had ≥10 qualifying CVEs (14 CVEs, 1 high), so the ≥10 threshold just selected the largest vendor. A looser matcher put palo alto networks and ivanti ahead, but H1 rejected that matcher."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "declined",
+    "discrepancy": "no vendor named vs ivanti (validator picked 'surface')",
+    "first_divergence": {
+     "step": 32,
+     "excerpt": "Only 26 of 1,583 KEV keys produced any candidate, so the generator is far too narrow."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "declined"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 catalogued the encoding families (rv, off, b36, hexmix, …). Its digit-run candidate generator covered only 26 KEV keys, and after 21 tool calls H2 stopped without naming a vendor."
+   }
+  },
+  "validator_or_task_note": "The validator's declarative-pattern regex picks up prose words ('reaches', 'surface') as the declared vendor. Here that does not change any outcome, since no run named ivanti.",
+  "question_summary": "The answer needs a three-way join (KEV ∩ vulnerable CPE ∩ CVSS) over decoded keys with a ≥10 threshold. No run decoded enough keys, and both terra answers are unsupported by their own outputs."
+ },
+ {
+  "dataset": "cve",
+  "query": "query5",
+  "expected": "1 (11.0.0, from CVE-2023-44487)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "6 (9.0.0, 9.0.98, 10.1.0, 10.1.34, 11.0.0, 11.0.2)",
+    "discrepancy": "6 vs 1; counted range-bound values instead of version_text",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "rg -in \"tomcat\" query_dataset/kev.sql | head -100"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3",
+     "C1",
+     "J1"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 took KEV-side Tomcat entries (products_csv 'Tomcat') as the cohort. That excludes CVE-2023-44487, whose KEV vendor is ietf but whose CPE rows are ASF Tomcat 11.0.0. T0 then tied three 'rv4202-…' keys to the 2025 path-equivalence CVE with no decoding evidence. Those rows have version_text '*', so they should be excluded. T0 instead counted their version_start_inc and version_end_exc bounds (step 16), which gives 6 range endpoints rather than affected version strings."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "6 (same set as T0)",
+    "discrepancy": "6 vs 1; range bounds counted as versions",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "select k.cve_ref,k.vendor_project,k.products_csv,k.vulnerability_name,k.notes from kev_entries k join kev_vendor_aliases a using(vendor_project) where a.canonical_vendor='apache'"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E3",
+     "C1",
+     "J1"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "Like T0, T1 started from KEV Apache/Tomcat entries (step 6) and searched Tomcat CPE keys for those 5 CVE numbers by fuzzy digit similarity (step 15). It settled on the rv4202-733/776/973 keys (step 17), whose version_text is '*'. It reported their range bounds as 6 'versions'. The KEV-vendor cohort missed CVE-2023-44487, and using bounds misrepresented 'affected version strings'."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "**Answer: 1.** (11.0.0)",
+    "discrepancy": "Semantically correct (1), but the validator regex rejects '1.' because the number is followed by a period",
+    "first_divergence": {
+     "step": 0,
+     "excerpt": "**Answer: 1.** The only Tomcat version recorded for a KEV-listed CVE is 11.0.0."
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 found CVE-2023-44487 linked to ASF Tomcat 11.0.0 rows and normalized '11.0.0', '11,0,0', 'v11_0_0' and 'build-011000000' to one version. The answer is 1, which is correct. The validator's regex (?<![\\w.-])(\\d+)(?![\\w.-]) refuses a number followed by '.', so '1.' is not extracted and no bare 1 appears elsewhere. The step index refers to the final answer text, since the trajectory has no error."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "**Answer: 1.** (11.0.0)",
+    "discrepancy": "Semantically correct (1), but rejected because '1.' is followed by a period",
+    "first_divergence": {
+     "step": 0,
+     "excerpt": "**Answer: 1.** The only distinct affected version is **11.0.0**."
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 linked CVE-2023-44487 to five ASF Tomcat 11.0.0 cpe_matches rows with truthy flags. It found the encodings '11.0.0', '11,0,0' and 'build-011000000' and correctly gave 1. The validator's number regex excludes digits adjacent to '.', so '1.' and '11.0.0' both fail to match."
+   }
+  },
+  "validator_or_task_note": "Both Haiku runs give the correct value 1 but are rejected: the numeric validator's lookahead (?![\\w.-]) drops '1.' when the answer ends in a period. Validator bug (V1). Both terra runs give the same wrong 6 by counting range bounds.",
+  "question_summary": "The Tomcat cohort must come from CPE rows, which reach CVE-2023-44487 with KEV vendor 'ietf', not from KEV product names. Version_text '*' rows must be excluded rather than replaced by their range bounds. Haiku got it right but lost on validator formatting."
+ },
+ {
+  "dataset": "cve",
+  "query": "query6",
+  "expected": "13",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "60",
+    "discrepancy": "60 vs 13",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "score=sum(math.log(1584/(len(idx[x])+1))**2 for x in common)"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J5",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 correctly found 2,682 documents with Spanish but no English descriptions. It then linked them to KEV by IDF-weighted word overlap between the Spanish text and KEV vendor/product/name fields, instead of decoding the CVE key. At threshold 70 this gives '105 entries 59' (step 15), close to the reported 60. Token overlap with generic product names (Linux kernel, SAP NetWeaver, Mali GPU) produces many-to-one false links."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "75",
+    "discrepancy": "75 vs 13",
+    "first_divergence": {
+     "step": 21,
+     "excerpt": "found docs 137 entries 84"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J5",
+     "J4"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 linked no-English documents to KEV through shared reference URLs and text similarity rather than decoded CVE keys (steps 15, 21-22). Generic advisory URLs (e.g. one JetBrains or vendor bulletin page) map one document to several KEV rows and vice versa, which inflates the count. The final 75 is not printed in any visible output."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "8 (lower bound)",
+    "discrepancy": "8 vs 13",
+    "first_divergence": {
+     "step": 50,
+     "excerpt": "I'll keep only URLs that point to exactly one KEV entry and appear in only one or two Mongo docs, which should be much more reliable."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "J5"
+    ],
+    "signals": [
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 could not decode the Mongo keys (proximity recall 224/1517) and fell back on unique shared URLs plus reading the Spanish text by eye. That yields 8 verified CVEs, which H1 explicitly labelled a lower bound. Recall is limited by the URL-overlap route (~234 KEV rows overlap at all)."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "10 (lower bound)",
+    "discrepancy": "10 vs 13",
+    "first_divergence": {
+     "step": 58,
+     "excerpt": "Digit matching alone can't reach the precision I need, since many keys add more noise digits than my threshold allows."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "J5"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 combined CVE IDs in references, shared URLs and product-name matches with manual review. It then removed CVEs that had an English document under another key, and ended with 10, flagged as a lower bound. With no key decoder, some qualifying Spanish-only documents were never linked."
+   }
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Linking Mongo documents to KEV needs decoded CVE keys. Every run substituted text or URL similarity: terra over-linked (60/75), Haiku under-linked (8/10)."
+ },
+ {
+  "dataset": "cve",
+  "query": "query7",
+  "expected": "cisco:adaptive_security_appliance_software",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "linux:linux_kernel",
+    "discrepancy": "linux:linux_kernel vs cisco:adaptive_security_appliance_software",
+    "first_divergence": {
+     "step": 68,
+     "excerpt": "def decode_ids(key, universe, maxgap=12):"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "H1 matched each vulnerable CPE row to KEV CVEs of the same vendor and product by a digit-subsequence span with up to 12 gap digits, plus reversed variants. On KEV self-tests this matcher had ~80% precision and ~44% recall. False hits scale with the number of rows per product, so high-volume products such as linux_kernel (2,847 rows, 23 CVEs), junos and Windows Server dominate. H1's robustness checks only varied the gap and did not estimate the per-product false-positive background."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "Both terra runs passed.",
+   "haiku": "H2 (correct) used a strict raw-digit windowed matcher and subtracted a measured per-key false-hit rate (steps 77-85). It rejected the OCR variant after showing 185 Windows keys collapsing onto one CVE (step 87). Cisco ASA then ranked first at every slack. H1 used a loose maxgap=12 subsequence matcher with no background correction."
+  },
+  "validator_or_task_note": "",
+  "question_summary": "Row-count ranking is sensitive to false-positive key matches that grow with product row volume. Precise contiguous matching (terra) or background correction (H2) gives Cisco ASA."
+ },
+ {
+  "dataset": "cve",
+  "query": "query8",
+  "expected": "58",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "244",
+    "discrepancy": "244 vs 58",
+    "first_divergence": {
+     "step": 10,
+     "excerpt": "rows=c.sql(\"select m.cve_id,m.vulnerable_flag from cpe_matches m join vendor_aliases a on split_part(m.criteria,':',4)=a.alias where a.canonical_vendor='microsoft'\")"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "E2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "unresolved",
+    "narrative": "T0 matched KEV IDs to noisy CPE and cvss keys by digit subsequence over the full digit stream, which is very permissive. Its vendor parse split_part(criteria,':',4) only handles the cpe:2.3 criteria format. Its printed intermediate result is 'intersection 136 answer direct 111' (step 10). The final 244 does not appear in any T0 output, so its derivation is unresolved."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "244",
+    "discrepancy": "244 vs 58",
+    "first_divergence": {
+     "step": 18,
+     "excerpt": "joint confidence 533 high 244"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "For every KEV CVE (not only Microsoft ones), T1 took the nearest Microsoft-vulnerable CPE key and the nearest cvss key by edit distance ≤2 on OCR-normalized digits, indexed on the CVE number. It counted those with score ≥7. Loose approximate matching attached non-Microsoft KEV CVEs (e.g. CVE-2024-27198 JetBrains, CVE-2017-7921 Hikvision) to Microsoft CPE rows, giving 533 'joint' matches and 244 with score ≥7."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "~162 (lower bound)",
+    "discrepancy": "162 vs 58 (framed as a lower bound)",
+    "first_divergence": {
+     "step": 53,
+     "excerpt": "The best matcher reaches only about 29% recall on the labeled keys, which is not enough for an exact count."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "likely",
+    "narrative": "H1 learned several year transforms (off=+37, tri≈3Y+2, rv) but its matcher reached only ~29% recall and ~85% precision. It intersected three noisy matches (Microsoft CPE 255, vulns 665, CVSS≥7 455) to get 162 and called it a lower bound. The true answer is lower (58), so the 'lower bound' framing was wrong and false positives dominated."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "declined",
+    "discrepancy": "no number vs 58",
+    "first_divergence": {
+     "step": 73,
+     "excerpt": "Recall reaches only about 35% and false matches explode (10,569), so the decoding is not reliable enough to produce a trustworthy count."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "declined"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 decoded hexmix (number in hex, year-1970) and sp reordering families, but recall stayed ~35% while false matches exploded. It declined to give a count."
+   }
+  },
+  "validator_or_task_note": "Both terra runs give the same wrong 244; T1 derives it explicitly, while T0's trace never prints 244.",
+  "question_summary": "A three-way intersection over noisy keys. Permissive digit matching over-counts badly (244), and nobody built a decoder precise enough to reach 58."
+ },
+ {
+  "dataset": "cve",
+  "query": "query9",
+  "expected": "8",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "74",
+    "discrepancy": "74 vs 8",
+    "first_divergence": {
+     "step": 22,
+     "excerpt": "if sp(pat,q)/len(pat)<=1.2:out[x].append(raw)"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 correctly used (published,last_modified,vuln_status) groups with differing attack vectors as the duplicate-CVE proxy, giving 3,382 conflict groups. Its span-ratio sweep showed exactly 8 KEV CVEs at strict cutoffs 1.0 and 1.1 (step 20: '1 8 8 / 1.1 8 8'). It then used the looser ratio 1.2 and allowed a match from any single row of a group, which inflated the count to 74 with false digit-subsequence hits."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "17",
+    "discrepancy": "17 vs 8",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "COMMON 423 CVES 300"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "Requiring every row of a timestamp group to contain the KEV CVE digits as a raw subsequence gave 'COMMON 8 distinct CVEs 8' (step 11), which matches the truth. T1 then explored looser variants: year-indexed matching (300), and OCR-mapped matching that only needs one row to match raw (step 18: 26 groups, 22 CVEs). Its final 17 is not printed. The added OCR-mapped matches (e.g. CVE-2020-2021, CVE-2020-0601 inside 2023-published groups) are false positives."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "2 (CVE-2023-7101, CVE-2024-3393)",
+    "discrepancy": "2 vs 8",
+    "first_divergence": {
+     "step": 20,
+     "excerpt": "bare in KEV: 38 multi-row in KEV: 2 conflicting in KEV: 2"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "E2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "error_loop",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 grouped rows by a decoded CVE ID from a regex (4-digit year, ≤12 non-digits, 4-5 digit number). That regex misses reversed, base-encoded, dotted and split families, so most duplicate pairs never formed a group, and only 2 KEV CVEs surfaced. It did not use the shared-timestamp grouping that exposes the duplicates directly. Several follow-up commands failed in a row because /tmp files vanished (steps 24-28)."
+   }
+  },
+  "mixed_contrast": {
+   "terra": "Both terra runs failed, but each printed 8 at an intermediate step (T0 step 20 at cut 1.0/1.1; T1 step 11 with all-rows-must-match) before loosening the matcher.",
+   "haiku": "H1 'passed' while declining to answer: the 8 it mentions is the number of multi-row CVEs in the clean-format subset (none in KEV). H2 answered 2 with a narrow regex decoder."
+  },
+  "validator_or_task_note": "H1's pass is accidental. Its answer explicitly says 'I'm not giving a number', and the validator matched the unrelated sentence 'there are 8 multi-row CVEs'. The any-number validator is too lenient.",
+  "question_summary": "The duplicates can be found through shared timestamps, but matching groups to KEV needs a strict match. Both terra runs reached 8 and then loosened to over-matching; Haiku under-matched or declined."
+ },
+ {
+  "dataset": "cve",
+  "query": "query10",
+  "expected": "5",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "14",
+    "discrepancy": "14 vs 5",
+    "first_divergence": {
+     "step": 33,
+     "excerpt": "14 distinct Microsoft KEV products have at least one associated CVE with a CVSS v3 base score of 9.0 or higher."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T0's literal-match script printed 'products 5' at step 25: exchange server, configuration manager, word, windows and OMI. That value equals the expected answer. T0 then tried local-alignment fuzzy matching (steps 23, 26, 30), deleted its scripts, and answered 14. No printed output supports 14, so T0 abandoned a matching result for an unsupported one."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "15",
+    "discrepancy": "15 vs 5",
+    "first_divergence": {
+     "step": 16,
+     "excerpt": "HIGH  windows => (9.9, 'CVE-2019-1253', 4, 'xref-epndj%[eje:ri302~EDwgr50125300:rawpfh$slot-jpld')"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "For each Microsoft KEV CVE, T1 took the cvss row with the longest common digit run among all rows containing the CVE number, with no minimum quality. Even weak matches with a common-run length of 4-5 counted (e.g. CVE-2019-1253 matched to 'ri302~…50125300', CVE-2025-24989 to a 'cve-2022-24…' key). Products with any high-scoring 'best' match were labelled HIGH. At least 10 HIGH products are visible in the truncated output, and the final 15 likely counts them."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "2 (Office, Win32k)",
+    "discrepancy": "2 vs 5",
+    "first_divergence": {
+     "step": 67,
+     "excerpt": "4-digit years may have gaps of up to 10 characters, while 2-digit years must be followed directly by the number with no digits in between."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1",
+     "E2"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "likely",
+    "narrative": "H1 tightened its year+number regex to remove decoy collisions, which left only CVE-2023-23397 and CVE-2018-8589 at ≥9.0. Encodings such as tri/off/202E-style OCR years (e.g. the 'tri604…-21529' and '202E$…43468' keys terra found for Exchange and Configuration Manager) fall outside the strict rule. The result is an undercount."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "17 (low confidence)",
+    "discrepancy": "17 vs 5",
+    "first_divergence": {
+     "step": 47,
+     "excerpt": "The results swing from 2 to 17 products depending on the rule, so no rule is trustworthy yet."
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 used OCR-normalized matching that requires a contiguous number with the year as an earlier subsequence. That admits false matches: it measured a ~1% fake-number false-positive rate per target over many candidate rows. The rule produced 17 products, and H2 itself reported that the answer swings from 2 to 32 with the rule."
+   }
+  },
+  "validator_or_task_note": "T0 printed exactly 5 at step 25 before switching to 14.",
+  "question_summary": "The product count depends on how strictly CVSS keys are matched: loose best-match inflates it (14-17), strict regex deflates it (2). T0 had the right literal-match result and dropped it."
+ }
+]

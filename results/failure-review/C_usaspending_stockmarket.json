@@ -1,0 +1,604 @@
+[
+ {
+  "dataset": "usaspending",
+  "query": "query1",
+  "expected": "898",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "900",
+    "discrepancy": "900 vs 898 (+2)",
+    "first_divergence": {
+     "step": 7,
+     "excerpt": "pos neg unk 812 5360 578"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "The DoD set is correct (6 alias surface forms, 6,750 awards, first amount row per award), but 94% of amount_text is magnitude prose, and T0 classified it with negative/positive keyword regexes (seven/eight-figure, 'million' vs five/six-figure, 'hundreds of thousands'). The visible computation gives 849 (34 numeric + 815 prose 'above' rows, step 12), with 487 rows unclassified; the final 900 adds 51 of those vague rows by an adjudication that no visible command shows. Keyword bands cannot reproduce the hidden exact amounts, so the result lands near the truth but is off by 2."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "909",
+    "discrepancy": "909 vs 898 (+11)",
+    "first_divergence": {
+     "step": 12,
+     "excerpt": "negative=re.compile(r'\\\\b(?:five|six|four)-figure\\\\b|sub-million|petty cash|annual salary|low five|four-to-five')"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 also used the first amount row per award (lateral LIMIT 1) and keyword regexes on prose; its regex base is 849 (815 prose positives + 34 numeric >$1M, step 18), leaving 199 rows with no magnitude word (step 15). The reported 909 adds about 60 of these vague rows ('substantial', 'formidable scale') as above $1M, and no visible command computes that. It never calibrated the prose against the numeric rows or the recipient totals, so the vague-row judgement over-counts."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "71 (stated as floor; ~738 prose-above estimate)",
+    "discrepancy": "Declared 71 lower bound vs 898; no 898 in text",
+    "first_divergence": {
+     "step": 54,
+     "excerpt": "so prose can't be trusted as a per-award amount"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1",
+     "C1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 correctly resolved DoD (6,750 awards) and the ID join, but it treated only the 337 numeric-amount awards as countable and reported 71 as a floor. It rejected prose bands after a noisy calibration (step 53). It also rejected recipient totals as 'scaled distractors' (step 60), although several of the mismatches it printed were prose+numeric pairs where the total fits the prose band and not the numeric row (e.g. 256,141 total vs 512.3K numeric, 'six-figure'). Its 71 counts any numeric row, including numeric rows in the duplicate pairs, which q2/H1 later showed are usually the superseded entries."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "71 (lower bound; 'roughly 800' estimate)",
+    "discrepancy": "Declared 71 vs 898",
+    "first_divergence": {
+     "step": 32,
+     "excerpt": "The prose-only descriptions use qualitative magnitude language, so they can't give exact counts."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1",
+     "C1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 built the right DoD cohort (6,750 awards via agency_aliases), counted only numeric amounts (71 >$1M), and declared that a lower bound. It bucketed the prose (748 pos, 24 both, 507 none, step 33) but reported the estimate only as 'roughly 800', not as an answer. At step 21 it saw that the prose row usually sorts first in duplicate pairs, yet it still let the numeric row stand as the amount."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Hints say every amount_text format is exact and parseable, but ~9,744 of 10,266 amount_text rows are vague magnitude prose ('five-figure', 'low-to-mid millions'); only 522 rows are numeric, and the _OLD suffix is absent (345 awards carry a duplicate prose+numeric pair). The ground truth was presumably computed from the original exact amounts, so no run can derive it exactly; prose-band classification only approximates it. Both Haiku runs gave the same 71 floor. Terra's prose-keyword approach came within 1% (900, 909).",
+  "question_summary": "The amounts are mostly vague magnitude prose that contradicts the hints. Terra keyword-classified the prose and landed close but not exact; Haiku refused to treat prose as amounts and reported a 71 floor."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query2",
+  "expected": "75",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "61",
+    "discrepancy": "61 vs 75 (-14)",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "rows=[r for r in q if r[1] in ca and not re.search"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 found the California cohort correctly (CA/California/Calif. states, raw UEI match, 455 awards), then classified only the prose rows (449) with a positive regex (64 hits, step 14) and a negation list. The final 61 does not appear in any visible output. It reflects keyword judgement on prose bands; T0 did not use the single-contract recipient totals, which give exact amounts. Vague rows ('substantial investment typical of large-scale...') and noisy bands made it under-count."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "71",
+    "discrepancy": "71 vs 75 (-4)",
+    "first_divergence": {
+     "step": 22,
+     "excerpt": "numeric 30 above 5"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1",
+     "C1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T1 used the 455 CA awards, took a numeric row whenever present (vv[-1]), and found 5 above $1M. It then keyword-classified the prose (69 candidates minus a few negations), and a Naive Bayes attempt (309 predicted, step 29) was discarded. Preferring the numeric row in the 24 CA duplicate pairs picks what H1 showed is usually the superseded value, and the prose bands are noisy. The final 71 is not printed by any visible command."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "about 60",
+    "discrepancy": "~60 vs 75 (-15)",
+    "first_divergence": {
+     "step": 47,
+     "excerpt": "so the exact amounts are just the 522 numeric entries"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1",
+     "C1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "likely",
+    "narrative": "H2 resolved the CA cohort (271 recipients, 455 awards) and the ID join, but treated only the 522 numeric rows as exact amounts. It did not use recipient total_amount_text, which is exact for single-contract recipients. For the 24 CA pairs it took the numeric (usually superseded) value, and it estimated the 425 prose-only awards with a band classifier (57 above, minus 2 negations). The result was 5 + 55 = about 60, an under-count against 75."
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H1 recovered exact amounts for the 205 single-contract CA awards from recipients.total_amount_text, with rounding tolerance (steps 42-57, 45 above $1M). It showed that in duplicate pairs the prose row is primary in about 97% of cases (steps 63-64) and band-estimated only the 250 multi-contract awards. Its reported 'about 75' (range 49-89) matched the expected value, though it is still an estimate. H2 used only the numeric rows plus prose bands."
+  },
+  "validator_or_task_note": "Hints say every amount_text format is exact and parseable, but ~9,744 of 10,266 amount_text rows are vague magnitude prose ('five-figure', 'low-to-mid millions'); only 522 rows are numeric, and the _OLD suffix is absent (345 awards carry a duplicate prose+numeric pair). The ground truth was presumably computed from the original exact amounts, so no run can derive it exactly; prose-band classification only approximates it. H1 passed with a hedged 'best estimate' (any integer 75 in the text matches), so the pass is partly fortuitous.",
+  "question_summary": "The CA cohort was easy; the error comes from inferring amounts. Only the run that used single-contract recipient totals as an exact amount source (H1) reached 75. Prose-keyword runs under-counted."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query4",
+  "expected": "Department of Homeland Security",
+  "runs": {
+   "T0": {
+    "passed": true
+   },
+   "T1": {
+    "passed": true
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "Best estimate: Department of Homeland Security (low-confidence)",
+    "discrepancy": "Correct agency named, but the validator's declared-answer extractor took the last bold span '**Method**' -> 'method'",
+    "first_divergence": {
+     "step": 41,
+     "excerpt": "**Method**"
+    },
+    "primary": "Answer format vs validator",
+    "sub_issues": [
+     "V1"
+    ],
+    "signals": [
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1's answer leads with '**Best estimate: Department of Homeland Security**', which is semantically correct. The validator collects declared-answer matches (including any '**...**' span) and keeps the last one by position. H1's later section header '**Method**' therefore became the declared answer 'method', and the run was rejected. The analysis itself (alias mapping, band classification, DHS 35.0% on explicit bands) agreed with the passing runs."
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {
+   "haiku": "H2 stated '**Answer: Department of Homeland Security**' and had no later bold span matching the extractor pattern, so the declared answer matched. H1 had the same substance but ended with a bold '**Method**' header."
+  },
+  "validator_or_task_note": "V1: H1 is semantically right but the extractor picks the last bold span. The validator penalises Markdown section headers after the answer.",
+  "question_summary": "All runs identified DHS. The single failure is a validator extraction artifact caused by a bold '**Method**' heading after the answer."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query5",
+  "expected": "12",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "11",
+    "discrepancy": "11 vs 12 (one sector missing)",
+    "first_divergence": {
+     "step": 14,
+     "excerpt": "text 219 11 Counter("
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 normalized the NAICS codes correctly (strip 'naics', OCR fold, 2-digit prefix), then defined 'at least $10M' as numeric >= 1e7 OR a regex for eight/nine/ten-figure, tens/hundreds of millions. That yields 11 sectors (22,23,31,32,33,48,51,54,56,62,81). One sector with a >= $10M award is missed, either because its prose has no matching phrase or because only vague wording describes it; the trace does not show which. T0 never calibrated the bands against the exact amounts or the recipient totals."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "11 (22,23,31,32,33,48,51,54,56,62,81)",
+    "discrepancy": "11 vs 12",
+    "first_divergence": {
+     "step": 13,
+     "excerpt": "all high lexical ['22', '23', '31', '32', '33', '48', '51', '54', '56', '62', '81']"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "This is the same method as T0: numeric >= $10M (5 sectors) united with a keyword regex (eight/nine/ten-figure, tens/hundreds of millions), giving 11 sectors. An early sector-parsing bug ('15' from 'NA1C5') was fixed at step 13. The 12th sector is missing because the keyword set does not capture some >= $10M award described differently. Which award or sector that is remains unresolved from the trace."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "5 (23,33,54,56,62), stated as lower bound",
+    "discrepancy": "5 vs 12",
+    "first_divergence": {
+     "step": 40,
+     "excerpt": "I'll compute the answer from the exact amounts first"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "timeout",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 restricted itself to the 20 awards with a numeric amount >= $10M (5 sectors) and called the result a lower bound. It noticed that 'eight-figure' prose implies more awards (step 51) but rejected the bands as noisy (step 57). The prose-classified awards would have added sectors 22, 31, 32, 48, 51 and 81. Sandbox /tmp loss and timeouts consumed much of the run (steps 11-27)."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "5 (23,33,54,56,62)",
+    "discrepancy": "5 vs 12",
+    "first_divergence": {
+     "step": 29,
+     "excerpt": "Only 517 contracts have an exact numeric amount, and 20 of those are at least $10M."
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 excluded every prose-only award and counted sectors from the 20 numeric awards >= $10M, giving 5. Its own caveat lists the extra sectors the 'eight-figure' prose would add (51, 81, 22, 31, 32, 48), which would make 11, but it did not adopt them. The answer is the numeric-only lower bound."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Hints say every amount_text format is exact and parseable, but ~9,744 of 10,266 amount_text rows are vague magnitude prose ('five-figure', 'low-to-mid millions'); only 522 rows are numeric, and the _OLD suffix is absent (345 awards carry a duplicate prose+numeric pair). The ground truth was presumably computed from the original exact amounts, so no run can derive it exactly; prose-band classification only approximates it. Both terra runs gave 11 and both Haiku runs gave 5.",
+  "question_summary": "Amounts of $10M or more are mostly stated as prose bands. Terra's band regex recovered 11 of 12 sectors; Haiku used only the numeric rows (5 sectors)."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query6",
+  "expected": "56",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "57",
+    "discrepancy": "57 vs 56 (+1)",
+    "first_divergence": {
+     "step": 6,
+     "excerpt": "57 canonical recipients have >1 UEI"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [],
+    "evidence": "unresolved",
+    "narrative": "T0 grouped the 3,317 recipient rows by name, lowercased, with punctuation removed and trailing corporate suffixes stripped, and counted 57 groups with more than one UEI. A looser first pass gave 52 (step 5). Exactly one of the 57 groups must differ from the ground truth, but the trace does not show which. Candidates include groups whose suffix type differs, such as 'RED ORANGE INTERNATIONAL Limited' vs 'LLC.'. It did not normalize UEIs, but each row's UEI was already distinct."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "57",
+    "discrepancy": "57 vs 56 (+1)",
+    "first_divergence": {
+     "step": 3,
+     "excerpt": "groups"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [],
+    "evidence": "unresolved",
+    "narrative": "T1 used a regex suffix strip on lowercased, punctuation-free names and got the same 57 groups as T0. The one-group discrepancy against 56 cannot be attributed to a specific merge from the trace."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "57",
+    "discrepancy": "57 vs 56 (+1)",
+    "first_divergence": {
+     "step": 21,
+     "excerpt": "names w/ >1 UEI: 57"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "tmp_loss"
+    ],
+    "evidence": "unresolved",
+    "narrative": "H1 normalized UEIs (prefix/suffix strip plus OCR fold; all 3,317 stayed distinct) and names (suffix-token strip), and got 57. A looser key that drops 'THE' and spaces also gave 57. It checked near-duplicate keys and found no further merges. The single extra group is not identifiable from the trace."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "57",
+    "discrepancy": "57 vs 56 (+1)",
+    "first_divergence": {
+     "step": 11,
+     "excerpt": "multi-UEI groups 57"
+    },
+    "primary": "Identifier joins and identity",
+    "sub_issues": [
+     "J2"
+    ],
+    "signals": [
+     "timeout"
+    ],
+    "evidence": "unresolved",
+    "narrative": "H2 used the same approach (UEI fold plus name suffix strip) and got 57, stable across 'the'-stripping and suffix-variant options (step 17). No visible step shows which group the ground truth treats differently."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "All four runs, using independent normalizations, got 57 and verified robustness. The +1 is either one ambiguous group in the ground truth's canonical-entity mapping (e.g. RED ORANGE INTERNATIONAL Limited/LLC, Ortho-Clinical Diagnostics with and without 'Incorporated', JM CONSTRUCTION SERVICES, KBR WYLE SERVICES) or a ground-truth off-by-one. Treat it as a possible task/GT ambiguity (V2).",
+  "question_summary": "Every run, across both models, produced 57 against an expected 56. The cause is one recipient group that is either over-merged or ambiguous, and no trace shows which."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query8",
+  "expected": "25",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "23",
+    "discrepancy": "23 vs 25 (-2)",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "'A substantial sum, typical for the Department of Defense''s aircraft manufacturing agreements"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T0 correctly found the 9 Lockheed Martin UEIs and the 32 DoD awards, all of which have prose-only amounts. It read the 32 sentences by hand (no classification code) and counted 23. It inspected and excluded the two awards with no magnitude word: FA861123F0012 ('robust, though not uncommon') and n0001924f1057 ('A substantial sum'). The expected 25 counts both as above $1M."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "23",
+    "discrepancy": "23 vs 25 (-2)",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "n0001924f1057 => [('n0001924f1057', \"A substantial sum"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "hardcoded"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 matched the same 32 Lockheed/DoD awards and printed each award's prose amount, then manually judged 23 to be above $1M. Like T0, it treated the two vague 'substantial' awards (FA861123F0012, n0001924f1057) as not above $1M, which accounts exactly for the gap to 25."
+   },
+   "H1": {
+    "passed": true
+   },
+   "H2": {
+    "passed": true
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Hints say every amount_text format is exact and parseable, but ~9,744 of 10,266 amount_text rows are vague magnitude prose ('five-figure', 'low-to-mid millions'); only 522 rows are numeric, and the _OLD suffix is absent (345 awards carry a duplicate prose+numeric pair). The ground truth was presumably computed from the original exact amounts, so no run can derive it exactly; prose-band classification only approximates it. Both Haiku runs passed by naming 25: H2 as its best estimate, counting the two vague awards as likely above $1M; H1 only as the alternative 'If the two undetermined awards are counted, the total would be 25' while its headline was 23. The validator accepts any integer 25 in the text, so H1's pass is lenient.",
+  "question_summary": "The cohort (32 Lockheed DoD awards) was found by every run. The two awards with no magnitude word decided the count: terra excluded them (23), and Haiku mentioned 25."
+ },
+ {
+  "dataset": "usaspending",
+  "query": "query9",
+  "expected": "147",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "142",
+    "discrepancy": "142 vs 147 (-5)",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "high 105 low 733 unknown 146"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2",
+     "S1"
+    ],
+    "signals": [
+     "hardcoded",
+     "no_verification"
+    ],
+    "evidence": "likely",
+    "narrative": "T0 correctly found the 984 no-English contracts and took the first amount row per award (prose first in most pairs). Its high/low regexes left 146 unknowns, partly because the 'high' regex required words like 'range' after 'millions', so 'low-to-mid millions typically...' fell through. It then hand-typed 32 award IDs from the unknown list as above $1M (step 11). The final 142 matches no visible sum (105 + 32 = 137) and stays under 147 because of vague and missed phrasings."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "138",
+    "discrepancy": "138 vs 147 (-9)",
+    "first_divergence": {
+     "step": 16,
+     "excerpt": "high explicit 138"
+    },
+    "primary": "Extraction and representation",
+    "sub_issues": [
+     "E1",
+     "E2",
+     "S1"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "T1 reported the raw count of a single regex (seven to ten-figure, or 'million(s)' / 'Nm') over the first amount row of the 984 no-English contracts. That regex has no negation handling ('sub-million', 'without breaching the million-dollar mark' match) and ignores the 211 'uncertain' rows it had just listed (step 14). The answer is 138 vs 147."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "55 (692 unresolved)",
+    "discrepancy": "55 vs 147",
+    "first_divergence": {
+     "step": 40,
+     "excerpt": "Counter({'unknown': 692, 'single_recip': 249, 'known': 43})"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 counted only exactly-known amounts: 6 numeric plus 49 from single-contract recipient totals, validated at 150/155 agreement. It left 692 prose-only multi-contract awards unresolved instead of classifying their bands. The result is a 55 lower bound, explicitly not a count."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "about 150 (expected value 150.8; range 140-160)",
+    "discrepancy": "~150/151 vs 147; 147 never stated",
+    "first_divergence": {
+     "step": 77,
+     "excerpt": "I'll give each prose-only row the calibrated probability of exceeding $1M for its phrase class"
+    },
+    "primary": "Execution and unsupported result",
+    "sub_issues": [
+     "X1",
+     "E1",
+     "S1"
+    ],
+    "signals": [
+     "tmp_loss",
+     "hedged"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 resolved the join and used numeric rows plus single-contract recipient totals, giving 53 exact above $1M. For the 717 prose-only rows it summed calibrated per-phrase probabilities (97.8) and reported an expected value of about 150 (range 140-160). A rough deterministic band count at step 74 gave 136. The probabilistic estimate overshoots by about 4, and the validator needs the exact integer."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Hints say every amount_text format is exact and parseable, but ~9,744 of 10,266 amount_text rows are vague magnitude prose ('five-figure', 'low-to-mid millions'); only 522 rows are numeric, and the _OLD suffix is absent (345 awards carry a duplicate prose+numeric pair). The ground truth was presumably computed from the original exact amounts, so no run can derive it exactly; prose-band classification only approximates it. Terra under-counted with keyword regexes (142, 138); H2's probabilistic estimate (about 150) was closest but is not an integer count.",
+  "question_summary": "The no-English cohort (984) was found by every run. The answer hinges on prose-band amounts: regex classification under-counted, Haiku H1 reported a lower bound, and H2 a probabilistic estimate."
+ },
+ {
+  "dataset": "stockmarket",
+  "query": "query4",
+  "expected": "MFA Financial; Argo Group International Holdings; HDFC Bank; Albany International; DTE Energy (top 5 by up-minus-down days)",
+  "runs": {
+   "T0": {
+    "passed": false,
+    "answer_short": "HDFC Bank, Albany Intl, Getty Realty, Mettler-Toledo, Pfizer",
+    "discrepancy": "Ranked by up-day count; expected ranking is by net (up - down) days. Missing MFA Financial (+72), Argo Group, DTE Energy (+41); includes Getty, Mettler-Toledo, Pfizer",
+    "first_divergence": {
+     "step": 4,
+     "excerpt": "sorted(res,key=lambda r:(r[2],r[5]), reverse=True)[:20]"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "V2"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "The filter is correct (Listing Exchange='N', ETF='N', 234 symbols, 131 with more up than down days in 2017), but T0 ranked by the raw number of up days. Its own output shows MFO (MFA Financial) at 139 up / 67 down (+72) and DTQ (DTE Energy) at +41, both ahead of GTY (+39) and MTD (+35) on margin. The expected list matches a ranking by up-minus-down: MFO +72, HDB +44, AIN +42, DTQ +41, plus Argo Group, whose counts the trace never prints."
+   },
+   "T1": {
+    "passed": false,
+    "answer_short": "HDFC Bank, Albany Intl, Getty Realty, Mettler-Toledo, Pfizer",
+    "discrepancy": "Same as T0: ranked by up-day count rather than up-minus-down margin",
+    "first_divergence": {
+     "step": 5,
+     "excerpt": "sorted(results, key=lambda r:(-r[0],-r[2],r[4]))[:20]"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "V2"
+    ],
+    "signals": [],
+    "evidence": "supported",
+    "narrative": "T1 had the same correct cohort and the same choice to rank by up-day count, with margin only as a tie-break. MFO (+72) and DTQ (+41) were visible in its top-20 output but ranked 9th and 10th by up count. Two transient query errors (steps 3-4) did not affect the result."
+   },
+   "H1": {
+    "passed": false,
+    "answer_short": "HDFC Bank, Albany Intl, Getty Realty, Mettler-Toledo, Pfizer",
+    "discrepancy": "Ranked by up-day count; falsely claimed margin ranking gives the same five",
+    "first_divergence": {
+     "step": 9,
+     "excerpt": "rows.sort(key=lambda r:(-r[1], r[0]))"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "V2"
+    ],
+    "signals": [
+     "timeout",
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "H1 used the correct cohort (234 symbols, 131 qualifying) but ranked by up-day count. Its final message asserts that ranking by up-minus-down margin would give 'the same five companies', which it never computed. MFO (+72) and DTQ (+41) would displace GTY, MTD and PFE."
+   },
+   "H2": {
+    "passed": false,
+    "answer_short": "HDFC Bank, Albany Intl, Getty Realty, Mettler-Toledo, Ameriprise/Pfizer (tie)",
+    "discrepancy": "Ranked by up-day count; noted net ranking but listed HDB/AIN/DTQ as its leaders, missing MFO (+72)",
+    "first_divergence": {
+     "step": 8,
+     "excerpt": "res.sort(key=lambda x:-x[0])"
+    },
+    "primary": "Cohort and aggregation",
+    "sub_issues": [
+     "C3",
+     "V2"
+    ],
+    "signals": [
+     "no_verification"
+    ],
+    "evidence": "supported",
+    "narrative": "H2 used the correct cohort and ranked by up-day count, giving a 5th-place tie (AMP and PFE at 141). It mentioned that net up days would give a different top 5 led by HDB (+44), AIN (+42), DTQ (+41), but it judged that only from the top-10-by-up-count list. So it missed MFO (+72) and Argo, and it did not adopt the margin ranking."
+   }
+  },
+  "mixed_contrast": {},
+  "validator_or_task_note": "Both models gave the same wrong list. The question does not define the ranking metric ('top 5 ... that had more up days than down days'); the ground truth ranks by up-minus-down margin. This is task ambiguity (V2), but the data visible in the T0/T1 output fully supports the expected answer under the margin reading.",
+  "question_summary": "Every run filtered correctly but ranked by up-day count, while the ground truth ranks by the up-minus-down margin."
+ }
+]
