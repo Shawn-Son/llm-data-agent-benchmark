@@ -2,20 +2,20 @@
 
 ## Repeated runs — terra and Haiku (November 2026)
 
-Same 104 questions, descriptions + hints and unchanged original validators. One run is one full 104-question sweep.
+Same 104 questions, descriptions + hints and unchanged original validators. One run is one full 104-question sweep. **Analysis uses two runs per model:** terra = the original single run + new run 1; Haiku = new runs 1 and 2.
 
-| Model | Harness | Correct / scored, per run | Micro accuracy, mean ± SD | Macro Pass@1, mean ± SD | Pass@n | Unscored |
+| Model | Harness | Correct / scored, per run | Micro accuracy, mean ± SD | Macro Pass@1, mean ± SD | Pass@2 | Unscored |
 |---|---|---|---:|---:|---:|---:|
-| gpt-5.6-terra | Codex CLI 0.166.0 | original 59/104 · run 1 61/103 · run 2 43/82 | **56.13% ± 3.43** | **64.68% ± 2.12** | 66.67% (pass@3, 81 q) | 23 |
-| claude-haiku-5-5 | Claude Code 2.1.317 | run 1 66/104 · run 2 63/104 | **62.02% ± 2.04** | **62.23% ± 3.02** | 69.23% (pass@2, 104 q) | 0 |
+| gpt-5.6-terra | Codex CLI 0.166.0 | original 59/104 · run 1 61/103 | **57.98% ± 1.76** | **64.71% ± 2.99** | 65.05% (103 q) | 1 |
+| claude-haiku-5-5 | Claude Code 2.1.317 | run 1 66/104 · run 2 63/104 | **62.02% ± 2.04** | **62.23% ± 3.02** | 69.23% (104 q) | 0 |
 
-- Each run's accuracy uses that run's scored questions. Unscored questions are infrastructure failures, never counted wrong. Pass@n is the share of questions correct in at least one run, over questions scored in every run of that model. SDs come from 2–3 runs.
-- **terra stopped early.** During run 2 the U-M GPT Toolkit key hit its usage limit (HTTP 412), so 21 questions failed instantly and run 3 never started. Run 1 lost one question to a transient NFS lock error. Haiku was run twice by decision (its third run was cancelled before starting).
-- On the 81 questions scored in all five runs: terra 58.0% / 56.8% / 53.1%, Haiku 60.5% / 59.3%. Consistency: terra 34 always right, 27 never, 20 mixed; Haiku (104 q) 57 always, 32 never, 15 mixed. 22 questions were wrong in every run of both models.
+- Each run's accuracy uses that run's scored questions. The one unscored terra question (`DEPS_DEV_V1 q1`, run 1) hit a transient NFS lock error and is never counted wrong. Pass@2 is the share of questions correct in at least one run, over questions scored in both runs. SDs come from two runs.
+- On the 103 questions scored in all four runs: terra 57.3% / 59.2%, Haiku 64.1% / 61.2% (macro: terra 65.5% / 66.8%, Haiku 64.4% / 60.1%). Consistency: terra 53 always right, 36 never, 14 mixed; Haiku 57 always, 32 never, 15 mixed. 21 questions were wrong in all four runs, mostly in cve (6), civic_unstructured (4) and usaspending (4).
+- **terra run 2 is excluded from the analysis.** It stopped when the U-M GPT Toolkit key hit its usage limit (HTTP 412): 82 of 104 questions were scored before every later call failed. Its reports are kept in `results/terra-native-104x3/trial2/` as a raw record only. Haiku's third run was cancelled before starting.
 - **Not a controlled model comparison.** The harnesses differ (Codex vs Claude Code). Claude Code's sandbox masks `/tmp` per command, so files Haiku wrote there vanished between commands; its default 2-minute Bash timeout also fired often. Neither was corrected. Haiku cost (Claude Code estimate): $3.12 and $4.31.
 - Two of Haiku's repeated failures look like validator false negatives: `cve q5` answers "1." (expected 1) but the validator regex ignores a number followed by "."; `civic_unstructured q7` correctly reports an empty result but names rejected candidates. Official grades are unchanged.
 
-Results: [terra aggregate](results/terra-native-104x3/aggregate/) · [Haiku aggregate](results/haiku-claude-104x3/aggregate/) · per-run reports under `results/terra-native-104x3/trialN/` and `results/haiku-claude-104x3/trialN/`. Run with `native104.py --harness codex|claude --trial N`; combine with `codex104/report.py --trials ... --labels ... --dest ...`.
+Results: [terra aggregate (original + run 1)](results/terra-native-104x3/aggregate/) · [Haiku aggregate (runs 1–2)](results/haiku-claude-104x3/aggregate/) · per-run reports under `results/terra-native-104x3/trial1/` and `results/haiku-claude-104x3/trialN/`. Run with `native104.py --harness codex|claude --trial N`; combine with `codex104/report.py --trials ... --labels ... --dest ...`.
 
 ## Results — 104 questions, one trial each
 
