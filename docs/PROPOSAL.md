@@ -53,7 +53,7 @@ output) and compared field by field, with deterministic date-window and date-fie
 
 ## 3. What has been validated without an API key
 
-All 37 unit tests run with a scripted mock LLM (`tests/`), including the FDJ paper's Fig. 6 scaffold
+All 36 unit tests run with a scripted mock LLM (`tests/`), including the FDJ paper's Fig. 6 scaffold
 example, gleaning with validator feedback, folded reduce with a scratchpad, resolve, and the
 right/wrong SQL pair of crmarenapro q12 through synthetic execution. The offline experiments in
 `experiments/` use the real DAB data:

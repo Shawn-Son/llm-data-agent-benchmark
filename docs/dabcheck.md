@@ -6,7 +6,7 @@ offline tests, and experiments on the DataAgentBench data. Every LLM call goes t
 interface and drives all tests. No API key is needed for the tests or the experiments.
 
 ```
-python -m pytest tests -q                     # 37 tests, mock LLM only
+python -m pytest tests -q                     # 36 tests, mock LLM only
 python experiments/exp_deps_extraction.py     # needs ~/DataAgentBench (DAB_ROOT) with the data downloaded
 python -m dabcheck audit-join sqlite:/path.db id sqlite:/path2.db ref --left-table t1 --right-table t2
 python -m dabcheck extract duckdb:/project_query.db Project_Information --table project_info --name forks \
