@@ -60,5 +60,34 @@ def main(out):
     print('collected into', out)
 
 
+COMPACT = ('method_runs.csv', 'aggregate_metrics.json', 'protocol.json', 'datasets.csv', 'report.md', 'verifier_cost.json', 'ARCHIVE.json')
+
+
+def compact(full, out):
+    """The small subset committed from a session without push access to Great Lakes: per-question
+    method fields, metrics, protocol, prep summaries, and the verdicts of the SQL that was verified."""
+    full, out = Path(full), Path(out); bundle = {}
+    for m in METHODS:
+        d = full / 'results' / f'haiku-claude-{m}-104x3' / 'trial1'
+        for n in COMPACT:
+            if (d / n).exists(): bundle[f'results/haiku-claude-{m}-104x3/trial1/{n}'] = (d / n).read_text()
+    vd = full / 'results' / 'haiku-claude-sqlverify-104x3' / 'trial1' / 'verify_details.json'
+    if vd.exists():
+        rows = json.loads(vd.read_text())
+        checked = [{'dataset': r['dataset'], 'query': r['query'], 'round1_passed': r['round1_passed'], 'round2_passed': r['round2_passed'],
+                    'checks': [{'database': c.get('database'), 'accept': c.get('accept'), 'sql': (c.get('sql') or '')[:500],
+                                'reasons': [x[:300] for x in c.get('reasons') or []]} for c in r.get('checks') or []]}
+                   for r in rows if r.get('queries_checked')]
+        counts = {'questions': len(rows), 'with_single_database_sql': sum(1 for r in rows if r.get('candidates')),
+                  'with_answer_level_sql': len(checked), 'rejected': sum(1 for r in rows if r.get('any_rejected'))}
+        bundle['results/haiku-claude-sqlverify-104x3/trial1/verify_summary.json'] = json.dumps({'counts': counts, 'checked': checked}, indent=1) + '\n'
+    for f in sorted((full / 'results' / 'method-prep').rglob('*')):
+        if f.is_file() and (f.name in ('summary.json', 'MANIFEST.json', 'README.md')):
+            bundle[str(f.relative_to(full))] = f.read_text()
+    out.write_text(json.dumps(bundle))
+    print('compact bundle', out, len(bundle), 'files', out.stat().st_size, 'bytes')
+
+
 if __name__ == '__main__':
     main(sys.argv[1])
+    if len(sys.argv) > 2: compact(sys.argv[1], sys.argv[2])

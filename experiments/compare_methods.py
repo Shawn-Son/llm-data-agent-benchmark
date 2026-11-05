@@ -22,6 +22,7 @@ TARGET = {'fdj': {'Identifier joins and identity'}, 'docetl': {'Extraction and r
 
 def load(tag, trial, name='runs.csv'):
     p = RES / tag / f'trial{trial}' / name
+    if not p.exists() and name == 'runs.csv': p = p.with_name('method_runs.csv')   # compact method results carry the same fields
     if not p.exists(): return None
     return {(r['dataset'], int(r['query'])): r for r in csv.DictReader(p.open())}
 
