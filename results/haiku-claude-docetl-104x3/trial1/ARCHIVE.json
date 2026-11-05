@@ -1,0 +1,10 @@
+{
+  "path": "/scratch/cse584f26_class_root/cse584f26_class/minhyeok/dab-archives/haiku-claude-docetl-104x3-trial1.tar.gz",
+  "sha256": "73cab64f381afce9664de6ecafdc54a72beb7f8aa7f79157aae7d6a68cc7b7de",
+  "bytes": 823287849,
+  "files": 4132,
+  "coverage": 104,
+  "datasets": 17,
+  "data_included": false,
+  "full_trajectories_included": true
+}

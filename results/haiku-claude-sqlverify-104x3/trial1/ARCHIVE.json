@@ -1,0 +1,10 @@
+{
+  "path": "/scratch/cse584f26_class_root/cse584f26_class/minhyeok/dab-archives/haiku-claude-sqlverify-104x3-trial1.tar.gz",
+  "sha256": "32e00aaec76d5f00ee42fe410f42371a67713fe32d87c82fafa042b9a73f12e5",
+  "bytes": 1272032715,
+  "files": 3607,
+  "coverage": 104,
+  "datasets": 17,
+  "data_included": false,
+  "full_trajectories_included": true
+}

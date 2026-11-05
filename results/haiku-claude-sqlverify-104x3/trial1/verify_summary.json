@@ -1,0 +1,223 @@
+{
+ "counts": {
+  "questions": 104,
+  "with_single_database_sql": 101,
+  "with_answer_level_sql": 9,
+  "rejected": 9
+ },
+ "note": "Condensed from verify_details.json on Great Lakes (verdict reasons shortened); the full per-question verify.json files are in the run archive (ARCHIVE.json).",
+ "checked": [
+  {
+   "dataset": "GITHUB_REPOS",
+   "query": 4,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "artifacts_database",
+     "accept": false,
+     "sql": "select repo_name,count(*),count(distinct commit) from commits group by 1 order by 2 desc",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: original is restricted to repositories whose main language is not Python and returns the top five; reconstruction includes all repositories)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (filters/aggregate: SQL is wider than the question)"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "agnews",
+   "query": 4,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "metadata_database",
+     "accept": false,
+     "sql": "select region, count(*) from article_metadata where publication_date like '2015-%' group by region order by 2 desc",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: the question is restricted to World articles; the SQL has no category filter)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (filters: SQL is wider than the question (no category filter))"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "civic_unstructured",
+   "query": 2,
+   "round1_passed": false,
+   "round2_passed": false,
+   "checks": [
+    {
+     "database": "funding_database",
+     "accept": false,
+     "sql": "select sum(amount) from Funding where grant_time<='2023-01-01' and project_name in ('guardrail_replacement_citywide",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: question covers projects whose latest report on or before 2023-01-01 is completed; SQL sums a hard-coded project list)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (as-of rule missing (latest report per project before the date))"
+     ]
+    },
+    {
+     "database": "funding_database",
+     "accept": false,
+     "sql": "select project_name, sum(amount) s from Funding where grant_time<='2023-01-01' group by project_name order by s desc limit 8",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: no status filter)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (as-of rule missing)"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "imdb",
+   "query": 9,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "movies_database",
+     "accept": false,
+     "sql": "WITH genre_m AS ( SELECT DISTINCT mi.movie_id AS mid, mi.info AS genre FROM movie_info mi WHERE {num('mi.info_type_id",
+     "reasons": [
+      "rt: reject (round-trip score 1/5: the recovered SQL is a truncated Python template; the back-translation says it cannot be interpreted)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population: SQL is different than the question)"
+     ]
+    },
+    {
+     "database": "movies_database",
+     "accept": false,
+     "sql": "WITH genre_m AS ( SELECT DISTINCT mi.movie_id AS mid, mi.info AS genre FROM movie_info mi WHERE {num('mi.info_type_id",
+     "reasons": [
+      "rt: reject (round-trip score 1/5: the recovered SQL is a truncated Python template; the back-translation says it cannot be interpreted)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population: SQL is different than the question)"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "music_brainz_20k",
+   "query": 1,
+   "round1_passed": false,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "sales_database",
+     "accept": false,
+     "sql": "select track_id, country, store, count(*), sum(units_sold), sum(revenue_usd) from sales where track_id in ({",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: SQL filters an unspecified (templated) track_id list with no country or store filter)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (aggregate wider; group_by different)"
+     ]
+    },
+    {
+     "database": "sales_database",
+     "accept": false,
+     "sql": "select store, country, count(*), sum(revenue_usd) from sales where track_id in ({",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: incomplete IN list)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population different)"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "music_brainz_20k",
+   "query": 2,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "sales_database",
+     "accept": false,
+     "sql": "select store, round(sum(revenue_usd),2) rev, sum(units_sold) units, count(*) n from sales where track_id in {ids} group by 1 order by rev desc",
+     "reasons": [
+      "rt: reject (round-trip score 3/5: returns every store instead of the top one; extra columns)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population different (placeholder set))"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "music_brainz_20k",
+   "query": 3,
+   "round1_passed": false,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "sales_database",
+     "accept": false,
+     "sql": "select track_id, sum(revenue_usd) from sales group by 1",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: returns every track instead of the top one)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (ranking metric/limit missing)"
+     ]
+    },
+    {
+     "database": "sales_database",
+     "accept": false,
+     "sql": "select round(sum(revenue_usd),2), sum(units_sold), count(*) from sales where track_id={tid}",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: one templated track_id, no ranking)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population narrower)"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "stockmarket",
+   "query": 1,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "stocktrade_database",
+     "accept": false,
+     "sql": "SELECT Date, \"Adj Close\" FROM \"REAL\" WHERE CAST(Date AS VARCHAR) LIKE '2020%' ORDER BY \"Adj Close\" DESC LIMIT 3",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: the question asks for the maximum; the SQL returns the top 3 rows)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (aggregate different (no MAX))"
+     ]
+    },
+    {
+     "database": "stocktrade_database",
+     "accept": false,
+     "sql": "SELECT Date, \"Adj Close\" FROM \"REAL\" WHERE CAST(Date AS VARCHAR) LIKE '2020%' ORDER BY \"Adj Close\" DESC LIMIT 3",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: the question asks for the maximum; the SQL returns the top 3 rows)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (aggregate different (no MAX))"
+     ]
+    }
+   ]
+  },
+  {
+   "dataset": "yelp",
+   "query": 1,
+   "round1_passed": true,
+   "round2_passed": true,
+   "checks": [
+    {
+     "database": "user_database",
+     "accept": false,
+     "sql": "select count(*), avg(rating) from review where business_ref in (%s)'%",
+     "reasons": [
+      "rt: reject (round-trip score 2/5: templated business_ref list, no location concept)",
+      "se: reject (2 of 2 synthetic cases disagree)",
+      "cohort: reject (population different)"
+     ]
+    }
+   ]
+  }
+ ]
+}

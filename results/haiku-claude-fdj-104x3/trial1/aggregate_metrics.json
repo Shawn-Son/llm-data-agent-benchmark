@@ -1,0 +1,23 @@
+{
+  "model": "claude-haiku-5-5",
+  "attempted": 104,
+  "expected": 104,
+  "datasets": 17,
+  "expected_datasets": 17,
+  "complete": true,
+  "dataset_macro_pass1": 0.6185951303598363,
+  "pass5": null,
+  "scored": 104,
+  "correct": 61,
+  "unscored": 0,
+  "estimated_cost_usd": 3.26668617,
+  "cost_note": "Claude Code total_cost_usd: client-side estimate, not billing. Anthropic Console usage is authoritative.",
+  "question_micro_accuracy": 0.5865384615384616,
+  "input_tokens": 58622604,
+  "cached_input_tokens": 54482398,
+  "output_tokens": 1879303,
+  "tool_calls": 1685,
+  "median_duration_s": 140.24891951773316,
+  "total_agent_duration_s": 21841.480827311054,
+  "condition": "description+hints+fdj"
+}

@@ -1,0 +1,492 @@
+{
+  "baseline": {
+    "accuracy": [
+      0.6346153846153846,
+      0.6057692307692307
+    ],
+    "scored": [
+      104,
+      104
+    ],
+    "pass_at_2": 0.6923076923076923,
+    "fixed_target": [],
+    "fixed_other": [],
+    "lost": [],
+    "agent_cost_usd": 7.4291977199999994
+  },
+  "fdj": {
+    "accuracy": [
+      0.5865384615384616
+    ],
+    "scored": [
+      104
+    ],
+    "pass_at_2": 0.5865384615384616,
+    "fixed_target": [
+      [
+        "cve",
+        6
+      ]
+    ],
+    "fixed_other": [
+      [
+        "DEPS_DEV_V1",
+        2
+      ],
+      [
+        "PATENTS",
+        3
+      ],
+      [
+        "crmarenapro",
+        13
+      ],
+      [
+        "krama",
+        4
+      ],
+      [
+        "stockmarket",
+        4
+      ]
+    ],
+    "lost": [
+      [
+        "GITHUB_REPOS",
+        2
+      ],
+      [
+        "bookreview",
+        3
+      ],
+      [
+        "crmarenapro",
+        3
+      ],
+      [
+        "crmarenapro",
+        4
+      ],
+      [
+        "imdb",
+        2
+      ],
+      [
+        "krama",
+        3
+      ],
+      [
+        "krama",
+        8
+      ],
+      [
+        "krama",
+        10
+      ],
+      [
+        "usaspending",
+        8
+      ]
+    ],
+    "agent_cost_usd": 3.26668617
+  },
+  "docetl": {
+    "accuracy": [
+      0.6442307692307693
+    ],
+    "scored": [
+      104
+    ],
+    "pass_at_2": 0.6442307692307693,
+    "fixed_target": [
+      [
+        "DEPS_DEV_V1",
+        2
+      ]
+    ],
+    "fixed_other": [
+      [
+        "crmarenapro",
+        13
+      ],
+      [
+        "googlelocal",
+        3
+      ],
+      [
+        "krama",
+        4
+      ],
+      [
+        "music_brainz_20k",
+        1
+      ],
+      [
+        "stockmarket",
+        4
+      ]
+    ],
+    "lost": [
+      [
+        "civic_unstructured",
+        8
+      ],
+      [
+        "krama",
+        8
+      ],
+      [
+        "music_brainz_20k",
+        3
+      ]
+    ],
+    "agent_cost_usd": 2.60791373
+  },
+  "sqlverify": {
+    "accuracy": [
+      0.6826923076923077
+    ],
+    "scored": [
+      104
+    ],
+    "pass_at_2": 0.6826923076923077,
+    "fixed_target": [
+      [
+        "crmarenapro",
+        13
+      ],
+      [
+        "imdb",
+        9
+      ],
+      [
+        "krama",
+        4
+      ],
+      [
+        "stockmarket",
+        4
+      ]
+    ],
+    "fixed_other": [
+      [
+        "krama",
+        6
+      ],
+      [
+        "music_brainz_20k",
+        1
+      ]
+    ],
+    "lost": [
+      [
+        "crmarenapro",
+        4
+      ]
+    ],
+    "agent_cost_usd": 3.518865275
+  },
+  "sqlverify_verdicts": {
+    "no_sql_checked": 95,
+    "reject_right": 6,
+    "round2_right_to_right": 6,
+    "reject_wrong": 3,
+    "round2_wrong_to_wrong": 1,
+    "round2_wrong_to_right": 2,
+    "accept_wrong": 0,
+    "accept_right": 0,
+    "round2_right_to_wrong": 0
+  },
+  "sqlverify_round1_accuracy": [
+    0.6634615384615384
+  ],
+  "sqlverify_verifier_cost_usd": [
+    0.1443005000000002,
+    null
+  ],
+  "attribution": {
+    "fdj": {
+      "acted": [
+        "civic_unstructured q1",
+        "civic_unstructured q10",
+        "civic_unstructured q2",
+        "civic_unstructured q3",
+        "civic_unstructured q4",
+        "civic_unstructured q5",
+        "civic_unstructured q6",
+        "civic_unstructured q7",
+        "civic_unstructured q8",
+        "civic_unstructured q9",
+        "music_brainz_20k q1",
+        "music_brainz_20k q2",
+        "music_brainz_20k q3",
+        "usaspending q1",
+        "usaspending q10",
+        "usaspending q2",
+        "usaspending q3",
+        "usaspending q4",
+        "usaspending q5",
+        "usaspending q6",
+        "usaspending q7",
+        "usaspending q8",
+        "usaspending q9"
+      ],
+      "acted_correct": [
+        8,
+        12,
+        9
+      ],
+      "untouched_correct": [
+        53,
+        54,
+        54
+      ]
+    },
+    "docetl": {
+      "acted": [
+        "DEPS_DEV_V1 q1",
+        "DEPS_DEV_V1 q2",
+        "cve q1",
+        "cve q10",
+        "cve q2",
+        "cve q3",
+        "cve q4",
+        "cve q5",
+        "cve q6",
+        "cve q7",
+        "cve q8",
+        "cve q9",
+        "usaspending q1",
+        "usaspending q10",
+        "usaspending q2",
+        "usaspending q3",
+        "usaspending q4",
+        "usaspending q5",
+        "usaspending q6",
+        "usaspending q7",
+        "usaspending q8",
+        "usaspending q9"
+      ],
+      "acted_correct": [
+        6,
+        7,
+        7
+      ],
+      "untouched_correct": [
+        61,
+        59,
+        56
+      ]
+    },
+    "sqlverify": {
+      "acted": [
+        "GITHUB_REPOS q4",
+        "agnews q4",
+        "civic_unstructured q2",
+        "imdb q9",
+        "music_brainz_20k q1",
+        "music_brainz_20k q2",
+        "music_brainz_20k q3",
+        "stockmarket q1",
+        "yelp q1"
+      ],
+      "acted_correct": [
+        8,
+        6,
+        6
+      ],
+      "untouched_correct": [
+        63,
+        60,
+        57
+      ]
+    }
+  },
+  "fdj_prep": {
+    "cost_usd": 14.722145900001012,
+    "runs": [
+      {
+        "file": "run-20261105T051420.json",
+        "cost_usd": 14.722145900001012,
+        "calls": 74766
+      }
+    ],
+    "earlier_attempts": "two earlier fdj prep jobs (65416197 with $1.5/spec, 65419229 with $4/spec) were cancelled before finishing; their LLM calls were cached and reused, their spend is not in cost_usd",
+    "caps": {
+      "max_uniform": 2000,
+      "max_refine": 3000,
+      "max_cross": 20000000,
+      "block_k": 10,
+      "candidate_left": 3000,
+      "recall_target": 0.9,
+      "spec_budget_usd": 2.5,
+      "run_budget_usd": 15,
+      "DABCHECK_WORKERS": 16
+    },
+    "specs": {
+      "civic_unstructured/funding_project_names": {
+        "status": "ok",
+        "left_size": 99,
+        "matches": 58,
+        "clusters": 59,
+        "refined": true,
+        "seconds": 62.8
+      },
+      "usaspending/amounts_to_contracts": {
+        "status": "ok",
+        "left_size": 9921,
+        "right_size": 9921,
+        "matches": 97422,
+        "left_matched": 9921,
+        "refined": false,
+        "seconds": 1377.5,
+        "adjusted_target": 0.93,
+        "sample_recall": 1.0
+      },
+      "usaspending/documents_to_contracts": {
+        "status": "ok",
+        "left_size": 9921,
+        "right_size": 9921,
+        "matches": 56190,
+        "left_matched": 9880,
+        "refined": false,
+        "seconds": 2360.6,
+        "adjusted_target": 0.9547,
+        "sample_recall": 0.985
+      },
+      "usaspending/recipients_to_contracts": {
+        "status": "ok",
+        "left_size": 3317,
+        "right_size": 3317,
+        "matches": 3317,
+        "left_matched": 3317,
+        "refined": false,
+        "seconds": 929.5,
+        "adjusted_target": 0.9314,
+        "sample_recall": 1.0
+      },
+      "music_brainz_20k/track_duplicates": {
+        "status": "ok",
+        "left_size": 19375,
+        "matches": 14684,
+        "clusters": 10492,
+        "refined": false,
+        "seconds": 280.2
+      },
+      "cve/kev_to_vulns": {
+        "status": "failed",
+        "left_size": 1583,
+        "right_size": 75199,
+        "error": "BudgetExceeded: budget $7.20 reached (spent $7.2027; fdj.label)",
+        "seconds": 1791.8
+      },
+      "cve/cvss_to_vulns": {
+        "status": "failed",
+        "left_size": 68367,
+        "right_size": 75199,
+        "error": "BudgetExceeded: budget $9.70 reached (spent $9.7053; fdj.label)",
+        "seconds": 1905.3
+      },
+      "cve/descriptions_to_vulns": {
+        "status": "failed",
+        "left_size": 71501,
+        "right_size": 75199,
+        "error": "BudgetExceeded: budget $12.21 reached (spent $12.2164; fdj.label)",
+        "seconds": 1829.9
+      },
+      "cve/cpe_to_vulns": {
+        "status": "failed",
+        "left_size": 549689,
+        "right_size": 75199,
+        "error": "BudgetExceeded: budget $14.72 reached (spent $14.7184; fdj.label)",
+        "seconds": 1836.7
+      }
+    },
+    "note": "CSV outputs stay on scratch ($DAB_SCRATCH/dab-prep/fdj); refined=false means the candidate pairs exceeded max_refine and were delivered without LLM confirmation"
+  },
+  "docetl_prep": {
+    "cost_usd": 1.3928291000000024,
+    "runs": [
+      {
+        "file": "run-20261105T000928.json",
+        "cost_usd": 0.5139149000000001,
+        "calls": 7086,
+        "note": "award_amounts fell back to code-only values after a Haiku safety refusal (category bio) on one row"
+      },
+      {
+        "file": "run-20261105T004150.json",
+        "cost_usd": 0.8789142000000022,
+        "calls": 12123,
+        "note": "award_amounts rerun with per-row refusal handling"
+      }
+    ],
+    "specs": {
+      "DEPS_DEV_V1/project_metrics": {
+        "status": "ok",
+        "rows": 770,
+        "fields": {
+          "project_name": {
+            "code_coverage": 0.9987,
+            "final_coverage": 0.9987,
+            "llm_rows": 1
+          },
+          "stars": {
+            "code_coverage": 0.9987,
+            "final_coverage": 1.0,
+            "llm_rows": 1
+          },
+          "forks": {
+            "code_coverage": 1.0,
+            "final_coverage": 1.0,
+            "llm_rows": 0
+          }
+        }
+      },
+      "cve/cvss_scores": {
+        "status": "ok",
+        "rows": 68367,
+        "fields": {
+          "cvss_score": {
+            "code_coverage": 1.0,
+            "final_coverage": 1.0,
+            "llm_rows": 0
+          }
+        }
+      },
+      "usaspending/award_amounts": {
+        "status": "ok",
+        "rows": 10266,
+        "fields": {
+          "amount_usd": {
+            "code_coverage": 0.0663,
+            "final_coverage": 0.0663,
+            "llm_rows": 9585
+          }
+        }
+      },
+      "usaspending/recipient_totals": {
+        "status": "ok",
+        "rows": 3317,
+        "fields": {
+          "total_amount_usd": {
+            "code_coverage": 1.0,
+            "final_coverage": 1.0,
+            "llm_rows": 0
+          }
+        }
+      },
+      "usaspending/agency_totals": {
+        "status": "ok",
+        "rows": 47,
+        "fields": {
+          "total_amount_usd": {
+            "code_coverage": 1.0,
+            "final_coverage": 1.0,
+            "llm_rows": 0
+          }
+        }
+      }
+    },
+    "note": "CSV outputs stay on scratch ($DAB_SCRATCH/dab-prep/docetl). award_amounts: Haiku returned null for all 9,585 prose amounts (vague magnitudes such as \"a six-figure award\"), so the LLM step added no values"
+  }
+}

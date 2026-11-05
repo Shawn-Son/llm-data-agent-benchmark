@@ -1,0 +1,102 @@
+{
+ "cost_usd": 14.722145900001012,
+ "runs": [
+  {
+   "file": "run-20261105T051420.json",
+   "cost_usd": 14.722145900001012,
+   "calls": 74766
+  }
+ ],
+ "earlier_attempts": "two earlier fdj prep jobs (65416197 with $1.5/spec, 65419229 with $4/spec) were cancelled before finishing; their LLM calls were cached and reused, their spend is not in cost_usd",
+ "caps": {
+  "max_uniform": 2000,
+  "max_refine": 3000,
+  "max_cross": 20000000,
+  "block_k": 10,
+  "candidate_left": 3000,
+  "recall_target": 0.9,
+  "spec_budget_usd": 2.5,
+  "run_budget_usd": 15,
+  "DABCHECK_WORKERS": 16
+ },
+ "specs": {
+  "civic_unstructured/funding_project_names": {
+   "status": "ok",
+   "left_size": 99,
+   "matches": 58,
+   "clusters": 59,
+   "refined": true,
+   "seconds": 62.8
+  },
+  "usaspending/amounts_to_contracts": {
+   "status": "ok",
+   "left_size": 9921,
+   "right_size": 9921,
+   "matches": 97422,
+   "left_matched": 9921,
+   "refined": false,
+   "seconds": 1377.5,
+   "adjusted_target": 0.93,
+   "sample_recall": 1.0
+  },
+  "usaspending/documents_to_contracts": {
+   "status": "ok",
+   "left_size": 9921,
+   "right_size": 9921,
+   "matches": 56190,
+   "left_matched": 9880,
+   "refined": false,
+   "seconds": 2360.6,
+   "adjusted_target": 0.9547,
+   "sample_recall": 0.985
+  },
+  "usaspending/recipients_to_contracts": {
+   "status": "ok",
+   "left_size": 3317,
+   "right_size": 3317,
+   "matches": 3317,
+   "left_matched": 3317,
+   "refined": false,
+   "seconds": 929.5,
+   "adjusted_target": 0.9314,
+   "sample_recall": 1.0
+  },
+  "music_brainz_20k/track_duplicates": {
+   "status": "ok",
+   "left_size": 19375,
+   "matches": 14684,
+   "clusters": 10492,
+   "refined": false,
+   "seconds": 280.2
+  },
+  "cve/kev_to_vulns": {
+   "status": "failed",
+   "left_size": 1583,
+   "right_size": 75199,
+   "error": "BudgetExceeded: budget $7.20 reached (spent $7.2027; fdj.label)",
+   "seconds": 1791.8
+  },
+  "cve/cvss_to_vulns": {
+   "status": "failed",
+   "left_size": 68367,
+   "right_size": 75199,
+   "error": "BudgetExceeded: budget $9.70 reached (spent $9.7053; fdj.label)",
+   "seconds": 1905.3
+  },
+  "cve/descriptions_to_vulns": {
+   "status": "failed",
+   "left_size": 71501,
+   "right_size": 75199,
+   "error": "BudgetExceeded: budget $12.21 reached (spent $12.2164; fdj.label)",
+   "seconds": 1829.9
+  },
+  "cve/cpe_to_vulns": {
+   "status": "failed",
+   "left_size": 549689,
+   "right_size": 75199,
+   "error": "BudgetExceeded: budget $14.72 reached (spent $14.7184; fdj.label)",
+   "seconds": 1836.7
+  }
+ },
+ "note": "CSV outputs stay on scratch ($DAB_SCRATCH/dab-prep/fdj); refined=false means the candidate pairs exceeded max_refine and were delivered without LLM confirmation"
+}

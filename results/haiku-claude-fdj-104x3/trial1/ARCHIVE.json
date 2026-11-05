@@ -1,0 +1,10 @@
+{
+  "path": "/scratch/cse584f26_class_root/cse584f26_class/minhyeok/dab-archives/haiku-claude-fdj-104x3-trial1.tar.gz",
+  "sha256": "c5bc8f5c59753b1cd74d511ddea57f141f88ca239b451a271c0e59319700b122",
+  "bytes": 495834841,
+  "files": 3574,
+  "coverage": 104,
+  "datasets": 17,
+  "data_included": false,
+  "full_trajectories_included": true
+}

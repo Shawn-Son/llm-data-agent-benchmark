@@ -1,0 +1,85 @@
+{
+ "cost_usd": 1.3928291000000024,
+ "runs": [
+  {
+   "file": "run-20261105T000928.json",
+   "cost_usd": 0.5139149000000001,
+   "calls": 7086,
+   "note": "award_amounts fell back to code-only values after a Haiku safety refusal (category bio) on one row"
+  },
+  {
+   "file": "run-20261105T004150.json",
+   "cost_usd": 0.8789142000000022,
+   "calls": 12123,
+   "note": "award_amounts rerun with per-row refusal handling"
+  }
+ ],
+ "specs": {
+  "DEPS_DEV_V1/project_metrics": {
+   "status": "ok",
+   "rows": 770,
+   "fields": {
+    "project_name": {
+     "code_coverage": 0.9987,
+     "final_coverage": 0.9987,
+     "llm_rows": 1
+    },
+    "stars": {
+     "code_coverage": 0.9987,
+     "final_coverage": 1.0,
+     "llm_rows": 1
+    },
+    "forks": {
+     "code_coverage": 1.0,
+     "final_coverage": 1.0,
+     "llm_rows": 0
+    }
+   }
+  },
+  "cve/cvss_scores": {
+   "status": "ok",
+   "rows": 68367,
+   "fields": {
+    "cvss_score": {
+     "code_coverage": 1.0,
+     "final_coverage": 1.0,
+     "llm_rows": 0
+    }
+   }
+  },
+  "usaspending/award_amounts": {
+   "status": "ok",
+   "rows": 10266,
+   "fields": {
+    "amount_usd": {
+     "code_coverage": 0.0663,
+     "final_coverage": 0.0663,
+     "llm_rows": 9585
+    }
+   }
+  },
+  "usaspending/recipient_totals": {
+   "status": "ok",
+   "rows": 3317,
+   "fields": {
+    "total_amount_usd": {
+     "code_coverage": 1.0,
+     "final_coverage": 1.0,
+     "llm_rows": 0
+    }
+   }
+  },
+  "usaspending/agency_totals": {
+   "status": "ok",
+   "rows": 47,
+   "fields": {
+    "total_amount_usd": {
+     "code_coverage": 1.0,
+     "final_coverage": 1.0,
+     "llm_rows": 0
+    }
+   }
+  }
+ },
+ "note": "CSV outputs stay on scratch ($DAB_SCRATCH/dab-prep/docetl). award_amounts: Haiku returned null for all 9,585 prose amounts (vague magnitudes such as \"a six-figure award\"), so the LLM step added no values"
+}

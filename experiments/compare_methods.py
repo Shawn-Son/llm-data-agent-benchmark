@@ -42,7 +42,7 @@ def main():
     for r in csv.DictReader((RES / 'failure-review' / 'both_runs_wrong.csv').open()):
         if r['model'] == 'haiku': cats[(r['dataset'], int(r['query'].replace('query', '')))] = r['primary']
     keys = sorted(base[0])
-    md = ['# Method conditions vs the Haiku baseline (104 questions, 2 trials each)', '',
+    md = ['# Method conditions vs the Haiku baseline (104 questions; baseline 2 trials, each method 1 trial)', '',
           'Same questions, prompts, sandbox and original validators; Haiku as the agent and as every LLM inside the methods.',
           'Accuracy = correct / scored per trial. "Fixed" = a question Haiku got wrong in both baseline trials that the',
           'condition got right in at least one of its trials; "Lost" = right in both baseline trials, wrong in every condition trial.',
@@ -110,13 +110,28 @@ def main():
         summary['sqlverify_verdicts'] = dict(cnt); summary['sqlverify_round1_accuracy'] = acc_r1
         vc = [RES / 'haiku-claude-sqlverify-104x3' / f'trial{t}' / 'verifier_cost.json' for t in (1, 2)]
         summary['sqlverify_verifier_cost_usd'] = [json.loads(p.read_text())['verifier_cost_usd_estimate'] if p.exists() else None for p in vc]
+    # attribution: questions where the method actually acted (outputs staged / a second round ran) vs untouched ones.
+    # Untouched questions got the baseline prompt and no intervention, so their difference to the baseline is run-to-run noise.
+    md += ['', '## Where each method acted (single trial vs the two baseline trials)', '',
+           '| Condition | Acted on | Correct (condition / baseline t1 / t2) | Untouched | Correct (condition / baseline t1 / t2) |', '|---|---|---|---|---|']
+    attribution = {}
+    for m in METHODS:
+        mr = load(f'haiku-claude-{m}-104x3', 1, 'method_runs.csv')
+        if not mr: continue
+        acted = {k for k, r in mr.items() if (r.get('round2_ran') == 'True' if m == 'sqlverify' else r.get('method_inputs_staged') == 'True')}
+        other = set(mr) - acted
+        cnt = lambda ks, t: sum(1 for k in ks if passed(t.get(k)))
+        a = [cnt(acted, mr)] + [cnt(acted, b) for b in base]; o = [cnt(other, mr)] + [cnt(other, b) for b in base]
+        md.append(f'| {m} | {len(acted)} | {a[0]} / {a[1]} / {a[2]} | {len(other)} | {o[0]} / {o[1]} / {o[2]} |')
+        attribution[m] = {'acted': sorted(f'{d} q{q}' for d, q in acted), 'acted_correct': a, 'untouched_correct': o}
+    summary['attribution'] = attribution
     for m in ('fdj', 'docetl'):
         p = RES / 'method-prep' / m / 'summary.json'
         if p.exists():
             s = json.loads(p.read_text())
             summary[f'{m}_prep'] = s
             md += ['', f'## {m} preprocessing (once per dataset, Haiku)', '', f"- LLM cost estimate: ${s.get('cost_usd', 0):.2f}"]
-            md += [f"- {k}: {v}" for k, v in s.get('specs', {}).items()]
+            md += [f"- {k}: " + ', '.join(f'{a}={b}' for a, b in v.items() if a in ('status', 'matches', 'left_size', 'right_size', 'rows', 'refined', 'clusters', 'error')) for k, v in s.get('specs', {}).items()]
     (OUT / 'COMPARISON.md').write_text('\n'.join(md) + '\n')
     (OUT / 'summary.json').write_text(json.dumps(summary, indent=2, default=str) + '\n')
     print('\n'.join(md))
