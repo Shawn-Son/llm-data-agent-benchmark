@@ -34,9 +34,12 @@ baseline trials by -1 to +6 correct answers:
   received FDJ outputs the condition got 8 right versus 12 and 9 in the baseline; usaspending q8 (right in both
   baseline trials) was lost. civic project-name clustering (58 pairs, confirmed) did not change civic accuracy.
 
-**DocETL (extraction): one targeted fix, no net change where it acted.**
+**DocETL (extraction): no change attributable to the method.**
 - DEPS q2, wrong in both baseline trials because `(\d+) forks` truncated "30,522 forks", was right; the agent cross-
-  checked its own parse against the extracted column. DEPS q1 still failed on an interpretation choice (stars were right).
+  checked its own parse against the extracted column. The fdj run, which delivered nothing for DEPS, also got it right,
+  so the fix is not attributable to DocETL. DEPS q1 still failed on an interpretation choice (stars were right).
+- 159 of the 681 code-parsed usaspending amounts were false values from stray number words in prose; the agent in
+  usaspending q5 noticed. Fixed after the run (`ce96c0f`); these results used the defective parser.
 - usaspending `amount_text`: Haiku returned null for all 9,585 prose amounts (they state vague magnitudes, contrary
   to the hint), so the column kept the 6.6% code coverage and the usaspending questions did not move.
 - On the 22 questions with DocETL outputs: 6 right versus 7 and 7.
@@ -50,6 +53,9 @@ baseline trials by -1 to +6 correct answers:
   The net method effect is +2 questions; the remaining gap to the baseline (round 1: 69 correct) is noise.
 - The cohort/temporal questions it targets (crmarenapro q12, civic as-of questions) never reached a verifiable SQL
   statement; crmarenapro q12 stayed wrong.
+
+Per-question evidence from the trajectories (what each agent did with the outputs, the verifier's warnings, the
+three questions every new run fixed without any intervention) is in `docs/METHOD_ANALYSIS.md`.
 
 ## What this supports
 
