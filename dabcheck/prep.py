@@ -28,12 +28,12 @@ def _grams(s: str, n: int = 3) -> set: return {s[i:i + n] for i in range(max(1, 
 class TrigramIndex:
     """Character-trigram inverted index over the right side; top-k candidates per left value."""
 
-    def __init__(self, R: Sequence[Any], max_df: float = 0.05):
+    def __init__(self, R: Sequence[Any], max_postings: int = 200):
         self.R = R; self.index: Dict[str, List[int]] = defaultdict(list)
         for j, r in enumerate(R):
             for g in _grams(_norm(r)): self.index[g].append(j)
-        cap = max(50, int(max_df * len(R)))
-        self.index = {g: js for g, js in self.index.items() if len(js) <= cap}   # drop uninformative grams
+        # drop uninformative grams; a fixed posting cap keeps one lookup O(grams x cap) on large tables
+        self.index = {g: js for g, js in self.index.items() if len(js) <= max_postings}
 
     def top(self, value: Any, k: int) -> List[int]:
         score: Dict[int, int] = defaultdict(int)
@@ -147,7 +147,8 @@ def run_docetl(ds: DABDataset, spec: Dict[str, Any], llm, out_dir: Path, *, dry_
             info['fields'][e['name']] = field; continue
         try:
             res = extract_values(texts, es, llm=llm, use_llm=True, gleaning_rounds=1, max_llm_rows=caps['max_llm_rows'],
-                                 context=f'This text comes from the column {table}.{text_col} of the {ds.name} dataset.')
+                                 context=f'This text comes from the column {table}.{text_col} of the {ds.name} dataset.',
+                                 workers=caps['workers'])
             field.update(status='ok', summary=res.summary(), llm_rows=res.llm_rows)
             results[e['name']] = res
         except Exception as ex:
@@ -209,6 +210,8 @@ def main(argv=None):
     p.add_argument('--dry-run', action='store_true', help='sizes and code-only coverage, no LLM calls')
     p.add_argument('--model', default='claude-haiku-5-5')
     p.add_argument('--budget', type=float, default=5.0, help='USD cap for this run (all specs together)')
+    p.add_argument('--spec-budget', type=float, default=None, help='USD cap per spec (a costly spec cannot starve the others)')
+    p.add_argument('--workers', type=int, default=8, help='concurrent LLM calls for per-row extraction')
     p.add_argument('--max-uniform', type=int, default=2000)
     p.add_argument('--max-refine', type=int, default=20000)
     p.add_argument('--max-cross', type=int, default=20_000_000)
@@ -217,7 +220,8 @@ def main(argv=None):
     p.add_argument('--max-llm-rows', type=int, default=20000)
     a = p.parse_args(argv)
     caps = {'max_uniform': a.max_uniform, 'max_refine': a.max_refine, 'max_cross': a.max_cross, 'block_k': a.block_k,
-            'candidate_left': a.candidate_left, 'recall_target': 0.9, 'max_llm_rows': a.max_llm_rows}
+            'candidate_left': a.candidate_left, 'recall_target': 0.9, 'max_llm_rows': a.max_llm_rows, 'workers': a.workers,
+            'spec_budget': a.spec_budget}
     llm = None
     if not a.dry_run:
         from .llm import LLM
@@ -235,6 +239,8 @@ def main(argv=None):
         for s in items:
             print('START', a.method, dsname, s['name'], flush=True)
             fn = run_fdj if a.method == 'fdj' else run_docetl
+            if llm is not None:   # per-spec cap on top of the run cap
+                llm.budget_usd = a.budget if a.spec_budget is None else min(a.budget, llm.usage.cost_usd + a.spec_budget)
             try: info = fn(ds, s, llm, out_dir, dry_run=a.dry_run, caps=caps)
             except Exception as e:
                 info = {'name': s['name'], 'status': 'failed', 'error': f'{type(e).__name__}: {e}'[:500], 'trace': traceback.format_exc()[-1500:]}

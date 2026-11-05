@@ -55,7 +55,7 @@ def _evidence_ok(text: str, out: Dict[str, Any]) -> bool:
 
 def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLLM] = None, *, use_llm: bool = True,
                    gleaning_rounds: int = 1, model: Optional[str] = None, max_llm_rows: Optional[int] = None,
-                   context: str = '') -> ExtractionResult:
+                   context: str = '', workers: int = 1) -> ExtractionResult:
     code = CodeExtractor(spec)
     rows = [code(t) for t in texts]
     cov = coverage_report(texts, rows, spec)
@@ -68,12 +68,20 @@ def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLL
                   f'{(" in " + spec.unit) if spec.unit else ""}) from the text below. If the text does not state it exactly, return null.\n'
                   'Text: {{ input.text }}')
         schema = {'value': 'number or string or null', 'evidence': 'verbatim substring of the text that states the value'}
-        for i in todo:
+        validation = ('Is the value exactly stated by the evidence, is the evidence a verbatim quote, '
+                      'and is it the quantity asked for (not a different number in the text)? '
+                      'If the text only gives a vague magnitude, the value must be null.')
+
+        def one(i):
+            return glean(llm, {'text': str(texts[i])}, prompt, schema, max_rounds=gleaning_rounds, model=model,
+                         validation_prompt=validation)
+        if workers > 1 and len(todo) > 1:   # rows are independent (DocETL runs map in parallel)
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=workers) as pool: outs = list(pool.map(one, todo))
+        else:
+            outs = [one(i) for i in todo]
+        for i, out in zip(todo, outs):
             doc = {'text': str(texts[i])}
-            out = glean(llm, doc, prompt, schema, max_rounds=gleaning_rounds, model=model,
-                        validation_prompt=('Is the value exactly stated by the evidence, is the evidence a verbatim quote, '
-                                           'and is it the quantity asked for (not a different number in the text)? '
-                                           'If the text only gives a vague magnitude, the value must be null.'))
             if not isinstance(out, dict): out = {'value': out, 'evidence': ''}
             if isinstance(out.get('value'), bool): out['value'] = None      # true/false is not an extracted value
             if _evidence_ok(doc['text'], out):
