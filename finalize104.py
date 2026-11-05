@@ -54,6 +54,16 @@ for r in rows:
  commands=json.loads((f/'commands.json').read_text())
  evidence.append({'dataset':r['dataset'],'query':r['query'],'official_grading':json.loads((f/'grading.json').read_text()),'answer':r['answer'],'command_errors':[{'command':c.get('command'),'exit_code':c.get('exit_code'),'output':c.get('aggregated_output','')[-1800:]} for c in commands if c.get('exit_code') not in (0,None)],'last_commands':[{'command':c.get('command'),'output':c.get('aggregated_output','')[-1800:]} for c in commands[-2:]]})
 write(OUT/'reports/failure_evidence.json',evidence)
+if a.method:   # per-question method fields (prep staged, verifier verdicts, round 1 vs round 2) for the comparison
+ import csv
+ cols=['dataset','query','passed','method','method_inputs_staged','round1_passed','round2_ran','round2_passed','round2_status',
+       'verify_sql_found','verify_checked','verify_rejected','verify_error','estimated_cost_usd','input_tokens','output_tokens','duration_s']
+ with (OUT/'reports/method_runs.csv').open('w',newline='') as f:
+  w=csv.DictWriter(f,fieldnames=cols,extrasaction='ignore');w.writeheader()
+  for r in sorted(rows,key=lambda r:(r['dataset'],r['query'])):w.writerow({k:r.get(k) for k in cols})
+ if a.method=='sqlverify':
+  vcost=sum((json.loads(p.read_text()).get('cost_usd') or 0) for p in OUT.glob('runs/*/query*/verify.json'))
+  write(OUT/'reports/verifier_cost.json',{'verifier_cost_usd_estimate':vcost,'note':'dabcheck LLM usage estimate (Haiku list prices); per-question deltas of a shared client'})
 packages={d.metadata['Name']:d.version for d in importlib.metadata.distributions() if d.metadata.get('Name')}
 write(OUT/'runtime-packages.json',{'python':sys.version,'packages':dict(sorted(packages.items()))})
 write(OUT/'runtime-images.json',{'images':{n:{'sha256':digest(PROJECT/'runtime'/n),'bytes':(PROJECT/'runtime'/n).stat().st_size} for n in ['postgres17.sif','mongo8.sif']},'singularity':subprocess.check_output(['singularity','--version'],text=True).strip()})
