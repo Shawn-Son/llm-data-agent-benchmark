@@ -571,7 +571,7 @@ def submit(args):
     configure(args.harness,args.model,args.trial,args.budget,args.checks,args.method)
     opts=f'--harness {HARNESS} --model {MODEL}'+(f' --trial {TRIAL}' if args.trial else '')+(f' --budget {BUDGET}' if BUDGET else '')+(' --checks' if CHECKS else '')+(f' --method {METHOD}' if METHOD else '')
     name=(f'{run_tag(HARNESS,CHECKS,METHOD)}-t{TRIAL}' if args.trial else 'terra-native104')+('-pilot' if args.pilot else '')
-    hours='01:00:00' if args.pilot else ('14:00:00' if METHOD=='sqlverify' else '08:00:00')   # sqlverify may run a second round
+    hours='01:00:00' if args.pilot else '08:00:00'   # the account's per-job wall limit is 8 h (a 14 h sqlverify job never started)
     script=PROJECT/'slurm'/(name+'.sbatch');script.parent.mkdir(parents=True,exist_ok=True)
     (PROJECT/'strict-status').mkdir(exist_ok=True)
     body=('#!/bin/bash\n'f'#SBATCH --job-name={name}\n#SBATCH --account=cse584f26_class\n#SBATCH --partition=standard\n'
