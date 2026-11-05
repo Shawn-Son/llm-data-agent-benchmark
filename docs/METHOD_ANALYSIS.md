@@ -35,6 +35,27 @@ trajectories are in the scratch archives listed in each `ARCHIVE.json`).
 | DEPS_DEV_V1 q2 | wrong / wrong | right (no DEPS outputs) | right (outputs staged) | wrong | docetl only |
 | cve q6 | wrong / wrong | right (cve outputs empty) | wrong | wrong | no effective output |
 
+### 2a. Statistics over the five runs (`results/method-analysis/STATS.md`)
+
+- No condition differs from either baseline trial in a paired exact McNemar test at p < 0.05 (fdj vs t1 p = 0.42,
+  docetl p = 1.00, sqlverify p = 0.27; sqlverify vs t2 p = 0.08). The two baseline trials disagree on 15 questions.
+- On the 64 questions no method touched, 22 are flaky across the five runs; from their five-run pass rates, the
+  correct count of one run has SD 2.1 and the difference between two runs SD 2.9 questions. Single-run differences
+  of 3-6 questions are therefore within about two SD.
+- Per question over five runs: 46 always right, 22 never right, 36 mixed.
+- Effort did not rise with the methods: on the questions they acted on, the fdj and docetl runs spent less than the
+  baseline (cost $0.78 vs $1.04 and $0.96 vs $1.74); sqlverify's second rounds doubled agent time on its 9 questions
+  (33 vs 18 minutes) at $0.10 of agent cost plus $0.14 of verifier calls.
+
+### 2b. The 22 never-right questions (`results/method-analysis/RECURRENCE.md`)
+
+- Stable misreadings: crmarenapro q12 gives the same created-date agent in 5/5 runs; usaspending q6 counts 57-58
+  distinct recipients instead of 56 in 5/5; civic q5 and q3 repeat the same wrong value in 3/5.
+- A format failure that repeats: cve q5 answers "1." in 5/5 and the validator rejects the trailing period.
+- Hedged answers: in cve q1, q3, q4, q8, q10 and usaspending q1, q9 most runs report a bound or "what I established"
+  instead of a number, because the noisy CVE keys or the prose amounts cannot be resolved.
+- None of the 22 was solved by any method; 16 of them are in datasets where a method delivered outputs.
+
 The three questions fixed by every new run share nothing but the run date (all new runs: November 5; same Claude
 Code 2.1.317, same harness code paths for untouched questions). With one trial per condition, any single-question
 change has to be checked against this table before it is credited to a method.
