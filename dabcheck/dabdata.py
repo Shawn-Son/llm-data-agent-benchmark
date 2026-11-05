@@ -83,7 +83,7 @@ class DABDataset:
             for doc in bson.decode_file_iter(f): yield doc
 
     # ---------------------------------------------------------------- schemas for SQL verification
-    def sql_schemas(self, sample_rows: int = 2) -> Dict[str, Any]:
+    def sql_schemas(self, sample_rows: int = 2, schema_rows: int = 50) -> Dict[str, Any]:
         """{alias: Schema} for every SQL database (sqlite, duckdb, postgres dump); mongo is skipped."""
         from .sqlverify.schema import schema_from_sqlite, schema_from_duckdb, schema_from_ddl, Schema, Table, Column
         out = {}
@@ -92,7 +92,10 @@ class DABDataset:
             if k == 'sqlite': out[alias] = schema_from_sqlite(str(self.path(alias)), sample_rows=sample_rows)
             elif k == 'duckdb': out[alias] = schema_from_duckdb(str(self.path(alias)), sample_rows=sample_rows)
             elif k == 'postgres':
-                con = self._pg_con(alias)
+                # a schema needs the column lists and a few sample rows; loading a whole dump (imdb's is 1.6 GB)
+                # into memory for that would stall the verifier, so at most `schema_rows` rows per table are read
+                from .util.pgdump import load_pgdump
+                con = load_pgdump(str(self.path(alias)), max_rows=schema_rows)
                 sc = Schema(dialect='postgres')
                 for (t,) in con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall():
                     cols = [Column(r[1], r[2] or 'TEXT') for r in con.execute(f'PRAGMA table_info("{t}")')]

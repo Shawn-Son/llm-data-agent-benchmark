@@ -213,3 +213,13 @@ def test_extraction_survives_a_refused_row():
         return json.dumps({'value': 5, 'evidence': 'five dollars 5'})
     res = extract_values(['biolab contract', 'paid five dollars 5 total'], ExtractSpec('amount', parse='number'), llm=MockLLM(handler), workers=2)
     assert res.values()[0] is None and any('refused 1 rows' in w for w in res.warnings)
+
+
+def test_pgdump_schema_reads_few_rows(tmp_path):
+    from dabcheck.util.pgdump import load_pgdump
+    dump = tmp_path / 'd.sql'
+    dump.write_text('CREATE TABLE public.t (a text);\n' + ''.join(f"INSERT INTO public.t VALUES ('{i}');\n" for i in range(20)) +
+                    'COPY public.u (b) FROM stdin;\n' + ''.join(f'{i}\n' for i in range(20)) + '\\.\n')
+    con = load_pgdump(str(dump), max_rows=3)
+    assert con.execute('SELECT count(*) FROM t').fetchone()[0] == 3 and con.execute('SELECT count(*) FROM u').fetchone()[0] == 3
+    assert load_pgdump(str(dump)).execute('SELECT count(*) FROM t').fetchone()[0] == 20

@@ -43,7 +43,7 @@ def load_pgdump(path: str, tables: Optional[Sequence[str]] = None, sqlite_path: 
     con = sqlite3.connect(sqlite_path)
     cur = con.cursor(); cur.execute('PRAGMA journal_mode=OFF'); cur.execute('PRAGMA synchronous=OFF')
     current = None; cols: List[str] = []; opts: Dict[str, str] = {}; n = 0; batch: List[tuple] = []
-    stmt: List[str] = []; stmt_table: Optional[str] = None; keep = False
+    stmt: List[str] = []; stmt_table: Optional[str] = None; keep = False; inserted: Dict[str, int] = {}
     with open(path, 'r', encoding='utf-8', errors='replace') as f:
         for line in f:
             if current is not None:                       # inside a COPY block
@@ -79,9 +79,13 @@ def load_pgdump(path: str, tables: Optional[Sequence[str]] = None, sqlite_path: 
                     for line2 in f:                         # skip the block
                         if line2.startswith('\\.'): break
                 continue
-            m = _CREATE.match(line) or _INSERT.match(line)
+            mi = _INSERT.match(line)
+            m = _CREATE.match(line) or mi
             if m:
                 keep = want is None or m.group('table') in want
+                if mi and keep and max_rows is not None:   # INSERT-style dumps honour max_rows too (one statement = one batch)
+                    inserted[mi.group('table')] = inserted.get(mi.group('table'), 0) + 1
+                    keep = inserted[mi.group('table')] <= max_rows
                 if line.rstrip().endswith(';'):
                     if keep: cur.execute(_strip_schema(line))
                 else: stmt = [line]
