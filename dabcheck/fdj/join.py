@@ -113,14 +113,22 @@ def sample_training_pairs(L, R, labeler: Labeler, *, min_train_pos: int, n_train
             'n_pos_uniform': n_pos_uniform, 'topped_up': topped_up, 'n_labeled': len(labels) if label_random_negatives else n_uniform + topped_up}
 
 
-def evaluate_pairs(feats: Sequence[Featurization], scaffold: Scaffold, L, R, block_on: Optional[int] = None) -> List[Pair]:
-    """All (i, j) with Pi(l, r) = 1. Features are extracted once per record (linear cost);
-    a predicate with threshold 0 on an `exact` distance is used as a hash-join block."""
-    nL, nR = len(L), len(R)
-    exact_block = None
+def exact_block_predicate(feats: Sequence[Featurization], scaffold: Scaffold) -> Optional[int]:
+    """A predicate with threshold 0 on an `exact` distance that forms a clause on its own (hash-join block)."""
     for f in scaffold.predicates():
         if feats[f].distance == 'exact' and scaffold.thresholds.get(f, 1) <= 0 and any(f in c and len(c) == 1 for c in scaffold.clauses):
-            exact_block = f; break
+            return f
+    return None
+
+
+def evaluate_pairs(feats: Sequence[Featurization], scaffold: Scaffold, L, R, block_on: Optional[int] = None,
+                   space: Optional[Callable[[], Sequence[Pair]]] = None) -> List[Pair]:
+    """All (i, j) with Pi(l, r) = 1. Features are extracted once per record (linear cost);
+    a predicate with threshold 0 on an `exact` distance is used as a hash-join block. Without such a
+    block, `space` (when given) supplies the pairs to test instead of the full cross product."""
+    nL, nR = len(L), len(R)
+    exact_block = None
+    exact_block = exact_block_predicate(feats, scaffold)
     if block_on is not None: exact_block = block_on
     out = []
     if exact_block is not None:
@@ -134,6 +142,8 @@ def evaluate_pairs(feats: Sequence[Featurization], scaffold: Scaffold, L, R, blo
             for j in index.get(str(v).strip().lower(), []):
                 if _holds(feats, scaffold, L, R, i, j): out.append((i, j))
         return out
+    if space is not None:
+        return [(i, j) for i, j in space() if _holds(feats, scaffold, L, R, i, j)]
     for i in range(nL):
         for j in range(nR):
             if _holds(feats, scaffold, L, R, i, j): out.append((i, j))
@@ -154,7 +164,8 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
              max_iter: int = 4, alpha: int = 10, beta: int = 10, gamma: float = 0.1, cost_mode: str = 'fpr',
              seed: int = 0, candidates_fn: Optional[Callable[[], Sequence[Pair]]] = None, refine: bool = True,
              label_random_negatives: bool = True, mc_trials: int = 1000, model: Optional[str] = None,
-             workers: Optional[int] = None) -> FDJResult:
+             workers: Optional[int] = None, pair_space: Optional[Callable[[], Sequence[Pair]]] = None,
+             max_refine: Optional[int] = None) -> FDJResult:
     """Approximate semantic join with recall target T and failure probability delta (Alg. 5).
 
     Sampling and splits follow the reference implementation: uniform pairs are labelled until
@@ -198,17 +209,27 @@ def fdj_join(L: Sequence[Any], R: Sequence[Any], predicate: str, llm: Optional[B
     sample_recall = recall_and_cost(scaffold.evaluate(D2), thr_labels)[0]
     # candidate result and refinement with L_p (precision 1)
     warm_extractors(feats, L, R, workers=max(1, workers))
-    candidates = evaluate_pairs(feats, scaffold, L, R)
+    # Deviation for very large inputs (logged): without an exact hash-join block, `pair_space`
+    # restricts the scaffold evaluation to blocked candidate pairs instead of the cross product.
+    use_space = pair_space if exact_block_predicate(feats, scaffold) is None else None
+    if use_space is not None: log.append({'step': 'evaluate', 'note': 'no exact block in the scaffold: evaluated on the supplied candidate space'})
+    candidates = evaluate_pairs(feats, scaffold, L, R, space=use_space)
     known = s['labels']
     matches, n_refined = [], 0
     todo = [p for p in candidates if p not in known]
+    if refine and max_refine is not None and len(todo) > max_refine:
+        log.append({'step': 'refine', 'note': f'{len(todo)} candidates exceed max_refine={max_refine}: refinement skipped, candidates kept unrefined'})
+        refine = False
     new_labels = dict(zip(todo, _label_many(labeler, L, R, todo, workers))) if (refine and todo) else {}
     n_refined = len(new_labels)
     for p in candidates:
         y = known[p] if p in known else (new_labels[p] if refine else 1)
         if y: matches.append(p)
-    return FDJResult(matches, candidates, feats, scaffold, Tp, s['n_labeled'], n_refined, sample_recall, feasible,
-                     s['n_uniform'], s['n_pos_uniform'], log)
+    res = FDJResult(matches, candidates, feats, scaffold, Tp, s['n_labeled'], n_refined, sample_recall, feasible,
+                    s['n_uniform'], s['n_pos_uniform'], log)
+    res.refined = refine
+    res.labels = known
+    return res
 
 
 # ---------------------------------------------------------------- LLM-free join audit

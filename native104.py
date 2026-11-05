@@ -5,6 +5,8 @@ Default (no options) reproduces the original 104x1 Codex/terra run layout.
 --harness claude runs the same prompts, data, sockets and unchanged validators
 through Claude Code (Claude Code's own bubblewrap sandbox for Bash, plus
 permission deny rules for its built-in file tools).
+--method fdj|docetl|sqlverify (needs --trial) runs one method condition per failure category
+(dabcheck/methods.py); its runs, archives and preprocessing live under scratch, not /home.
 """
 from pathlib import Path
 import argparse, concurrent.futures, datetime, errno, hashlib, json, os, shutil, signal, subprocess, sys, time, urllib.parse, yaml
@@ -14,6 +16,11 @@ from run import all_tasks, prompt, official_grade, stats, services, write, diges
 from report import generate
 ROOT=Path('/home/minhyeok/dab-reproduction')
 ARTIFACTS=Path('/home/minhyeok/dab-artifacts')
+SCRATCH=Path(os.environ.get('DAB_SCRATCH','/scratch/cse584f26_class_root/cse584f26_class/minhyeok'))
+METHOD_ARTIFACTS=SCRATCH/'dab-artifacts'   # method conditions: /home is near its quota
+PREP_ROOT=SCRATCH/'dab-prep'               # dataset-level fdj/docetl outputs (python -m dabcheck.prep)
+METHOD_ARCHIVES=SCRATCH/'dab-archives'
+ARTIFACT_ROOTS=[ARTIFACTS,METHOD_ARTIFACTS]
 CODEX=Path('/home/minhyeok/.local/bin/codex')
 CLAUDE=Path('/home/minhyeok/.local/bin/claude')
 TOOLS=Path('/home/minhyeok/dab-tools/bin')  # user-space socat for Claude Code's Linux sandbox
@@ -22,26 +29,38 @@ DEFAULT_MODEL={'codex':'gpt-5.6-terra','claude':'claude-haiku-5-5'}
 TAGS={'codex':'terra-native','claude':'haiku-claude'}
 REPEATS=3
 CONDITIONS={False:'description+hints',True:'description+hints+checks'}
-def run_tag(harness,checks):return TAGS[harness]+('-checks' if checks else '')  # artifact/job name for a (harness, condition)
+METHODS=('fdj','docetl','sqlverify')   # one condition per failure category (dabcheck/methods.py)
+def condition():return 'description+hints+'+METHOD if METHOD else CONDITIONS[CHECKS]
+def run_tag(harness,checks,method=None):  # artifact/job name for a (harness, condition)
+    return TAGS[harness]+('-checks' if checks else '')+(f'-{method}' if method else '')
 HARNESS='codex';BIN=CODEX;MODEL='gpt-5.6-terra';TRIAL=0;BUDGET=None;CHECKS=False  # CHECKS: experimental 'description+hints+checks' condition (dabcheck)
+METHOD=None
 OUT=ARTIFACTS/'terra-native-104x1'
 
-def configure(harness='codex',model=None,trial=None,budget=None,checks=False):
+def configure(harness='codex',model=None,trial=None,budget=None,checks=False,method=None):
     """Select harness/model/trial. trial=None keeps the original 104x1 output directory.
     checks=True stages the dabcheck package in every task directory and appends its agent
-    instructions to the prompt (a new condition; never mix its results with the baseline runs)."""
-    global HARNESS,BIN,MODEL,TRIAL,OUT,BUDGET,CHECKS
+    instructions to the prompt (a new condition; never mix its results with the baseline runs).
+    method=fdj|docetl|sqlverify selects one method condition; its trials live under scratch."""
+    global HARNESS,BIN,MODEL,TRIAL,OUT,BUDGET,CHECKS,METHOD
     assert harness in DEFAULT_MODEL,harness
     HARNESS=harness;BIN=CODEX if harness=='codex' else CLAUDE
     MODEL=model or DEFAULT_MODEL[harness];BUDGET=budget;CHECKS=bool(checks)
+    METHOD=method
     if CHECKS:assert trial is not None,'--checks needs --trial (its own trial directory)'
+    if METHOD:
+        assert METHOD in METHODS,METHOD
+        assert trial is not None,'--method needs --trial (its own trial directory)'
+        assert not CHECKS,'--method and --checks are separate conditions'
+        assert harness=='claude','method conditions are defined for the Claude Code harness'
     TRIAL=0 if trial is None else int(trial)
     if trial is None:
         assert harness=='codex','Only the original Codex run uses the 104x1 layout'
         OUT=ARTIFACTS/'terra-native-104x1'
     else:
         assert 1<=TRIAL<=REPEATS,TRIAL
-        OUT=ARTIFACTS/f'{run_tag(harness,CHECKS)}-104x{REPEATS}'/f'trial{TRIAL}'
+        base=METHOD_ARTIFACTS if METHOD else ARTIFACTS
+        OUT=base/f'{run_tag(harness,CHECKS,METHOD)}-104x{REPEATS}'/f'trial{TRIAL}'
     return OUT
 
 def results_dir():
@@ -53,11 +72,13 @@ def protected_paths():
     paths=[ROOT/'query_*/query[0-9]*',Path('/home/minhyeok/.config/dab'),Path('/home/minhyeok/dab-archives'),
            ARTIFACTS/'terra-native-104x1',PROJECT/'results',PROJECT/'strict-status',PROJECT/'slurm',PROJECT/'.git',
            PROJECT/'README.md',PROJECT/'review-notes.json',PROJECT/'HARNESS_CORRECTION.md']
-    for h in TAGS:
-        for checks in (False,True):   # baseline and checks trials are both answer-bearing
-            for k in range(1,REPEATS+1):
-                d=ARTIFACTS/f'{run_tag(h,checks)}-104x{REPEATS}'/f'trial{k}'
-                if d!=OUT:paths.append(d)
+    for root in ARTIFACT_ROOTS:
+        for h in TAGS:
+            for checks,method in [(False,None),(True,None)]+[(False,m) for m in METHODS]:   # every condition's trials are answer-bearing
+                for k in range(1,REPEATS+1):
+                    d=root/f'{run_tag(h,checks,method)}-104x{REPEATS}'/f'trial{k}'
+                    if d!=OUT:paths.append(d)
+    paths+=[METHOD_ARCHIVES]
     return paths
 
 def setup(folder,dataset,sockets):
@@ -72,6 +93,9 @@ def setup(folder,dataset,sockets):
     if CHECKS:
         from dabcheck.harness import stage_package
         stage_package(work)  # code-only checks; the sandbox has no network, so no LLM calls happen inside it
+    if METHOD in ('fdj','docetl'):
+        from dabcheck.methods import stage_prep
+        stage_prep(PREP_ROOT,METHOD,dataset,work)  # dataset-level outputs computed before the sweep; None if nothing usable
     rules={str(BIN.resolve().parent):'read',':minimal':'read',str(work):'write',str(PROJECT/'strict/.venv'):'read',
            str(Path(sys.executable).resolve().parent.parent):'read'}
     for p in ['/sw','/etc','/usr','/lib','/lib64','/bin','/sbin']:
@@ -99,7 +123,8 @@ SYSTEM_READ={'bin','sbin','lib','lib64','usr','etc','sw','dev','proc','sys'}  # 
 TRIAL_ENTRIES=['preflight','database-preflight','reports','runs','excluded-attempts','verification','source-snapshot',
                'original-task-snapshot','protocol.json','preflight-latest.json','database-preflight.json','original-data-manifest.json']
 TASK_ENTRIES=['client','events.jsonl','stderr.log','manifest.json','prompt.txt','grading.json','result.json','commands.json',
-              'forbidden.txt','checks.json']
+              'forbidden.txt','checks.json','verify.json','prompt_round2.txt','events_round2.jsonl','stderr_round2.log',
+              'answer_round1.txt','grading_round1.json']
 
 def outside_own(work):
     """Claude Code's sandbox is deny-by-path, unlike the Codex allowlist. Reproduce the Codex
@@ -262,6 +287,57 @@ print('NATIVE_ISOLATION_AND_NETWORK_OK')
     if not result['passed']:raise RuntimeError('Native isolation preflight failed')
     return result
 
+def run_session(folder,work,home,env,cmd,source,events,stderr,answer,key):
+    """One agent session; returns (status, returncode, terminal_reason). Same rules for every round."""
+    status='running';rc=None;reason=None
+    auth=home/'auth.json'
+    if HARNESS=='codex':auth.write_text(json.dumps({'auth_mode':'apikey','OPENAI_API_KEY':key}));auth.chmod(0o600)
+    try:
+        with (folder/events).open('w') as out,(folder/stderr).open('w') as err:
+            proc=subprocess.Popen(cmd,cwd=work,env=env,stdin=subprocess.PIPE,stdout=out,stderr=err,text=True,start_new_session=True)
+            try:proc.communicate(source,timeout=5400)
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid,signal.SIGTERM)
+                try:proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);proc.wait()
+                status='infrastructure_deadline'
+            rc=proc.returncode
+        if HARNESS=='claude':
+            final=claude_final(folder/events)
+            if final and isinstance(final.get('result'),str):answer.write_text(final['result'])
+            # A run stopped by a client-side limit is a completed model attempt; an API failure is infrastructure.
+            if status=='running' and final and final.get('subtype') in ('error_max_turns','error_max_budget_usd'):
+                status='completed';reason=final.get('subtype')
+            elif status=='running' and (final is None or (final.get('is_error') and final.get('subtype')=='success')):
+                status='runtime_error'
+        if status=='running':status='completed' if rc==0 else 'runtime_error'
+    finally:
+        auth.unlink(missing_ok=True)
+        for p in folder.rglob('*'):
+            if p.is_file() and not p.is_symlink() and p.stat().st_size<50_000_000:
+                b=p.read_bytes()
+                if key.encode() in b:p.write_bytes(b.replace(key.encode(),b'[REDACTED]'))
+    return status,rc,reason
+
+_VERIFY={'llm':None,'schemas':{}}
+_VERIFY_LOCK=__import__('threading').Lock()
+VERIFY_BUDGET=float(os.environ.get('DABCHECK_VERIFY_BUDGET','10'))   # USD cap for all sqlverify verifier calls of one sweep
+
+def verifier(ds):
+    """Process-wide Haiku-only verifier LLM and the dataset's SQL schemas (built once per dataset)."""
+    with _VERIFY_LOCK:
+        if _VERIFY['llm'] is None:
+            from dabcheck.llm import LLM
+            _VERIFY['llm']=LLM(model=MODEL,cheap_model=MODEL,allowed_models={MODEL},budget_usd=VERIFY_BUDGET)
+        if ds not in _VERIFY['schemas']:
+            from dabcheck.dabdata import DABDataset
+            _VERIFY['schemas'][ds]=DABDataset(ROOT,ds).sql_schemas()
+        return _VERIFY['llm'],_VERIFY['schemas'][ds]
+
+def question_text(ds,qid):
+    v=json.loads((ROOT/f'query_{ds}/query{qid}/query.json').read_text())
+    return v if isinstance(v,str) else v['query']
+
 def one(ds,qid,sockets,pf):
     folder=OUT/'runs'/ds/f'query{qid}'
     if (folder/'result.json').exists():return json.loads((folder/'result.json').read_text())
@@ -271,50 +347,34 @@ def one(ds,qid,sockets,pf):
     if CHECKS:
         from dabcheck.harness import prompt_addendum
         source+='\n\n'+prompt_addendum()
+    staged=METHOD in ('fdj','docetl') and (work/'dabcheck_prep').is_dir()
+    if staged:   # only datasets with usable preprocessing outputs get the note; the others keep the baseline prompt
+        from dabcheck.methods import prompt_addendum as method_addendum
+        source+='\n\n'+method_addendum(METHOD)
     (folder/'prompt.txt').write_text(source)
     answer=work/'answer.txt'
     cmd=agent_command(work,home,answer)
-    record={'model':MODEL,'dataset':ds,'query':qid,'trial':TRIAL,'condition':CONDITIONS[CHECKS],
+    record={'model':MODEL,'dataset':ds,'query':qid,'trial':TRIAL,'condition':condition(),
             'upstream_commit':PIN,'harness':pf['version'] if HARNESS=='claude' else 'native Codex CLI 0.166.0','harness_reconstruction':True,
             'sandbox_revision':'claude-code-bwrap-v1' if HARNESS=='claude' else 'unix-proxy-v2',
             'binary_sha256':pf['binary_sha256'],'prompt_sha256':digest(folder/'prompt.txt'),
             'status':'running','passed':None,'slurm_job_id':os.getenv('SLURM_JOB_ID'),
             'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    if METHOD:record.update(method=METHOD,method_inputs_staged=staged if METHOD!='sqlverify' else None)
     write(folder/'manifest.json',record)
     key=KEYS[HARNESS].read_text().strip()
-    auth=home/'auth.json'
-    if HARNESS=='codex':auth.write_text(json.dumps({'auth_mode':'apikey','OPENAI_API_KEY':key}));auth.chmod(0o600)
     start=time.monotonic();rc=None
     try:
-        with (folder/'events.jsonl').open('w') as out,(folder/'stderr.log').open('w') as err:
-            proc=subprocess.Popen(cmd,cwd=work,env=env,stdin=subprocess.PIPE,stdout=out,stderr=err,text=True,start_new_session=True)
-            try:proc.communicate(source,timeout=5400)
-            except subprocess.TimeoutExpired:
-                os.killpg(proc.pid,signal.SIGTERM)
-                try:proc.wait(timeout=10)
-                except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);proc.wait()
-                record['status']='infrastructure_deadline'
-            rc=proc.returncode
-        if HARNESS=='claude':
-            final=claude_final(folder/'events.jsonl')
-            if final and isinstance(final.get('result'),str):answer.write_text(final['result'])
-            # A run stopped by a client-side limit is a completed model attempt; an API failure is infrastructure.
-            if record['status']=='running' and final and final.get('subtype') in ('error_max_turns','error_max_budget_usd'):
-                record['status']='completed';record['terminal_reason']=final.get('subtype')
-            elif record['status']=='running' and (final is None or (final.get('is_error') and final.get('subtype')=='success')):
-                record['status']='runtime_error'
-        if record['status']=='running':record['status']='completed' if rc==0 else 'runtime_error'
+        status,rc,reason=run_session(folder,work,home,env,cmd,source,'events.jsonl','stderr.log',answer,key)
+        record['status']=status
+        if reason:record['terminal_reason']=reason
     except Exception as e:record.update(status='launcher_error',error=str(e).replace(key,'[REDACTED]'))
-    finally:
-        auth.unlink(missing_ok=True)
-        for p in folder.rglob('*'):
-            if p.is_file() and not p.is_symlink() and p.stat().st_size<50_000_000:
-                b=p.read_bytes()
-                if key.encode() in b:p.write_bytes(b.replace(key.encode(),b'[REDACTED]'))
     if not answer.exists():answer.write_text('')
     grading=official_grade(ROOT,ds,qid,answer);write(folder/'grading.json',grading)
     st,commands=stats(folder/'events.jsonl')
     if HARNESS=='codex':st['estimated_cost_usd']=None  # Claude keeps Claude Code's own client-side estimate
+    if METHOD=='sqlverify' and record['status']=='completed':
+        st,commands,grading=sqlverify_round(folder,work,home,env,cmd,source,answer,key,ds,qid,record,st,commands,grading)
     write(folder/'commands.json',commands)
     record.update(returncode=rc,duration_s=time.monotonic()-start,answer=answer.read_text(),
                   grading_status=grading['status'],passed=grading['passed'] if record['status']=='completed' else None,
@@ -322,6 +382,43 @@ def one(ds,qid,sockets,pf):
     write(folder/'result.json',record);write(folder/'manifest.json',record)
     print('RESULT',ds,qid,record['status'],record['passed'],flush=True)
     return record
+
+SUMMED=['input_tokens','cached_input_tokens','cache_write_input_tokens','output_tokens','reasoning_output_tokens',
+        'tool_calls','command_calls','command_errors','api_errors','estimated_cost_usd']
+
+def sqlverify_round(folder,work,home,env,cmd,source,answer,key,ds,qid,record,st,commands,grading):
+    """Verify the SQL of round 1 harness-side; on a rejection run round 2 and grade its answer instead.
+    Round-1 answer and grade are kept (answer_round1.txt, grading_round1.json, round1_passed)."""
+    from dabcheck.methods import verify_run,round2_prompt
+    try:
+        llm,schemas=verifier(ds)
+        before=llm.usage.cost_usd
+        v=verify_run(folder/'events.jsonl',question_text(ds,qid),schemas,llm)
+        v['cost_usd']=llm.usage.cost_usd-before   # approximate under concurrency (shared client)
+    except Exception as e:
+        v={'error':f'{type(e).__name__}: {e}'[:500],'any_rejected':False,'checks':[]}
+    write(folder/'verify.json',v)
+    record.update(verify_sql_found=v.get('sql_found'),verify_checked=v.get('queries_checked'),verify_rejected=bool(v.get('any_rejected')),
+                  verify_error=v.get('error'),round1_passed=grading['passed'],round2_ran=False)
+    second=round2_prompt(source,answer.read_text(),v) if v.get('any_rejected') else None
+    if second is None:return st,commands,grading
+    shutil.copyfile(answer,folder/'answer_round1.txt');write(folder/'grading_round1.json',grading)
+    (folder/'prompt_round2.txt').write_text(second)
+    answer.write_text('')
+    try:
+        status,rc,reason=run_session(folder,work,home,env,cmd,second,'events_round2.jsonl','stderr_round2.log',answer,key)
+    except Exception as e:status,rc,reason='launcher_error',None,None;record['round2_error']=str(e).replace(key,'[REDACTED]')
+    record.update(round2_ran=True,round2_status=status,round2_returncode=rc)
+    if status!='completed':   # an infrastructure failure in round 2 keeps the round-1 answer (logged)
+        shutil.copyfile(folder/'answer_round1.txt',answer);record['round2_fallback']='round-1 answer kept'
+        return st,commands,grading
+    if reason:record['round2_terminal_reason']=reason
+    grading=official_grade(ROOT,ds,qid,answer);write(folder/'grading.json',grading)
+    st2,commands2=stats(folder/'events_round2.jsonl')
+    for k in SUMMED:
+        if isinstance(st.get(k),(int,float)) or isinstance(st2.get(k),(int,float)):st[k]=(st.get(k) or 0)+(st2.get(k) or 0)
+    record['round2_passed']=grading['passed']
+    return st,commands+commands2,grading
 
 def services(project,root,rt):
  rt.mkdir(parents=True,exist_ok=False);sock=rt/'sockets';sock.mkdir(mode=0o700)
@@ -415,18 +512,30 @@ def arguments(argv=None):
     p.add_argument('--budget',type=float,default=None,help='Claude Code per-question --max-budget-usd')
     p.add_argument('--after',default=None,help='Slurm job id this submission waits for (afterany)')
     p.add_argument('--checks',action='store_true',help='experimental: stage dabcheck in each task and append its instructions to the prompt')
+    p.add_argument('--method',choices=METHODS,default=None,help='method condition: fdj | docetl | sqlverify (see dabcheck/methods.py)')
     return p.parse_args(argv)
 
+def check_prep():
+    """fdj/docetl need the dataset-level preprocessing to have run for every dataset in the specs."""
+    from dabcheck.specs import datasets
+    from dabcheck.methods import has_prep
+    missing=[d for d in datasets(METHOD) if not (PREP_ROOT/METHOD/d/'MANIFEST.json').exists()]
+    assert not missing,f'run python -m dabcheck.prep --method {METHOD} first; no MANIFEST.json for {missing}'
+    return {d:has_prep(PREP_ROOT,METHOD,d) for d in datasets(METHOD)}
+
 def main(args):
-    configure(args.harness,args.model,args.trial,args.budget,args.checks)
+    configure(args.harness,args.model,args.trial,args.budget,args.checks,args.method)
     assert os.getenv('SLURM_JOB_ID'),'Use a Slurm compute allocation'
+    prep=check_prep() if METHOD in ('fdj','docetl') else None
     assert subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()==PIN
     pf=preflight()
     if not (args.execute or args.pilot):return
     tasks=all_tasks(ROOT);assert len(tasks)==104
     version=pf['version'] if HARNESS=='claude' else '0.166.0'
     write(OUT/'protocol.json',{'model':MODEL,'harness':HARNESS,'trial':TRIAL,'repeats':REPEATS if args.trial else 1,
-          'tasks':tasks,'trials_per_query':1,'upstream_commit':PIN,'condition':CONDITIONS[CHECKS],'cli_version':version,
+          'tasks':tasks,'trials_per_query':1,'upstream_commit':PIN,'condition':condition(),'cli_version':version,
+          'method':METHOD,'method_prep_root':str(PREP_ROOT) if prep is not None else None,'method_prep_usable':prep,
+          'method_llm':MODEL if METHOD else None,'verify_budget_usd':VERIFY_BUDGET if METHOD=='sqlverify' else None,
           'sandbox':('Claude Code bubblewrap sandbox for Bash: no external domains, all Unix sockets allowed, writes only in the task directory; '
                      'deny rules on answer-bearing paths for both the sandbox and built-in file tools; key via apiKeyHelper outside the sandbox')
                     if HARNESS=='claude' else 'native bubblewrap with managed deny-by-default network proxy and filesystem-scoped Unix sockets',
@@ -459,13 +568,14 @@ def main(args):
 
 def submit(args):
     """Write one Slurm script per harness/model/trial; --pilot submits only preflight+pilot."""
-    configure(args.harness,args.model,args.trial,args.budget,args.checks)
-    opts=f'--harness {HARNESS} --model {MODEL}'+(f' --trial {TRIAL}' if args.trial else '')+(f' --budget {BUDGET}' if BUDGET else '')+(' --checks' if CHECKS else '')
-    name=(f'{run_tag(HARNESS,CHECKS)}-t{TRIAL}' if args.trial else 'terra-native104')+('-pilot' if args.pilot else '')
+    configure(args.harness,args.model,args.trial,args.budget,args.checks,args.method)
+    opts=f'--harness {HARNESS} --model {MODEL}'+(f' --trial {TRIAL}' if args.trial else '')+(f' --budget {BUDGET}' if BUDGET else '')+(' --checks' if CHECKS else '')+(f' --method {METHOD}' if METHOD else '')
+    name=(f'{run_tag(HARNESS,CHECKS,METHOD)}-t{TRIAL}' if args.trial else 'terra-native104')+('-pilot' if args.pilot else '')
+    hours='01:00:00' if args.pilot else ('14:00:00' if METHOD=='sqlverify' else '08:00:00')   # sqlverify may run a second round
     script=PROJECT/'slurm'/(name+'.sbatch');script.parent.mkdir(parents=True,exist_ok=True)
     (PROJECT/'strict-status').mkdir(exist_ok=True)
     body=('#!/bin/bash\n'f'#SBATCH --job-name={name}\n#SBATCH --account=cse584f26_class\n#SBATCH --partition=standard\n'
-          '#SBATCH --cpus-per-task=6\n#SBATCH --mem=32G\n'f'#SBATCH --time={"01:00:00" if args.pilot else "08:00:00"}\n'
+          '#SBATCH --cpus-per-task=6\n#SBATCH --mem=32G\n'f'#SBATCH --time={hours}\n'
           f'#SBATCH --output=/home/minhyeok/llm-data-agent-benchmark/strict-status/{name}-%j.log\n'
           'set -euo pipefail\nmodule load python/3.12.1 singularity\ncd /home/minhyeok/llm-data-agent-benchmark\n'
           f'strict/.venv/bin/python -u native104.py {"--pilot" if args.pilot else "--execute"} {opts}\n')

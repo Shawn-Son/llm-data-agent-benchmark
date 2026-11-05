@@ -119,12 +119,25 @@ class BaseLLM:
                                   system, retries=retries - 1, **kw)
 
 
+class BudgetExceeded(RuntimeError):
+    """Raised before an uncached call once the running cost estimate reaches the budget."""
+
+
 class LLM(BaseLLM):
-    """Anthropic Messages API client with a disk cache (same prompt -> same answer, no spend)."""
+    """Anthropic Messages API client with a disk cache (same prompt -> same answer, no spend).
+
+    `allowed_models` restricts every call to those model ids (a call for any other model raises),
+    and `budget_usd` stops new (uncached) calls once the running estimate reaches the budget."""
 
     def __init__(self, model: str = DEFAULT_MODEL, cheap_model: str = CHEAP_MODEL, api_key: Optional[str] = None,
-                 cache: bool = True, cache_dir: Path = CACHE_DIR, max_retries: int = 3):
+                 cache: bool = True, cache_dir: Path = CACHE_DIR, max_retries: int = 3,
+                 allowed_models: Optional[set] = None, budget_usd: Optional[float] = None):
         self.model = model; self.cheap_model = cheap_model
+        self.allowed_models = set(allowed_models) if allowed_models else None
+        self.budget_usd = budget_usd
+        if self.allowed_models:
+            for m in (model, cheap_model):
+                if m not in self.allowed_models: raise ValueError(f'model {m} is not in allowed_models {sorted(self.allowed_models)}')
         self.api_key = api_key or load_api_key()
         if not self.api_key:
             raise RuntimeError(f'No Anthropic API key: set ANTHROPIC_API_KEY or write it to {KEY_FILE}')
@@ -143,11 +156,15 @@ class LLM(BaseLLM):
 
     def chat(self, messages, system='', *, model=None, max_tokens=4096, effort='low', tag=''):
         model = model or self.model
+        if self.allowed_models is not None and model not in self.allowed_models:
+            raise ValueError(f'call for model {model} refused: allowed models are {sorted(self.allowed_models)} ({tag})')
         key = json.dumps(messages, ensure_ascii=False)
         path = self._cache_path(model, system, key, max_tokens, effort) if self.cache else None
         if path and path.exists():
             with self._lock: self.usage.cached_calls += 1
             return json.loads(path.read_text())['text']
+        if self.budget_usd is not None and self.usage.cost_usd >= self.budget_usd:
+            raise BudgetExceeded(f'budget ${self.budget_usd:.2f} reached (spent ${self.usage.cost_usd:.4f}; {tag})')
         kwargs = dict(model=model, max_tokens=max_tokens, messages=[{'role': m['role'], 'content': m['content']} for m in messages],
                       output_config={'effort': effort})
         if system: kwargs['system'] = system

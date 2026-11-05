@@ -10,8 +10,9 @@ import native104
 p=argparse.ArgumentParser();p.add_argument('--status',action='store_true')
 p.add_argument('--harness',choices=sorted(native104.DEFAULT_MODEL),default='codex');p.add_argument('--model',default=None)
 p.add_argument('--trial',type=int,default=None);p.add_argument('--budget',type=float,default=None)
-p.add_argument('--checks',action='store_true',help='finalize a description+hints+checks trial (dabcheck condition)');a=p.parse_args()
-OUT=native104.configure(a.harness,a.model,a.trial,a.budget,a.checks)
+p.add_argument('--checks',action='store_true',help='finalize a description+hints+checks trial (dabcheck condition)')
+p.add_argument('--method',choices=native104.METHODS,default=None,help='finalize a method-condition trial (fdj | docetl | sqlverify)');a=p.parse_args()
+OUT=native104.configure(a.harness,a.model,a.trial,a.budget,a.checks,a.method)
 ROOT=native104.ROOT
 ORIGINAL=a.trial is None  # the original 104x1 run keeps its historical test log and archive name
 ARCHIVE_NAME=OUT.name if ORIGINAL else f'{OUT.parent.name}-{OUT.name}'
@@ -59,7 +60,8 @@ write(OUT/'runtime-images.json',{'images':{n:{'sha256':digest(PROJECT/'runtime'/
 source=OUT/'source-snapshot';source.mkdir(exist_ok=True)
 if (OUT/'runs/stockindex/query1/client/settings.json').exists():  # Claude Code settings used by every task
  shutil.copyfile(OUT/'runs/stockindex/query1/client/settings.json',OUT/'claude-settings.json')
-for rel in ['native104.py','finalize104.py','codex104/run.py','codex104/preflight.py','codex104/report.py','codex104/test_protocol.py','dabbench/data.py','dabbench/core.py','requirements.txt','bootstrap.sh','HARNESS_CORRECTION.md','README.md','review-notes.json']:
+method_sources=[str(f.relative_to(PROJECT)) for f in sorted((PROJECT/'dabcheck').rglob('*')) if f.is_file() and '__pycache__' not in f.parts] if a.method else []
+for rel in ['native104.py','finalize104.py','codex104/run.py','codex104/preflight.py','codex104/report.py','codex104/test_protocol.py','dabbench/data.py','dabbench/core.py','requirements.txt','bootstrap.sh','HARNESS_CORRECTION.md','README.md','review-notes.json']+method_sources:
  dest=source/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(PROJECT/rel,dest)
 for ds,q in sorted(expected):
  d=ROOT/('query_'+ds);dest=OUT/'original-task-snapshot'/('query_'+ds)/('query'+str(q));dest.mkdir(parents=True,exist_ok=True)
@@ -107,7 +109,7 @@ for f in sorted(retained_paths()):
     tail=block[-max(map(len,keys)):]
  files.append({'path':str(f.relative_to(OUT)),'bytes':f.stat().st_size,'sha256':digest(f)})
 write(OUT/'archive-manifest.json',{'upstream_commit':PIN,'created_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'files':files,'data_note':'Dataset symlinks are preserved without duplicating original data. Restore pinned upstream assets using original-data-manifest.json.'})
-archive_dir=Path('/home/minhyeok/dab-archives');archive_dir.mkdir(exist_ok=True)
+archive_dir=native104.METHOD_ARCHIVES if a.method else Path('/home/minhyeok/dab-archives');archive_dir.mkdir(parents=True,exist_ok=True)
 archive=archive_dir/(ARCHIVE_NAME+'.tar.gz')
 def archive_filter(i):
  if i.name.endswith('/ARCHIVE.json'):return None
