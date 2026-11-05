@@ -1,0 +1,212 @@
+{
+ "accuracy": {
+  "baseline_t1": {
+   "correct": 66,
+   "ci95": [
+    0.5388083768716194,
+    0.720831687815848
+   ]
+  },
+  "baseline_t2": {
+   "correct": 63,
+   "ci95": [
+    0.5096903738886607,
+    0.6943125340800638
+   ]
+  },
+  "fdj": {
+   "correct": 61,
+   "ci95": [
+    0.4904590522556228,
+    0.6764524179006063
+   ]
+  },
+  "docetl": {
+   "correct": 67,
+   "ci95": [
+    0.5485886820119005,
+    0.7295971015818149
+   ]
+  },
+  "sqlverify": {
+   "correct": 71,
+   "ci95": [
+    0.5880988571231228,
+    0.764269802095583
+   ]
+  }
+ },
+ "untouched": {
+  "fdj": {
+   "n": 81,
+   "discordant": [
+    21,
+    17
+   ]
+  },
+  "docetl": {
+   "n": 82,
+   "discordant": [
+    12,
+    15
+   ]
+  },
+  "sqlverify": {
+   "n": 95,
+   "discordant": [
+    11,
+    14
+   ]
+  }
+ },
+ "noise": {
+  "untouched_by_all": 64,
+  "flaky": 22,
+  "sd_one_run": 2.0591260281974,
+  "sd_difference": 2.9120439557122073
+ },
+ "pass_count_histogram": {
+  "0": 22,
+  "1": 9,
+  "2": 5,
+  "3": 9,
+  "4": 13,
+  "5": 46
+ },
+ "never_right": [
+  "DEPS_DEV_V1 q1",
+  "GITHUB_REPOS q1",
+  "PANCANCER_ATLAS q1",
+  "agnews q3",
+  "civic_unstructured q2",
+  "civic_unstructured q3",
+  "civic_unstructured q5",
+  "civic_unstructured q6",
+  "civic_unstructured q7",
+  "crmarenapro q2",
+  "crmarenapro q12",
+  "cve q1",
+  "cve q3",
+  "cve q4",
+  "cve q5",
+  "cve q8",
+  "cve q10",
+  "googlelocal q2",
+  "usaspending q1",
+  "usaspending q5",
+  "usaspending q6",
+  "usaspending q9"
+ ],
+ "effort": {
+  "baseline_t1": {
+   "cost": 3.1176943799999997,
+   "input_tokens": 57923675.0,
+   "output_tokens": 1850151.0,
+   "hours": 6.205917121978063
+  },
+  "baseline_t2": {
+   "cost": 4.31150334,
+   "input_tokens": 64052046.0,
+   "output_tokens": 2146405.0,
+   "hours": 5.989459534748975
+  },
+  "fdj": {
+   "cost": 3.26668617,
+   "input_tokens": 58622604.0,
+   "output_tokens": 1879303.0,
+   "hours": 6.067078007586404
+  },
+  "docetl": {
+   "cost": 2.60791373,
+   "input_tokens": 51947356.0,
+   "output_tokens": 1825773.0,
+   "hours": 4.8108028752048915
+  },
+  "sqlverify": {
+   "cost": 3.518865275,
+   "input_tokens": 54185145.0,
+   "output_tokens": 2011858.0,
+   "hours": 7.188993852671961
+  }
+ },
+ "categories": {
+  "Answer format vs validator": {
+   "n": 4,
+   "right": {
+    "fdj": 1,
+    "docetl": 1,
+    "sqlverify": 0
+   },
+   "right_somewhere": [
+    "PATENTS q3",
+    "googlelocal q3"
+   ]
+  },
+  "Cohort and aggregation": {
+   "n": 5,
+   "right": {
+    "fdj": 3,
+    "docetl": 3,
+    "sqlverify": 4
+   },
+   "right_somewhere": [
+    "crmarenapro q13",
+    "imdb q9",
+    "krama q4",
+    "stockmarket q4"
+   ]
+  },
+  "Execution and unsupported result": {
+   "n": 5,
+   "right": {
+    "fdj": 0,
+    "docetl": 0,
+    "sqlverify": 0
+   },
+   "right_somewhere": []
+  },
+  "Extraction and representation": {
+   "n": 3,
+   "right": {
+    "fdj": 1,
+    "docetl": 1,
+    "sqlverify": 0
+   },
+   "right_somewhere": [
+    "DEPS_DEV_V1 q2"
+   ]
+  },
+  "Identifier joins and identity": {
+   "n": 8,
+   "right": {
+    "fdj": 1,
+    "docetl": 1,
+    "sqlverify": 1
+   },
+   "right_somewhere": [
+    "cve q6",
+    "music_brainz_20k q1"
+   ]
+  },
+  "Semantic classification": {
+   "n": 4,
+   "right": {
+    "fdj": 0,
+    "docetl": 0,
+    "sqlverify": 1
+   },
+   "right_somewhere": [
+    "krama q6"
+   ]
+  },
+  "Temporal state and status": {
+   "n": 3,
+   "right": {
+    "fdj": 0,
+    "docetl": 0,
+    "sqlverify": 0
+   },
+   "right_somewhere": []
+  }
+ }
+}
