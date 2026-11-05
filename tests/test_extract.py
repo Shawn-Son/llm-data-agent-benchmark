@@ -21,6 +21,10 @@ def test_amount_formats_from_usaspending_hint():
     assert parse_amount('5 million') == 5e6 and parse_amount('revenue of 5 million') == 5e6
     assert parse_amount('five-figure') is None and parse_amount('low-to-mid millions') is None
     assert parse_amount('') is None and parse_amount(None) is None
+    # prose with a stray number word is vague, not an amount (usaspending amount_text, Nov 2026 run)
+    assert parse_amount('For ASRC Federal Professional Services, LLC, the Department of Defense has allocated a not insignificant million-dollar tier') is None
+    assert parse_amount('In terms of federal contracting scope, this allocation to FOUR POINTS TECHNOLOGY, L.L.C. falls in a modest band') is None
+    assert parse_amount('one million plus two hundred thousand dollars') == 1200000
     assert words_to_number('a hundred') == 100 and words_to_number('hello') is None
     assert parse_number('100 m') == 100 and parse_number('5 t') == 5          # units, not scales
     assert parse_number('7,201,') == 7201

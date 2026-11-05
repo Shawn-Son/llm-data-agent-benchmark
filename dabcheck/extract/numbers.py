@@ -87,6 +87,14 @@ def parse_amount(text: str) -> Optional[float]:
     if re.search(r'\b(figure|figures|low|mid|high|roughly|around|about|approximately|range|between|under|over|more than|less than)\b', s, re.I) \
             and not re.search(r'\d', s):
         return None
+    if not re.search(r'\d', s):
+        # Without digits, only a cell that is entirely a number phrase is an exact amount ("one million five hundred
+        # thousand dollars"). A stray number word inside prose ("a million-dollar tier", "FOUR POINTS TECHNOLOGY")
+        # is not: on usaspending this rule produced 159 false values out of 681 before it was added.
+        bare = re.sub(r'\b(?:dollars?|usd|us)\b|\$|[.,;:]', ' ', s, flags=re.I)
+        bare = re.sub(r'(?<!\w)\+(?!\w)', ' + ', bare)
+        if not all(_WORD.fullmatch(part.strip()) for part in re.split(r'\s*(?:\+|\bplus\b)\s*', bare, flags=re.I) if part.strip()):
+            return None
     parts = [p for p in _SUM_SPLIT.split(s) if p.strip()]
     vals = []
     for p in parts:
