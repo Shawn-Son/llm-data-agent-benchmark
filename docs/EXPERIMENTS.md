@@ -1,6 +1,6 @@
 # Method conditions: one paper method per failure category (Haiku only)
 
-Three new conditions of the 104-question sweep, each run twice (`--trial 1`, `--trial 2`) with
+Three new conditions of the 104-question sweep, each run once (`--trial 1`; trial 2 was cancelled for time) with
 `claude-haiku-5-5` as the agent and as every LLM inside the method. Prompts, data, sandbox and the
 original validators are the same as in the Haiku baseline (`haiku-claude-104x3`, trials 1-2).
 

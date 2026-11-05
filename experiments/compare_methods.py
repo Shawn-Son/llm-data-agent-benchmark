@@ -1,4 +1,4 @@
-"""Compare the three method conditions with the Haiku baseline (same 104 questions, two trials each).
+"""Compare the three method conditions with the Haiku baseline (same 104 questions; every trial found is used).
 
     python experiments/compare_methods.py            # reads results/, writes results/method-comparison/
 
@@ -44,8 +44,9 @@ def main():
     md = ['# Method conditions vs the Haiku baseline (104 questions, 2 trials each)', '',
           'Same questions, prompts, sandbox and original validators; Haiku as the agent and as every LLM inside the methods.',
           'Accuracy = correct / scored per trial. "Fixed" = a question Haiku got wrong in both baseline trials that the',
-          'condition got right in at least one trial; "Lost" = right in both baseline trials, wrong in both condition trials.', '',
-          '| Condition | Trial 1 | Trial 2 | Mean | Pass@2 | Fixed (target category) | Fixed (other) | Lost | Agent cost (USD, 2 trials) |',
+          'condition got right in at least one of its trials; "Lost" = right in both baseline trials, wrong in every condition trial.',
+          'Pass@k uses the condition\'s own number of trials (k = 2 for the baseline, 1 for a single-trial condition).', '',
+          '| Condition | Trials | Accuracy per trial (scored) | Mean | Pass@k | Fixed (target category) | Fixed (other) | Lost | Agent cost (USD, all trials) |',
           '|---|---|---|---|---|---|---|---|---|']
     summary = {}
 
@@ -62,14 +63,15 @@ def main():
         ft = [k for k in fixed if target and cats.get(k) in target]
         fo = [k for k in fixed if k not in ft]
         c = sum(cost(t) for t in trials)
-        md.append(f"| {label} | {accs[0]:.1%} ({scored[0]}) | {accs[1]:.1%} ({scored[1]}) | {statistics.mean(accs):.1%} | {p2:.1%} | "
+        per = ' / '.join(f'{x:.1%} ({n})' for x, n in zip(accs, scored))
+        md.append(f"| {label} | {len(trials)} | {per} | {statistics.mean(accs):.1%} | {p2:.1%} | "
                   f"{len(ft)}{' ' + ', '.join(f'{d} q{q}' for d, q in ft) if ft else ''} | {len(fo)}{' ' + ', '.join(f'{d} q{q}' for d, q in fo) if fo else ''} | "
                   f"{len(lost)}{' ' + ', '.join(f'{d} q{q}' for d, q in lost) if lost else ''} | {c:.2f} |")
         return {'accuracy': accs, 'scored': scored, 'pass_at_2': p2, 'fixed_target': ft, 'fixed_other': fo, 'lost': lost, 'agent_cost_usd': c}
     summary['baseline'] = row('Haiku baseline', base)
     for m in METHODS:
-        trials = [load(f'haiku-claude-{m}-104x3', t) for t in (1, 2)]
-        if not all(trials): md.append(f'| {m} | (missing) | | | | | | | |'); continue
+        trials = [x for x in (load(f'haiku-claude-{m}-104x3', t) for t in (1, 2)) if x]
+        if not trials: md.append(f'| {m} | 0 | (missing) | | | | | | |'); continue
         summary[m] = row(f'{m} ({METHODS[m]})', trials, TARGET[m])
     # per review category: questions Haiku got wrong in both baseline trials, and how many each condition fixed
     md += ['', '## Haiku both-runs-wrong questions by review category', '',
@@ -83,8 +85,8 @@ def main():
             cells.append(str(sum(1 for k in ks if s and (k in s['fixed_target'] or k in s['fixed_other']))) if s else '-')
         md.append(f'| {c} | {len(ks)} | ' + ' | '.join(cells) + ' |')
     # sqlverify: verifier verdicts against round-1 correctness, and what the second round changed
-    mv = [load('haiku-claude-sqlverify-104x3', t, 'method_runs.csv') for t in (1, 2)]
-    if all(mv):
+    mv = [x for x in (load('haiku-claude-sqlverify-104x3', t, 'method_runs.csv') for t in (1, 2)) if x]
+    if mv:
         cnt = defaultdict(int)
         for t in mv:
             for r in t.values():
@@ -97,13 +99,13 @@ def main():
                     r2 = r['round2_passed'] == 'True'
                     cnt[f'round2_{"right" if r1 else "wrong"}_to_{"right" if r2 else "wrong"}'] += 1
         acc_r1 = [sum(1 for r in t.values() if r['round1_passed'] == 'True') / max(1, sum(1 for r in t.values() if r['round1_passed'] in ('True', 'False'))) for t in mv]
-        md += ['', '## sqlverify: verifier verdicts (both trials) and the second round', '',
+        md += ['', f'## sqlverify: verifier verdicts ({len(mv)} trial(s)) and the second round', '',
                f"- Questions with no verifiable SQL (MongoDB / Python only / multi-database): {cnt['no_sql_checked']}",
                f"- Round-1 wrong: rejected {cnt['reject_wrong']}, accepted {cnt['accept_wrong']} (false accepts)",
                f"- Round-1 right: rejected {cnt['reject_right']} (false rejects), accepted {cnt['accept_right']}",
                f"- Second round: wrong->right {cnt['round2_wrong_to_right']}, wrong->wrong {cnt['round2_wrong_to_wrong']}, "
                f"right->wrong {cnt['round2_right_to_wrong']}, right->right {cnt['round2_right_to_right']}",
-               f"- Round-1 accuracy (before any second round): trial 1 {acc_r1[0]:.1%}, trial 2 {acc_r1[1]:.1%}"]
+               '- Round-1 accuracy (before any second round): ' + ', '.join(f'trial {i + 1} {x:.1%}' for i, x in enumerate(acc_r1))]
         summary['sqlverify_verdicts'] = dict(cnt); summary['sqlverify_round1_accuracy'] = acc_r1
         vc = [RES / 'haiku-claude-sqlverify-104x3' / f'trial{t}' / 'verifier_cost.json' for t in (1, 2)]
         summary['sqlverify_verifier_cost_usd'] = [json.loads(p.read_text())['verifier_cost_usd_estimate'] if p.exists() else None for p in vc]
