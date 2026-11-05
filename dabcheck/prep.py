@@ -231,30 +231,40 @@ def main(argv=None):
     for s in specs: by_ds[s['dataset']].append(s)
     root = Path(a.out) / a.method
     report = {}
-    for dsname, items in sorted(by_ds.items()):
-        ds = DABDataset(a.dab_root, dsname)
+    datasets, manifests = {}, {}
+
+    def save_manifest(dsname):
+        out_dir = root / dsname
+        m = manifests[dsname]
+        infos = [json.loads((out_dir / f"{n}.json").read_text()) for n in m['specs'] if (out_dir / f"{n}.json").exists()]
+        (out_dir / 'README.md').write_text(readme(a.method, dsname, infos))
+        m['model'] = a.model; m['caps'] = caps
+        (out_dir / 'MANIFEST.json').write_text(json.dumps(m, indent=2) + '\n')
+    if not a.dry_run:   # every dataset gets a MANIFEST up front, so a run cut off by the time limit leaves a usable state
+        for dsname in by_ds:
+            (root / dsname).mkdir(parents=True, exist_ok=True)
+            mp = root / dsname / 'MANIFEST.json'
+            manifests[dsname] = json.loads(mp.read_text()) if mp.exists() else {'dataset': dsname, 'method': a.method, 'specs': {}}
+            for s in by_ds[dsname]: manifests[dsname]['specs'].setdefault(s['name'], {'status': 'pending'})
+            save_manifest(dsname)
+    for s in specs:   # spec order from dabcheck/specs.py (cheap specs first), state saved after every spec
+        dsname = s['dataset']
+        ds = datasets.setdefault(dsname, DABDataset(a.dab_root, dsname))
         out_dir = root / dsname; out_dir.mkdir(parents=True, exist_ok=True)
-        manifest_path = out_dir / 'MANIFEST.json'
-        manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {'dataset': dsname, 'method': a.method, 'specs': {}}
-        for s in items:
-            print('START', a.method, dsname, s['name'], flush=True)
-            fn = run_fdj if a.method == 'fdj' else run_docetl
-            if llm is not None:   # per-spec cap on top of the run cap
-                llm.budget_usd = a.budget if a.spec_budget is None else min(a.budget, llm.usage.cost_usd + a.spec_budget)
-            try: info = fn(ds, s, llm, out_dir, dry_run=a.dry_run, caps=caps)
-            except Exception as e:
-                info = {'name': s['name'], 'status': 'failed', 'error': f'{type(e).__name__}: {e}'[:500], 'trace': traceback.format_exc()[-1500:]}
-            if llm is not None: info['usage_after'] = llm.usage.as_dict()
-            print('DONE', a.method, dsname, s['name'], json.dumps({k: info.get(k) for k in ('status', 'left_size', 'right_size', 'rows', 'matches', 'error', 'seconds')}), flush=True)
-            if not a.dry_run:
-                (out_dir / f"{s['name']}.json").write_text(json.dumps(info, indent=2, default=str) + '\n')
-                manifest['specs'][s['name']] = {k: info.get(k) for k in ('status', 'csv', 'error')}
-            report[f'{dsname}/{s["name"]}'] = info
+        print('START', a.method, dsname, s['name'], flush=True)
+        fn = run_fdj if a.method == 'fdj' else run_docetl
+        if llm is not None:   # per-spec cap on top of the run cap
+            llm.budget_usd = a.budget if a.spec_budget is None else min(a.budget, llm.usage.cost_usd + a.spec_budget)
+        try: info = fn(ds, s, llm, out_dir, dry_run=a.dry_run, caps=caps)
+        except Exception as e:
+            info = {'name': s['name'], 'status': 'failed', 'error': f'{type(e).__name__}: {e}'[:500], 'trace': traceback.format_exc()[-1500:]}
+        if llm is not None: info['usage_after'] = llm.usage.as_dict()
+        print('DONE', a.method, dsname, s['name'], json.dumps({k: info.get(k) for k in ('status', 'left_size', 'right_size', 'rows', 'matches', 'error', 'seconds')}), flush=True)
         if not a.dry_run:
-            infos = [json.loads((out_dir / f"{n}.json").read_text()) for n in manifest['specs'] if (out_dir / f"{n}.json").exists()]
-            (out_dir / 'README.md').write_text(readme(a.method, dsname, infos))
-            manifest['model'] = a.model; manifest['caps'] = caps
-            manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+            (out_dir / f"{s['name']}.json").write_text(json.dumps(info, indent=2, default=str) + '\n')
+            manifests[dsname]['specs'][s['name']] = {k: info.get(k) for k in ('status', 'csv', 'error')}
+            save_manifest(dsname)
+        report[f'{dsname}/{s["name"]}'] = info
     summary = {'method': a.method, 'dry_run': a.dry_run, 'usage': llm.usage.as_dict() if llm else None, 'specs': report}
     (root.mkdir(parents=True, exist_ok=True))
     (root / ('dry_run.json' if a.dry_run else f'run-{time.strftime("%Y%m%dT%H%M%S")}.json')).write_text(json.dumps(summary, indent=2, default=str) + '\n')

@@ -67,6 +67,11 @@ DOCETL = [
                   'patterns': [r'(?P<value>\d+(?:\.\d+)?)']}]},
 ]
 
+# run order: cheap specs first, so a run cut off by the Slurm time limit loses the most expensive ones
+_FDJ_ORDER = ['funding_project_names', 'amounts_to_contracts', 'documents_to_contracts', 'recipients_to_contracts',
+              'track_duplicates', 'kev_to_vulns', 'cvss_to_vulns', 'descriptions_to_vulns', 'cpe_to_vulns']
+FDJ.sort(key=lambda sp: _FDJ_ORDER.index(sp['name']))
+
 SPECS = {'fdj': FDJ, 'docetl': DOCETL}
 
 
