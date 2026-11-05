@@ -1,5 +1,21 @@
 # DataAgentBench: one-model reproduction
 
+## Method conditions on the 104 questions (Haiku only, November 5, 2026)
+
+Each failure category got its paper method as an experimental condition (`native104.py --method fdj|docetl|sqlverify`),
+one trial each, Haiku as the agent and as every LLM inside the methods.
+
+| Condition | Correct / 104 | Method acted on | Change attributable to the method |
+|---|---|---|---|
+| Haiku baseline (2 trials) | 66 / 63 | - | - |
+| fdj (identifier joins) | 61 | 23 questions | none; cve joins hit the cost cap, usaspending joins delivered ~10 unconfirmed candidates per id |
+| docetl (extraction) | 67 | 22 questions | none; agents read the outputs and set them aside |
+| sqlverify (cohort / temporal) | 71 | 9 questions (second round) | +2 (wrong -> right in a second round; warnings concerned templated SQL) |
+
+No condition differs from the baseline trials in an exact McNemar test (p >= 0.08); single-run differences of
+3-6 questions are within run-to-run noise (SD 2.9 for the difference of two runs). Analysis: `docs/METHOD_RESULTS.md`,
+`docs/METHOD_ANALYSIS.md`, `results/method-analysis/`. Design and deviations: `docs/EXPERIMENTS.md`.
+
 ## Verification modules (branch `verify-modules`, November 2026)
 
 `dabcheck/` implements three VLDB methods against the failure categories of the review below: FDJ

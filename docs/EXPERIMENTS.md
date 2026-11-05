@@ -45,3 +45,11 @@ Commands (Great Lakes, from the repository root)
     strict/.venv/bin/python -m dabcheck.prep --method fdj    --out $DAB_SCRATCH/dab-prep --budget 8
     strict/.venv/bin/python native104.py --submit --pilot --harness claude --trial 1 --method sqlverify
     strict/.venv/bin/python native104.py --submit --harness claude --trial 1 --method fdj   # then docetl, sqlverify, trial 2
+
+Analysis (after the sweeps; the Great Lakes scripts need the trajectories and answers)
+
+    python experiments/compare_methods.py                                   # results/method-comparison/
+    python experiments/stats_methods.py                                     # results/method-analysis/STATS.md
+    strict/.venv/bin/python experiments/collect_method_results.py OUT OUT/compact.json   # Great Lakes
+    strict/.venv/bin/python experiments/analyze_method_traces.py traces.json traces.md     # Great Lakes
+    strict/.venv/bin/python experiments/answer_recurrence.py recurrence.md               # Great Lakes
