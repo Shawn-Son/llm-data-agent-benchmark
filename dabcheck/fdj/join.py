@@ -19,7 +19,10 @@ def llm_labeler(llm: BaseLLM, predicate: str, model: Optional[str] = None) -> La
     def label(l, r) -> int:
         user = (f'{predicate}\n\nLEFT record:\n{str(l)[:4000]}\n\nRIGHT record:\n{str(r)[:4000]}\n\n'
                 'Does the join condition hold for this pair? Reply with JSON: {"match": true|false}')
-        out = llm.json(user, model=model or getattr(llm, 'cheap_model', None), max_tokens=200, tag='fdj.label')
+        try: out = llm.json(user, model=model or getattr(llm, 'cheap_model', None), max_tokens=200, tag='fdj.label')
+        except RuntimeError as e:   # a safety refusal on one pair counts as "no match" (logged by the caller's usage)
+            if 'model refused' not in str(e): raise
+            return 0
         return int(bool(out.get('match'))) if isinstance(out, dict) else 0
     return label
 

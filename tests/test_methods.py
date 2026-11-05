@@ -203,3 +203,13 @@ def test_verify_run_checks_only_answer_level_sql(tmp_path, monkeypatch):
     v = methods.verify_run(p, 'How many orders in April 2023?', sc, MockLLM(handler))
     assert v['candidates'] == 2 and [x['answer_query'] for x in v['selection']] == [False, True]
     assert len(seen) == 1 and 'count(*)' in seen[0] and v['any_rejected'] and v['queries_checked'] == 1
+
+
+def test_extraction_survives_a_refused_row():
+    from dabcheck.extract import ExtractSpec, extract_values
+    def handler(user, system, tag):
+        if 'biolab' in user: raise RuntimeError('model refused (extract.glean.init): bio')
+        if 'should_refine' in user: return json.dumps({'should_refine': False, 'improvements': ''})
+        return json.dumps({'value': 5, 'evidence': 'five dollars 5'})
+    res = extract_values(['biolab contract', 'paid five dollars 5 total'], ExtractSpec('amount', parse='number'), llm=MockLLM(handler), workers=2)
+    assert res.values()[0] is None and any('refused 1 rows' in w for w in res.warnings)

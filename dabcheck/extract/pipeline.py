@@ -60,7 +60,7 @@ def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLL
     rows = [code(t) for t in texts]
     cov = coverage_report(texts, rows, spec)
     warnings = list(cov['warnings'])
-    llm_rows = 0
+    llm_rows = 0; refusals: List[int] = []
     if llm is not None and use_llm:
         todo = [i for i, r in enumerate(rows) if r['value'] is None and texts[i] not in (None, '')]
         if max_llm_rows is not None: todo = todo[:max_llm_rows]
@@ -73,8 +73,12 @@ def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLL
                       'If the text only gives a vague magnitude, the value must be null.')
 
         def one(i):
-            return glean(llm, {'text': str(texts[i])}, prompt, schema, max_rounds=gleaning_rounds, model=model,
-                         validation_prompt=validation)
+            try:
+                return glean(llm, {'text': str(texts[i])}, prompt, schema, max_rounds=gleaning_rounds, model=model,
+                             validation_prompt=validation)
+            except RuntimeError as e:   # a safety refusal on one row yields no value for that row, not a failed column
+                if 'model refused' not in str(e): raise
+                refusals.append(i); return {'value': None, 'evidence': ''}
         if workers > 1 and len(todo) > 1:   # rows are independent (DocETL runs map in parallel)
             from concurrent.futures import ThreadPoolExecutor
             with ThreadPoolExecutor(max_workers=workers) as pool: outs = list(pool.map(one, todo))
@@ -90,6 +94,8 @@ def extract_values(texts: Sequence[Any], spec: ExtractSpec, llm: Optional[BaseLL
                 if spec.parse == 'int' and isinstance(v, float): v = int(v)
                 rows[i] = {'value': v, 'raw': out.get('evidence'), 'pattern': None, 'source': 'llm' if v is not None else None, 'span': None}
             llm_rows += 1
+    if llm is not None and use_llm and refusals:
+        warnings.append(f'{spec.name}: the LLM refused {len(refusals)} rows; they have no value')
     final = sum(1 for r in rows if r['value'] is not None) / max(1, len(rows))
     if final < spec.min_coverage:
         warnings.append(f'{spec.name}: final coverage {final:.1%} after code+LLM; the answer may rest on a subset of rows')
