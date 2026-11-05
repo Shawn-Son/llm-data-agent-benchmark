@@ -186,3 +186,20 @@ def test_sqlverify_round_grades_round_two(tmp_path, monkeypatch):
     assert (folder / 'answer_round1.txt').read_text() == 'wrong' and json.loads((folder / 'grading_round1.json').read_text())['passed'] is False
     assert st['input_tokens'] == 15 and st['tool_calls'] == 3 and abs(st['estimated_cost_usd'] - 0.03) < 1e-9 and len(cmds) == 2
     native104.configure('claude', None, 2, None, False, None)
+
+
+def test_verify_run_checks_only_answer_level_sql(tmp_path, monkeypatch):
+    ds = make_dataset(tmp_path)
+    sc = ds.sql_schemas()
+    ev = [{'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'name': 'Bash', 'input': {'command': c}}]}} for c in (
+          "duckdb x.db \"SELECT order_id, item_ref, created, amount_text FROM orders\"",
+          "duckdb x.db \"SELECT count(*) AS n FROM orders WHERE created >= '2023-04-01' AND created < '2023-05-01'\"")]
+    p = tmp_path / 'events.jsonl'; p.write_text('\n'.join(json.dumps(e) for e in ev))
+    def handler(user, system, tag):
+        if tag == 'sqlverify.select': return json.dumps({'answer_query': 'count(*)' in user})
+        raise AssertionError(tag)
+    seen = []
+    monkeypatch.setattr('dabcheck.sqlverify.verify_sql', lambda llm, q, s, sch, **kw: seen.append(s) or {'accept': False, 'reasons': ['rt: reject'], 'methods': {'rt': {'warnings': ['w']}}})
+    v = methods.verify_run(p, 'How many orders in April 2023?', sc, MockLLM(handler))
+    assert v['candidates'] == 2 and [x['answer_query'] for x in v['selection']] == [False, True]
+    assert len(seen) == 1 and 'count(*)' in seen[0] and v['any_rejected'] and v['queries_checked'] == 1

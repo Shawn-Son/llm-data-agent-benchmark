@@ -15,8 +15,9 @@ Design rules
   as the database descriptions and hints already state. Nothing is written for a particular question.
 - Datasets without a usable preprocessing output keep the baseline prompt byte for byte.
 - The fdj / docetl conditions give the method's outputs only (no `audit_join`, no code tools).
-- sqlverify verifies the last 3 SQL statements the agent ran that belong to one SQL database
+- sqlverify verifies the last 2 answer-level SQL statements the agent ran that belong to one SQL database
   (sqlite, duckdb, or a postgres dump); MongoDB work cannot be verified. A verifier error counts as an accept.
+  A Haiku call first classifies each of the last 8 single-database statements as answer-level or fetch/inspect.
   The official answer of a question is the round-2 answer when round 2 ran; round 1 is kept
   (`answer_round1.txt`, `grading_round1.json`, `round1_passed` in `result.json`).
 - Every dabcheck LLM call is restricted to the agent's model (`LLM(allowed_models=...)`) and capped in dollars
@@ -30,6 +31,10 @@ Deviations from the papers (in addition to those in `docs/dabcheck.md`)
   README says so. Sparse joins top up training positives from the same trigram candidates (logged).
 - FDJ self-joins (duplicate records) are delivered as connected components of the match graph.
 - sqlverify: the verifier sees one database's schema; DAB answers often combine several databases in Python.
+- sqlverify selection step: the paper verifies the SQL that answers the question. In the first pilot
+  (stockindex q1, answer correct) the agent's SQL were fetch/inspect statements finished in pandas, and all three
+  were rejected against the whole question, which would send correct answers to a second round. Only statements an
+  LLM judges answer-level are verified now; a run with none is accepted without a second round.
 
 Commands (Great Lakes, from the repository root)
 

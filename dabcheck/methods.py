@@ -89,16 +89,40 @@ def pick_database(sql: str, schemas: Dict[str, Any]) -> Optional[str]:
     return best
 
 
-def verify_run(events: Path, question: str, schemas: Dict[str, Any], llm, *, max_queries: int = 3,
+ANSWER_QUERY_PROMPT = (
+    'A data agent answered the question below. Along the way it ran the SQL statement below against one of several '
+    'databases; agents often run SQL only to fetch or inspect rows and then finish the computation in Python.\n\n'
+    'Question: {q}\n\nSQL:\n{s}\n\n'
+    'Does this SQL statement, on its own, try to compute the answer to the question (the final number, list or ranking, '
+    'possibly over a subset of the databases the question needs)? A statement that only loads rows, columns or raw '
+    'values for later processing, explores the data, or checks data quality does NOT. '
+    'Reply with JSON: {{"answer_query": true|false}}')
+
+
+def is_answer_query(llm, question: str, sql: str) -> bool:
+    """Selection step (a deviation, logged): the paper verifies the SQL that answers the question; DAB agents
+    mostly run fetch-and-inspect SQL and compute in Python, and verifying those fragments against the whole
+    question rejects them all. Only statements an LLM judges answer-level are verified."""
+    out = llm.json(ANSWER_QUERY_PROMPT.format(q=question, s=sql[:4000]), max_tokens=200, tag='sqlverify.select')
+    return bool(out.get('answer_query')) if isinstance(out, dict) else False
+
+
+def verify_run(events: Path, question: str, schemas: Dict[str, Any], llm, *, max_queries: int = 2, max_candidates: int = 8,
                methods: Sequence[str] = ('rt', 'se', 'cohort')) -> Dict[str, Any]:
-    """Verify the last `max_queries` SQL statements the agent ran that belong to one SQL database."""
+    """Verify the last `max_queries` answer-level SQL statements the agent ran that belong to one SQL database."""
     from .harness import sql_from_events
     from .sqlverify import verify_sql
     sqls = sql_from_events(events)
     picked = [(s, pick_database(s, schemas)) for s in sqls]
-    picked = [(s, a) for s, a in picked if a][-max_queries:]
+    candidates = [(s, a) for s, a in picked if a][-max_candidates:]
+    selection = []
+    for s, a in candidates:
+        try: ok = is_answer_query(llm, question, s)
+        except Exception as e: ok = False; selection.append({'sql': s[:300], 'database': a, 'error': f'{type(e).__name__}: {e}'[:200]})
+        else: selection.append({'sql': s[:300], 'database': a, 'answer_query': ok})
+    chosen = [(s, a) for (s, a), sel in zip(candidates, selection) if sel.get('answer_query')][-max_queries:]
     checks = []
-    for s, alias in picked:
+    for s, alias in chosen:
         sc = schemas[alias]
         try:
             v = verify_sql(llm, question, s, sc, methods=methods, combine='and')
@@ -106,7 +130,8 @@ def verify_run(events: Path, question: str, schemas: Dict[str, Any], llm, *, max
                            'warnings': [w for r in v['methods'].values() for w in (r.get('warnings') or r.get('differences') or [])]})
         except Exception as e:   # a verifier error is not a rejection
             checks.append({'sql': s, 'database': alias, 'accept': True, 'error': f'{type(e).__name__}: {e}'[:300], 'warnings': []})
-    return {'sql_found': len(sqls), 'queries_checked': len(checks), 'any_rejected': any(not c['accept'] for c in checks),
+    return {'sql_found': len(sqls), 'sql_single_database': len([1 for _, a in picked if a]), 'candidates': len(candidates),
+            'selection': selection, 'queries_checked': len(checks), 'any_rejected': any(not c['accept'] for c in checks),
             'checks': checks, 'usage': llm.usage.as_dict() if hasattr(llm, 'usage') else None}
 
 
